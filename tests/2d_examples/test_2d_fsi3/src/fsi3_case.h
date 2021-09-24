@@ -1,5 +1,5 @@
 /**
-* @file 	fsi2_case.h
+* @file 	fsi3_case.h
 * @brief 	This is the case file for the test of fluid - structure interaction.
 * @details  We consider a flow - induced vibration of an elastic beam behind a cylinder in 2D.
 * @author 	Xiangyu Hu, Chi Zhangand Luhui Han
@@ -20,7 +20,7 @@ Real DH = 4.1; 									/**< Channel height. */
 Real resolution_ref = 0.1; 						/**< Global reference resolution. */
 Real DL_sponge = resolution_ref * 20.0;	/**< Sponge region to impose inflow condition. */
 Real BW = resolution_ref * 4.0; 			/**< Boundary width, determined by specific layer of boundary particles. */
-Vec2d insert_circle_center(4.0, 2.0);			/**< Location of the cylinder center. */
+Vec2d insert_circle_center(2.0, 2.0);			/**< Location of the cylinder center. */
 Real insert_circle_radius = 0.5;				/**< Radius of the cylinder. */
 Real bh = 0.5 * insert_circle_radius;			/**< Height of the beam. */
 Real bl = 10.0 * insert_circle_radius;			/**< Length of the beam. */
@@ -69,6 +69,18 @@ std::vector<Vecd> CreateInflowBufferShape()
 
 	return inlfow_buffer_shape;
 }
+/** create a water block buffer shape for relaxtion at outlet. */
+std::vector<Vecd> CreateOutflowBufferShape0()
+{
+	std::vector<Vecd> outflow_buffer_shape;
+	outflow_buffer_shape.push_back(Vecd(DL - DL_sponge, -BW));
+	outflow_buffer_shape.push_back(Vecd(DL - DL_sponge, DH + BW));
+	outflow_buffer_shape.push_back(Vecd(DL, DH + BW));
+	outflow_buffer_shape.push_back(Vecd(DL, -BW));
+	outflow_buffer_shape.push_back(Vecd(DL - DL_sponge, -BW));
+
+	return outflow_buffer_shape;
+}
 /** create a water block buffer shape for outlet. */
 std::vector<Vecd> CreateOutflowBufferShape()
 {
@@ -82,11 +94,11 @@ std::vector<Vecd> CreateOutflowBufferShape()
 	return outflow_buffer_shape;
 }
 /** create a beam shape */
-Real hbh = bh / 2.0;
-Vec2d BLB(insert_circle_center[0], insert_circle_center[1] - hbh);
-Vec2d BLT(insert_circle_center[0], insert_circle_center[1] + hbh);
-Vec2d BRB(insert_circle_center[0] + insert_circle_radius + bl, insert_circle_center[1] - hbh);
-Vec2d BRT(insert_circle_center[0] + insert_circle_radius + bl, insert_circle_center[1] + hbh);
+
+Vec2d BLB(DL / 2.0, 0.0);
+Vec2d BLT(DL / 2.0, DH / 2.0);
+Vec2d BRT(DL / 2.0 + BW, DH / 2.0);
+Vec2d BRB(DL / 2.0 + BW, 0.0);
 std::vector<Vecd> CreateBeamShape()
 {
 	std::vector<Vecd> beam_shape;
@@ -97,6 +109,52 @@ std::vector<Vecd> CreateBeamShape()
 	beam_shape.push_back(BLB);
 
 	return beam_shape;
+}
+
+Vec2d BLB1(DL / 4.0, DH / 2.0);
+Vec2d BLT1(DL / 4.0, DH);
+Vec2d BRT1(DL / 4.0 + BW, DH);
+Vec2d BRB1(DL / 4.0 + BW, DH / 2.0);
+std::vector<Vecd> CreateBeamShape1()
+{
+	std::vector<Vecd> beam_shape;
+	beam_shape.push_back(BLB1);
+	beam_shape.push_back(BLT1);
+	beam_shape.push_back(BRT1);
+	beam_shape.push_back(BRB1);
+	beam_shape.push_back(BLB1);
+
+	return beam_shape;
+}
+Vec2d BLB_base(DL / 2.0, 0.0);
+Vec2d BLT_base(DL / 2.0, BW);
+Vec2d BRT_base(DL / 2.0 + BW, BW);
+Vec2d BRB_base(DL / 2.0 + BW, 0.0);
+std::vector<Vecd> CreateBeamBaseShape()
+{
+	std::vector<Vecd> beam_shape_base;
+	beam_shape_base.push_back(BLB_base);
+	beam_shape_base.push_back(BLT_base);
+	beam_shape_base.push_back(BRT_base);
+	beam_shape_base.push_back(BRB_base);
+	beam_shape_base.push_back(BLB_base);
+
+	return beam_shape_base;
+}
+Vec2d BLB_base1(DL / 4.0, DH - BW);
+Vec2d BLT_base1(DL / 4.0, DH);
+Vec2d BRT_base1(DL / 4.0 + BW, DH);
+Vec2d BRB_base1(DL / 4.0 + BW, DH - BW);
+std::vector<Vecd> CreateBeamBaseShape1()
+{
+	std::vector<Vecd> beam_shape_base;
+	beam_shape_base.push_back(BLB_base1);
+	beam_shape_base.push_back(BLT_base1);
+	beam_shape_base.push_back(BRT_base1);
+	beam_shape_base.push_back(BRB_base1);
+	beam_shape_base.push_back(BLB_base1);
+
+	return beam_shape_base;
 }
 /** create outer wall shape */
 std::vector<Vecd> createOuterWallShape()
@@ -140,8 +198,6 @@ public:
 		//std::vector<Vecd> beam_shape = CreatBeamShape();
 		body_shape_ = new ComplexShape(body_name);
 		body_shape_->addAPolygon(water_block_shape, ShapeBooleanOps::add);
-		//body_shape_->addACircle(insert_circle_center, insert_circle_radius, 100, ShapeBooleanOps::sub);
-		//body_shape_->addAPolygon(beam_shape, ShapeBooleanOps::sub);
 	}
 };
 /** Case-dependent material properties. */
@@ -181,9 +237,10 @@ public:
 	{
 		/** Geomtry definition. */
 		std::vector<Vecd> beam_shape = CreateBeamShape();
+		std::vector<Vecd> beam_shape1 = CreateBeamShape1();
 		ComplexShape original_body_shape;
-		original_body_shape.addACircle(insert_circle_center, insert_circle_radius, 100, ShapeBooleanOps::add);
 		original_body_shape.addAPolygon(beam_shape, ShapeBooleanOps::add);
+		original_body_shape.addAPolygon(beam_shape1, ShapeBooleanOps::add);
 		body_shape_ = new LevelSetComplexShape(this, original_body_shape);
 
 	}
@@ -209,11 +266,11 @@ public:
 		: BodyPartByParticle(solid_body, constrained_region_name)
 	{
 		/** Geomtry definition. */
-		std::vector<Vecd> beam_shape = CreateBeamShape();
 		body_part_shape_ = new ComplexShape(constrained_region_name);
-		body_part_shape_->addACircle(insert_circle_center, insert_circle_radius, 100, ShapeBooleanOps::add);
-		body_part_shape_->addAPolygon(beam_shape, ShapeBooleanOps::sub);
-
+		std::vector<Vecd> beam_base_shape = CreateBeamBaseShape();
+		std::vector<Vecd> beam_base_shape1 = CreateBeamBaseShape1();
+		body_part_shape_->addAPolygon(beam_base_shape, ShapeBooleanOps::add);
+		body_part_shape_->addAPolygon(beam_base_shape1, ShapeBooleanOps::add);
 		/**  Tag the constrained particle. */
 		tagBodyPart();
 	}
@@ -227,6 +284,22 @@ public:
 	{
 		/** Geometry definition. */
 		std::vector<Vecd> inflow_buffer_shape = CreateInflowBufferShape();
+		body_part_shape_ = new ComplexShape(constrained_region_name);
+		body_part_shape_->addAPolygon(inflow_buffer_shape, ShapeBooleanOps::add);
+
+		//tag the constrained particle
+		tagBodyPart();
+	}
+};
+/** outflow buffer */
+class OutflowBuffer : public BodyPartByCell
+{
+public:
+	OutflowBuffer(FluidBody* fluid_body, std::string constrained_region_name)
+		: BodyPartByCell(fluid_body, constrained_region_name)
+	{
+		/** Geometry definition. */
+		std::vector<Vecd> inflow_buffer_shape = CreateOutflowBufferShape0();
 		body_part_shape_ = new ComplexShape(constrained_region_name);
 		body_part_shape_->addAPolygon(inflow_buffer_shape, ShapeBooleanOps::add);
 
@@ -268,6 +341,35 @@ public:
 	}
 };
 
+/** Case dependent outflow boundary condition. */
+class ParabolicOutflow : public fluid_dynamics::FlowRelaxationBuffer
+{
+	Real u_ave_, u_ref_, t_ref;
+public:
+	ParabolicOutflow(FluidBody* fluid_body,
+		BodyPartByCell* constrained_region)
+		: FlowRelaxationBuffer(fluid_body, constrained_region)
+	{
+		u_ave_ = 0.0;
+		u_ref_ = 1.0;
+		t_ref = 2.0;
+	}
+	Vecd getTargetVelocity(Vecd& position, Vecd& velocity)
+	{
+		Real u = velocity[0];
+		Real v = velocity[1];
+		if (position[0] < 0.0) {
+			u = 6.0 * u_ave_ * position[1] * (DH - position[1]) / DH / DH;
+			v = 0.0;
+		}
+		return Vecd(u, v);
+	}
+	void setupDynamics(Real dt = 0.0) override
+	{
+		Real run_time = GlobalStaticVariables::physical_time_;
+		u_ave_ = run_time < t_ref ? 0.5 * u_ref_ * (1.0 - cos(Pi * run_time / t_ref)) : u_ref_;
+	}
+};
 /** remove particle when it is in a defined domain as outlet*/
 class OutletCollector
 {
@@ -284,8 +386,9 @@ public:
 		parallel_for(blocked_range<size_t>(0, base_particles_.total_real_particles_),
 			[&](const blocked_range<size_t>& r) {
 			for (size_t i = r.begin(); i < r.end(); ++i) {
-				size_t unsorted_id = base_particles_.unsorted_id_[i];
-				size_t index_i = base_particles_.sorted_id_[unsorted_id];
+				//size_t unsorted_id = base_particles_.unsorted_id_[i];
+				//size_t index_i = base_particles_.sorted_id_[unsorted_id];
+				size_t index_i = i;
 				Vec2d pos = base_particles_.pos_n_[index_i];
 				if (buffer_shape_->checkContain(pos))
 				{

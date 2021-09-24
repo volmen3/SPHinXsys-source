@@ -141,6 +141,9 @@ int main(int ac, char* av[])
 	ParabolicInflow		parabolic_inflow(water_block, inlet);
 	fluid_dynamics::EmitterInflowInjecting inflow_emitter(water_block, inlet, 300, 0, true);
 
+	OutflowBuffer *outletbuffer = new OutflowBuffer(water_block, "Buffer_outlet");
+	ParabolicOutflow parabolic_outflow(water_block, outletbuffer);
+
 	OutletCollector *outlet = new OutletCollector(fluid_particles);
 	/** Periodic BCs in x direction. */
 	//PeriodicConditionInAxisDirectionUsingCellLinkedList 	periodic_condition(water_block, xAxis);
@@ -271,6 +274,7 @@ int main(int ac, char* av[])
 				integration_time += dt;
 				GlobalStaticVariables::physical_time_ += dt;
 				parabolic_inflow.parallel_exec();
+				parabolic_outflow.parallel_exec();
 				inner_ite_dt++;
 			}
 

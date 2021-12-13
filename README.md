@@ -53,6 +53,13 @@ SPHinXsys is cross-platform can be compiled and used in Windows, Linux and Apple
 For installation, program manual and tutorials, please check https://www.sphinxsys.org/html/sphinx_index.html. 
 Please check the documentation of the code at https://xiangyu-hu.github.io/SPHinXsys/.
 
+## Issues, comments and wishlist to SPHinXsys
+
+You are welcomed to prompt up issues and comments to SPHinXsys.
+In addition, we are happy to adjust the development of SPHinXsys according to 
+the interests of the professionals and researchers in the multi-physics modeling community.
+If you are expecting any relevant functionality or new feature, please do not hesitate to prompt an issue. We will try to response them as soon as possible.
+
 ## Contribute to SPHinXsys
 
 You are welcomed to contribute to SPHinXsys. 

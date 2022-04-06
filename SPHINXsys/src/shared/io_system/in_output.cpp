@@ -1,3 +1,4 @@
+
 /**
  * @file 	in_output.cpp
  * @author	Luhui Han, Chi ZHang and Xiangyu Hu
@@ -8,13 +9,27 @@
 #include "level_set.h"
 #include "sph_system.h"
 
+namespace
+{
+    /**
+     * @brief Convert any input to string and pad the output with zeros
+     * @todo Use external library for general string formatting, e.g. abseil, fmt library, or std::format
+     */
+    template<typename T>
+    std::string padValueWithZeros(T&& value, size_t max_string_width = 10)
+	{
+		std::ostringstream s_time;
+		s_time << std::setw(max_string_width) << std::setfill('0') << value;
+		return s_time.str();
+	}
+}
 namespace SPH
 {
 	//=============================================================================================//
-	In_Output::In_Output(SPHSystem& sph_system)
+	In_Output::In_Output(SPHSystem& sph_system, bool delete_output)
 		: sph_system_(sph_system),
-		input_folder_("./input"), output_folder_("./output"),
-		restart_folder_("./restart"), reload_folder_("./reload")
+		  input_folder_("./input"), output_folder_("./output"),
+		  restart_folder_("./restart"), reload_folder_("./reload")
 	{
 		if (!fs::exists(input_folder_))
 		{
@@ -25,7 +40,7 @@ namespace SPH
 		{
 			fs::create_directory(output_folder_);
 		}
-		
+
 		if (!fs::exists(restart_folder_))
 		{
 			fs::create_directory(restart_folder_);
@@ -35,69 +50,129 @@ namespace SPH
 		{
 			fs::remove_all(restart_folder_);
 			fs::create_directory(restart_folder_);
-
-			fs::remove_all(output_folder_);
-			fs::create_directory(output_folder_);
+			if(delete_output == true)
+			{
+				fs::remove_all(output_folder_);
+				fs::create_directory(output_folder_);
+			}
 		}
 
-		restart_step_ = std::to_string(sph_system.restart_step_);
-		
+		restart_step_ = padValueWithZeros(sph_system.restart_step_);
+
 		sph_system.in_output_ = this;
 	}
 	//=============================================================================================//
 	void PltEngine::
-		writeAQuantityHeader(std::ofstream& out_file, const Real& quantity, std::string quantity_name) 
+		writeAQuantityHeader(std::ofstream &out_file, const Real &quantity, const std::string &quantity_name)
 	{
-		out_file << "\"" << quantity_name<< "\"" << "   ";
+		out_file << "\"" << quantity_name << "\""
+				 << "   ";
 	}
 	//=============================================================================================//
 	void PltEngine::
-		writeAQuantityHeader(std::ofstream& out_file, const Vecd& quantity, std::string quantity_name) 
+		writeAQuantityHeader(std::ofstream &out_file, const Vecd &quantity, const std::string &quantity_name)
 	{
 		for (int i = 0; i != Dimensions; ++i)
-			out_file << "\"" << quantity_name << "[" << i << "]\"" << "   ";
+			out_file << "\"" << quantity_name << "[" << i << "]\""
+					 << "   ";
 	}
 	//=============================================================================================//
-	void PltEngine::writeAQuantity(std::ofstream& out_file, const Real& quantity)
+	void PltEngine::writeAQuantity(std::ofstream &out_file, const Real &quantity)
 	{
 		out_file << std::fixed << std::setprecision(9) << quantity << "   ";
 	}
 	//=============================================================================================//
-	void PltEngine::writeAQuantity(std::ofstream& out_file, const Vecd& quantity)
+	void PltEngine::writeAQuantity(std::ofstream &out_file, const Vecd &quantity)
 	{
-		for (int i = 0; i < Dimensions; ++i) 
+		for (int i = 0; i < Dimensions; ++i)
 			out_file << std::fixed << std::setprecision(9) << quantity[i] << "   ";
-	}	
-	//=============================================================================================//
-	std::string BodyStatesIO::convertPhysicalTimeToString(Real physical_time)
-	{
-		int i_time = int(physical_time * 1.0e6);
-		std::stringstream s_time;
-		s_time << std::setw(10) << std::setfill('0') << i_time;
-		return s_time.str();
 	}
 	//=============================================================================================//
-	void BodyStatesRecordingToVtu::writeWithFileName(const std::string& sequence)
+	std::string BodyStatesIO::convertPhysicalTimeToString(Real convertPhysicalTimeToStream)
 	{
-		for (SPHBody* body : bodies_)
+		int i_time = int(GlobalStaticVariables::physical_time_ * 1.0e6);
+		return padValueWithZeros(i_time);
+	}
+	//=============================================================================================//
+	void BodyStatesRecording::writeToFile(size_t iteration_step)
+    {
+        writeWithFileName(padValueWithZeros(iteration_step));
+    };
+	//=============================================================================================//
+	void BodyStatesRecordingToVtp::writeWithFileName(const std::string &sequence)
+	{
+		for (SPHBody *body : bodies_)
 		{
 			if (body->checkNewlyUpdated())
 			{
-				std::string filefullpath = in_output_.output_folder_ + "/SPHBody_" + body->getBodyName() + "_" + sequence + ".vtu";
+				//TODO: we can short the file name by without using SPHBody
+				std::string filefullpath = in_output_.output_folder_ + "/SPHBody_" + body->getBodyName() + "_" + sequence + ".vtp";
 				if (fs::exists(filefullpath))
 				{
 					fs::remove(filefullpath);
 				}
-				std::ofstream out_file{filefullpath.c_str(), std::ios::trunc};
+				std::ofstream out_file(filefullpath.c_str(), std::ios::trunc);
 				//begin of the XML file
-				writeVtu(out_file, body);
+				out_file << "<?xml version=\"1.0\"?>\n";
+				out_file << "<VTKFile type=\"PolyData\" version=\"0.1\" byte_order=\"LittleEndian\">\n";
+				out_file << " <PolyData>\n";
+
+				BaseParticles *base_particles = body->base_particles_;
+				size_t total_real_particles = base_particles->total_real_particles_;
+				out_file << "  <Piece Name =\"" << body->getBodyName() << "\" NumberOfPoints=\"" << total_real_particles << "\" NumberOfVerts=\"" << total_real_particles << "\">\n";
+
+				body->writeParticlesToVtpFile(out_file);
+
+				out_file << "   </PointData>\n";
+
+				//write empty cells
+				out_file << "   <Verts>\n";
+				out_file << "    <DataArray type=\"Int32\"  Name=\"connectivity\"  Format=\"ascii\">\n";
+				out_file << "    ";
+				for (size_t i = 0; i != total_real_particles; ++i)
+				{
+					out_file << i << " ";
+				}
+				out_file << std::endl;
+				out_file << "    </DataArray>\n";
+				out_file << "    <DataArray type=\"Int32\"  Name=\"offsets\"  Format=\"ascii\">\n";
+				out_file << "    ";
+				for (size_t i = 0; i != total_real_particles; ++i)
+				{
+					out_file << i + 1 << " ";
+				}
+				out_file << std::endl;
+				out_file << "    </DataArray>\n";
+				out_file << "   </Verts>\n";
+
+				out_file << "  </Piece>\n";
+
+				out_file << " </PolyData>\n";
+				out_file << "</VTKFile>\n";
+
 				out_file.close();
 			}
 			body->setNotNewlyUpdated();
 		}
 	}
 	//=============================================================================================//
-	void BodyStatesRecordingToVtu::writeVtu(std::ostream& stream, SPHBody* body) const
+	void BodyStatesRecordingToVtpString::writeWithFileName(const std::string& sequence)
+	{
+		for (SPHBody *body : bodies_)
+		{
+			if (body->checkNewlyUpdated())
+			{
+				const auto& vtuName = body->getBodyName() + "_" + sequence + ".vtu";
+				std::stringstream sstream;
+				//begin of the XML file
+				writeVtu(sstream, body);
+				_vtuData[vtuName] = sstream.str();
+			}
+			body->setNotNewlyUpdated();
+		}
+	}
+	//=============================================================================================//
+	void BodyStatesRecordingToVtpString::writeVtu(std::ostream& stream, SPHBody* body) const
 	{
 		stream << "<?xml version=\"1.0\"?>\n";
 		stream << "<VTKFile type=\"UnstructuredGrid\" version=\"0.1\" byte_order=\"LittleEndian\">\n";
@@ -127,93 +202,18 @@ namespace SPH
 		stream << "</VTKFile>\n";
 	}
 	//=============================================================================================//
-	BodyStatesRecordingToVtuString::BodyStatesRecordingToVtuString(In_Output& in_output, SPHBodyVector bodies) 
-			: BodyStatesRecordingToVtu(in_output, bodies)
-	{
-	}	
-	//=============================================================================================//
-	void BodyStatesRecordingToVtuString::writeWithFileName(const std::string& sequence)
-	{
-		for (SPHBody* body : bodies_)
-		{
-			if (body->checkNewlyUpdated())
-			{
-				const auto& vtuName = body->getBodyName() + "_" + sequence + ".vtu";
-				std::stringstream sstream;
-				//begin of the XML file
-				writeVtu(sstream, body);
-				_vtuData[vtuName] = sstream.str();
-			}
-			body->setNotNewlyUpdated();
-		}
-	}
-	//=============================================================================================//
-	const BodyStatesRecordingToVtuString::VtuStringData& BodyStatesRecordingToVtuString::GetVtuData() const
+	const BodyStatesRecordingToVtpString::VtuStringData& BodyStatesRecordingToVtpString::GetVtuData() const
 	{
 		return _vtuData;
 	}
 	//=============================================================================================//
-	SurfaceOnlyBodyStatesRecordingToVtu::SurfaceOnlyBodyStatesRecordingToVtu(In_Output& in_output, SPHBodyVector bodies)
-			: BodyStatesRecording(in_output, bodies),
-			surface_body_layer_vector_({})
+	void BodyStatesRecordingToPlt::writeWithFileName(const std::string &sequence)
 	{
-		for (SPHBody* body : bodies_) surface_body_layer_vector_.push_back(ShapeSurface(body));
-	}
-	//=============================================================================================//
-	void SurfaceOnlyBodyStatesRecordingToVtu::writeWithFileName(const std::string& sequence)
-	{
-		for (size_t i = 0; i < bodies_.size(); i++)
-		//for (size_t i = 0; surface_body_layer_vector_.size(); i++)
-		{
-			SPHBody* body = bodies_[i];
-			if (body->checkNewlyUpdated())
-			{
-				std::string filefullpath = in_output_.output_folder_ + "/SPHBody_" + body->getBodyName() + "_" + sequence + ".vtu";
-				if (fs::exists(filefullpath))
-				{
-					fs::remove(filefullpath);
-				}
-				std::ofstream out_file(filefullpath.c_str(), std::ios::trunc);
-				//begin of the XML file
-				out_file << "<?xml version=\"1.0\"?>\n";
-				out_file << "<VTKFile type=\"UnstructuredGrid\" version=\"0.1\" byte_order=\"LittleEndian\">\n";
-				out_file << " <UnstructuredGrid>\n";
-
-				size_t total_surface_particles = surface_body_layer_vector_[i].body_part_particles_.size();
-				out_file << "  <Piece Name =\"" << bodies_[i]->getBodyName() << "\" NumberOfPoints=\"" << total_surface_particles << "\" NumberOfCells=\"0\">\n";
-
-				body->writeSurfaceParticlesToVtuFile(out_file, surface_body_layer_vector_[i]);
-
-				out_file << "   </PointData>\n";
-
-				//write empty cells
-				out_file << "   <Cells>\n";
-				out_file << "    <DataArray type=\"Int32\"  Name=\"connectivity\"  Format=\"ascii\">\n";
-				out_file << "    </DataArray>\n";
-				out_file << "    <DataArray type=\"Int32\"  Name=\"offsets\"  Format=\"ascii\">\n";
-				out_file << "    </DataArray>\n";
-				out_file << "    <DataArray type=\"types\"  Name=\"offsets\"  Format=\"ascii\">\n";
-				out_file << "    </DataArray>\n";
-				out_file << "   </Cells>\n";
-
-				out_file << "  </Piece>\n";
-
-				out_file << " </UnstructuredGrid>\n";
-				out_file << "</VTKFile>\n";
-
-				out_file.close();
-			}
-			body->setNotNewlyUpdated();
-		}
-	}
-	//=============================================================================================//
-	void BodyStatesRecordingToPlt::writeWithFileName(const std::string& sequence)
-	{
-		for (SPHBody* body : bodies_)
+		for (SPHBody *body : bodies_)
 		{
 			if (body->checkNewlyUpdated())
 			{
-				std::string filefullpath = in_output_.output_folder_ + "/SPHBody_" + body->getBodyName()+ "_" + sequence +".plt";
+				std::string filefullpath = in_output_.output_folder_ + "/SPHBody_" + body->getBodyName() + "_" + sequence + ".plt";
 				if (fs::exists(filefullpath))
 				{
 					fs::remove(filefullpath);
@@ -230,66 +230,61 @@ namespace SPH
 		}
 	}
 	//=============================================================================================//
-	WriteToVtuIfVelocityOutOfBound
-		::WriteToVtuIfVelocityOutOfBound(In_Output& in_output,
-			SPHBodyVector bodies, Real velocity_bound)
-		: BodyStatesRecordingToVtu(in_output, bodies), out_of_bound_(false)
+	WriteToVtpIfVelocityOutOfBound::
+		WriteToVtpIfVelocityOutOfBound(In_Output &in_output, SPHBodyVector bodies, Real velocity_bound)
+		: BodyStatesRecordingToVtp(in_output, bodies), out_of_bound_(false)
 	{
-		for (SPHBody* body : bodies_)
-		{
-			check_bodies_.push_back(new VelocityBoundCheck(body, velocity_bound));
-		}
+		std::transform(bodies.begin(), bodies.end(), std::back_inserter(check_bodies_),
+					   [&](SPHBody *body) -> VelocityBoundCheck
+					   { return VelocityBoundCheck(*body, velocity_bound); });
 	}
 	//=============================================================================================//
-	void WriteToVtuIfVelocityOutOfBound::writeWithFileName(const std::string& sequence)
+	void WriteToVtpIfVelocityOutOfBound::writeWithFileName(const std::string &sequence)
 	{
 		for (auto check_body : check_bodies_)
 		{
-			out_of_bound_ = out_of_bound_ || check_body->parallel_exec();
+			out_of_bound_ = out_of_bound_ || check_body.parallel_exec();
 		}
 
-		if (out_of_bound_) {
-			BodyStatesRecordingToVtu::writeWithFileName(sequence);
+		if (out_of_bound_)
+		{
+			BodyStatesRecordingToVtp::writeWithFileName(sequence);
 			std::cout << "\n Velocity is out of bound at iteration step " << sequence
-				<< "\n The body states have been outputted and the simulation terminates here. \n";
+					  << "\n The body states have been outputted and the simulation terminates here. \n";
 		}
 	}
 	//=============================================================================================//
-	MeshRecordingToPlt
-		::MeshRecordingToPlt(In_Output& in_output, SPHBody* body, BaseMeshField* mesh_field)
+	MeshRecordingToPlt ::MeshRecordingToPlt(In_Output &in_output, SPHBody &body, BaseMeshField *mesh_field)
 		: BodyStatesRecording(in_output, body), mesh_field_(mesh_field)
 	{
-		filefullpath_ = in_output_.output_folder_ + "/" + body->getBodyName() + "_" + mesh_field_->Name() + ".dat";
+		filefullpath_ = in_output_.output_folder_ + "/" + body.getBodyName() + "_" + mesh_field_->Name() + ".dat";
 	}
 	//=============================================================================================//
-	void MeshRecordingToPlt::writeWithFileName(const std::string& sequence)
+	void MeshRecordingToPlt::writeWithFileName(const std::string &sequence)
 	{
 		std::ofstream out_file(filefullpath_.c_str(), std::ios::app);
 		mesh_field_->writeMeshFieldToPlt(out_file);
 		out_file.close();
 	}
 	//=============================================================================================//
-	ReloadParticleIO::ReloadParticleIO(In_Output& in_output, SPHBodyVector bodies) : 
-		BodyStatesIO(in_output, bodies)
+	ReloadParticleIO::ReloadParticleIO(In_Output &in_output, SPHBodyVector bodies) : BodyStatesIO(in_output, bodies)
 	{
 		if (!fs::exists(in_output.reload_folder_))
 		{
 			fs::create_directory(in_output.reload_folder_);
 		}
 
-		for (SPHBody* body : bodies)
-		{
-			file_paths_.push_back(in_output.reload_folder_ + "/SPHBody_" + body->getBodyName() + "_rld.xml");
-		}
+		std::transform(bodies.begin(), bodies.end(), std::back_inserter(file_paths_),
+					   [&](SPHBody *body) -> std::string
+					   { return in_output.reload_folder_ + "/" + body->getBodyName() + "_rld.xml"; });
 	};
 	//=============================================================================================//
-	ReloadParticleIO::ReloadParticleIO(In_Output& in_output, SPHBodyVector bodies,
-		StdVec<std::string> given_body_names) : ReloadParticleIO(in_output, bodies)
+	ReloadParticleIO::ReloadParticleIO(In_Output &in_output, SPHBodyVector bodies,
+									   StdVec<std::string> given_body_names) : ReloadParticleIO(in_output, bodies)
 	{
-		for (size_t i = 0; i != bodies.size(); ++i)
-		{
-			file_paths_[i] = in_output.reload_folder_ + "/SPHBody_" + given_body_names[i] + "_rld.xml";
-		}
+		std::transform(given_body_names.begin(), given_body_names.end(), file_paths_.begin(),
+					   [&](const std::string &body_name) -> std::string
+					   { return in_output.reload_folder_ + "/" + body_name + "_rld.xml"; });
 	}
 	//=============================================================================================//
 	void ReloadParticleIO::writeToFile(size_t iteration_step)
@@ -324,19 +319,17 @@ namespace SPH
 		}
 	}
 	//=============================================================================================//
-	RestartIO::RestartIO(In_Output& in_output, SPHBodyVector bodies) :
-		BodyStatesIO(in_output, bodies)
+	RestartIO::RestartIO(In_Output &in_output, SPHBodyVector bodies)
+		: BodyStatesIO(in_output, bodies), overall_file_path_(in_output.restart_folder_ + "/Restart_time_")
 	{
-		overall_file_path_ = in_output.restart_folder_ + "/Restart_time_";
-		for (SPHBody* body : bodies)
-		{
-			file_paths_.push_back(in_output.restart_folder_ + "/SPHBody_" + body->getBodyName() + "_rst_");
-		}
+		std::transform(bodies.begin(), bodies.end(), std::back_inserter(file_paths_),
+					   [&](SPHBody *body) -> std::string
+					   { return in_output.restart_folder_ + "/SPHBody_" + body->getBodyName() + "_rst_"; });
 	}
 	//=============================================================================================//
 	void RestartIO::writeToFile(size_t iteration_step)
 	{
-		std::string overall_filefullpath = overall_file_path_ + std::to_string(iteration_step) + ".dat";
+		std::string overall_filefullpath = overall_file_path_ + padValueWithZeros(iteration_step) + ".dat";
 		if (fs::exists(overall_filefullpath))
 		{
 			fs::remove(overall_filefullpath);
@@ -347,7 +340,7 @@ namespace SPH
 
 		for (size_t i = 0; i < bodies_.size(); ++i)
 		{
-			std::string filefullpath = file_paths_[i] + std::to_string(iteration_step) + ".xml";
+			std::string filefullpath = file_paths_[i] + padValueWithZeros(iteration_step) + ".xml";
 
 			if (fs::exists(filefullpath))
 			{
@@ -360,7 +353,7 @@ namespace SPH
 	Real RestartIO::readRestartTime(size_t restart_step)
 	{
 		std::cout << "\n Reading restart files from the restart step = " << restart_step << std::endl;
-		std::string overall_filefullpath = overall_file_path_ + std::to_string(restart_step) + ".dat";
+		std::string overall_filefullpath = overall_file_path_ + padValueWithZeros(restart_step) + ".dat";
 		if (!fs::exists(overall_filefullpath))
 		{
 			std::cout << "\n Error: the input file:" << overall_filefullpath << " is not exists" << std::endl;
@@ -379,7 +372,7 @@ namespace SPH
 	{
 		for (size_t i = 0; i < bodies_.size(); ++i)
 		{
-			std::string filefullpath = file_paths_[i] + std::to_string(restart_step) + ".xml";
+			std::string filefullpath = file_paths_[i] + padValueWithZeros(restart_step) + ".xml";
 
 			if (!fs::exists(filefullpath))
 			{
@@ -393,15 +386,20 @@ namespace SPH
 	}
 	//=============================================================================================//
 	WriteSimBodyPinData::
-		WriteSimBodyPinData(In_Output& in_output, SimTK::RungeKuttaMersonIntegrator& integ, SimTK::MobilizedBody::Pin& pinbody) : 
-		WriteSimBodyStates<SimTK::MobilizedBody::Pin>(in_output, integ, pinbody)
+		WriteSimBodyPinData(In_Output &in_output, SimTK::RungeKuttaMersonIntegrator &integ, SimTK::MobilizedBody::Pin &pinbody)
+		: WriteSimBodyStates<SimTK::MobilizedBody::Pin>(in_output, integ, pinbody),
+		filefullpath_(in_output_.output_folder_ + "/mb_pinbody_data.dat")
 	{
-		filefullpath_ = in_output_.output_folder_ + "/mb_pinbody_data.dat";
 		std::ofstream out_file(filefullpath_.c_str(), std::ios::app);
 
-		out_file << "\"time\"" << "   ";
-		out_file << "  " << "angles" << " ";
-		out_file << "  " << "angle_rates" << " ";
+		out_file << "\"time\""
+				 << "   ";
+		out_file << "  "
+				 << "angles"
+				 << " ";
+		out_file << "  "
+				 << "angle_rates"
+				 << " ";
 		out_file << "\n";
 
 		out_file.close();
@@ -411,7 +409,7 @@ namespace SPH
 	{
 		std::ofstream out_file(filefullpath_.c_str(), std::ios::app);
 		out_file << GlobalStaticVariables::physical_time_ << "   ";
-		const SimTK::State& state = integ_.getState();
+		const SimTK::State &state = integ_.getState();
 
 		out_file << "  " << mobody_.getAngle(state) << "  " << mobody_.getRate(state) << "  ";
 
@@ -419,18 +417,14 @@ namespace SPH
 		out_file.close();
 	};
 	//=================================================================================================//
-	ReloadMaterialParameterIO::ReloadMaterialParameterIO(In_Output& in_output, BaseMaterial* material) :
-		in_output_(in_output), material_(material)
-	{
-		file_path_ = in_output.reload_folder_ + "/Material_" + material->LocalParametersName() + "_rld.xml";
-	}
+	ReloadMaterialParameterIO::ReloadMaterialParameterIO(In_Output &in_output, SharedPtr<BaseMaterial> material)
+		: in_output_(in_output), material_(material.get()),
+		  file_path_(in_output.reload_folder_ + "/Material_" + material->LocalParametersName() + "_rld.xml") {}
 	//=================================================================================================//
 	ReloadMaterialParameterIO::
-		ReloadMaterialParameterIO(In_Output& in_output, BaseMaterial* material, std::string given_parameters_name) :
-		in_output_(in_output), material_(material)
-	{
-		file_path_ = in_output.reload_folder_ + "/Material_" + given_parameters_name + "_rld.xml";
-	}
+		ReloadMaterialParameterIO(In_Output &in_output, SharedPtr<BaseMaterial> material, const std::string &given_parameters_name)
+		: in_output_(in_output), material_(material.get()),
+		  file_path_(in_output.reload_folder_ + "/Material_" + given_parameters_name + "_rld.xml") {}
 	//=================================================================================================//
 	void ReloadMaterialParameterIO::writeToFile(size_t iteration_step)
 	{

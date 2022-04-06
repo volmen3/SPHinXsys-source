@@ -25,20 +25,21 @@ std::string input_body = "./input/SPHinXsys-2d.dat";
 Real DL = 2.3; 				/**< InputBody length right part. */
 Real DL1 = 2.3;				/**< InputBody length left part. */
 Real DH = 4.5; 				/**< InputBody height. */
-Real resolution_ref =(DL + DL1) / 80; 	/**< Reference resolution. */
+Real resolution_ref =(DL + DL1) / 120; 	/**< Reference resolution. */
 BoundingBox system_domain_bounds(Vec2d(-DL1, 0), Vec2d(DL, DH));
 //----------------------------------------------------------------------
-//	InputBodyas a solid body
+//	InputBody as a solid body
 //----------------------------------------------------------------------
 class InputBody : public SolidBody
 {
 public:
-	InputBody(SPHSystem &system, std::string body_name)
+	InputBody(SPHSystem &system, const std::string &body_name)
 		: SolidBody(system, body_name)
 	{
 		/** Geometry definition. */
-		ComplexShape original_body_shape;
-		original_body_shape.addAPolygonFromFile(input_body, ShapeBooleanOps::add);
-		body_shape_ = new LevelSetComplexShape(this, original_body_shape, true);
+		MultiPolygon multi_polygon;
+		multi_polygon.addAPolygonFromFile(input_body, ShapeBooleanOps::add);
+		MultiPolygonShape multi_polygon_shape (multi_polygon);
+		body_shape_.add<LevelSetShape>(this, multi_polygon_shape, true);
 	}
 };

@@ -29,6 +29,7 @@
 #pragma once
 
 #include "solid_dynamics.h"
+#include "inelastic_solid.h"
 
 namespace SPH
 {
@@ -43,14 +44,13 @@ namespace SPH
 			: public StressRelaxationFirstHalf
 		{
 		public:
-			PlasticStressRelaxationFirstHalf(BaseBodyRelationInner* body_inner_relation);
-			virtual ~PlasticStressRelaxationFirstHalf() {};
+			PlasticStressRelaxationFirstHalf(BaseBodyRelationInner &inner_relation);
+			virtual ~PlasticStressRelaxationFirstHalf(){};
+
 		protected:
-			PlasticSolid* plastic_solid_;
+			PlasticSolid *plastic_solid_;
 
 			virtual void Initialization(size_t index_i, Real dt = 0.0) override;
 		};
 	}
 }
-
-

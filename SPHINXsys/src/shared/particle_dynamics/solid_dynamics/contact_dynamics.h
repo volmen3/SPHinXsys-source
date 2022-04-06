@@ -136,7 +136,24 @@ namespace SPH
 			StdLargeVec<Real> &contact_density_, &Vol_, &mass_;
 			StdLargeVec<Vecd> &dvel_dt_prior_, &contact_force_;
 			StdVec<StdLargeVec<Real> *> contact_contact_density_, contact_Vol_;
+			virtual void Interaction(size_t index_i, Real dt = 0.0) override;
+		};
 
+		/**
+		* @class ShellShellContactForce
+		* @brief Computing the contact force in shell-shell contact cases.
+		*/
+		class ShellShellContactForce : public PartInteractionDynamicsByParticle, public ContactDynamicsData
+		{
+		public:
+			explicit ShellShellContactForce(SolidBodyRelationContact &solid_body_contact_relation);
+			virtual ~ShellShellContactForce(){};
+
+		protected:
+			StdLargeVec<Real> &contact_density_, &Vol_, &mass_;
+			StdLargeVec<Vecd> &dvel_dt_prior_, &contact_force_;
+			StdVec<StdLargeVec<Real> *> contact_contact_density_, contact_Vol_;
+			Real spacing_ref_;
 			virtual void Interaction(size_t index_i, Real dt = 0.0) override;
 		};
 

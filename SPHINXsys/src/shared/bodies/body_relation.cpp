@@ -1,6 +1,6 @@
 /**
  * @file 	body_relation.cpp
- * @brief 	Here, Functions belong to BaseBody, RealBody and FictitiousBody are given.
+ * @brief 	Here, Functions belong to BaseBody and RealBody are given.
  * @author	Chi ZHang and Xiangyu Hu
  */
 

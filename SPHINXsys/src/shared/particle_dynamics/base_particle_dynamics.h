@@ -1,32 +1,32 @@
 /* -------------------------------------------------------------------------*
-*								SPHinXsys									*
-* --------------------------------------------------------------------------*
-* SPHinXsys (pronunciation: s'finksis) is an acronym from Smoothed Particle	*
-* Hydrodynamics for industrial compleX systems. It provides C++ APIs for	*
-* physical accurate simulation and aims to model coupled industrial dynamic *
-* systems including fluid, solid, multi-body dynamics and beyond with SPH	*
-* (smoothed particle hydrodynamics), a meshless computational method using	*
-* particle discretization.													*
-*																			*
-* SPHinXsys is partially funded by German Research Foundation				*
-* (Deutsche Forschungsgemeinschaft) DFG HU1527/6-1, HU1527/10-1				*
-* and HU1527/12-1.															*
-*                                                                           *
-* Portions copyright (c) 2017-2020 Technical University of Munich and		*
-* the authors' affiliations.												*
-*                                                                           *
-* Licensed under the Apache License, Version 2.0 (the "License"); you may   *
-* not use this file except in compliance with the License. You may obtain a *
-* copy of the License at http://www.apache.org/licenses/LICENSE-2.0.        *
-*                                                                           *
-* --------------------------------------------------------------------------*/
+ *								SPHinXsys									*
+ * --------------------------------------------------------------------------*
+ * SPHinXsys (pronunciation: s'finksis) is an acronym from Smoothed Particle	*
+ * Hydrodynamics for industrial compleX systems. It provides C++ APIs for	*
+ * physical accurate simulation and aims to model coupled industrial dynamic *
+ * systems including fluid, solid, multi-body dynamics and beyond with SPH	*
+ * (smoothed particle hydrodynamics), a meshless computational method using	*
+ * particle discretization.													*
+ *																			*
+ * SPHinXsys is partially funded by German Research Foundation				*
+ * (Deutsche Forschungsgemeinschaft) DFG HU1527/6-1, HU1527/10-1				*
+ * and HU1527/12-1.															*
+ *                                                                           *
+ * Portions copyright (c) 2017-2020 Technical University of Munich and		*
+ * the authors' affiliations.												*
+ *                                                                           *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
+ * not use this file except in compliance with the License. You may obtain a *
+ * copy of the License at http://www.apache.org/licenses/LICENSE-2.0.        *
+ *                                                                           *
+ * --------------------------------------------------------------------------*/
 /**
-* @file base_particle_dynamics.h
-* @brief This is for the base classes of particle dynamics, which describe the
-* interaction between particles. These interactions are used to define  
-* differential operators for surface forces or fluxes in continuum mechanics
-* @author  Xiangyu Hu, Luhui Han and Chi Zhang
-*/
+ * @file base_particle_dynamics.h
+ * @brief This is for the base classes of particle dynamics, which describe the
+ * interaction between particles. These interactions are used to define
+ * differential operators for surface forces or fluxes in continuum mechanics
+ * @author  Xiangyu Hu, Luhui Han and Chi Zhang
+ */
 
 #ifndef BASE_PARTICLE_DYNAMICS_H
 #define BASE_PARTICLE_DYNAMICS_H
@@ -135,11 +135,11 @@ namespace SPH
 	};
 
 	/**
-	* @class ParticleDynamics
-	* @brief The base class for all particle dynamics
-	* This class contains the only two interface functions available
-	* for particle dynamics. An specific implementation should be realized.
-	*/
+	 * @class ParticleDynamics
+	 * @brief The base class for all particle dynamics
+	 * This class contains the only two interface functions available
+	 * for particle dynamics. An specific implementation should be realized.
+	 */
 	template <class ReturnType = void>
 	class ParticleDynamics : public GlobalStaticVariables
 	{
@@ -149,7 +149,7 @@ namespace SPH
 
 		SPHBody *getSPHBody() { return sph_body_; };
 		/** The only two functions can be called from outside
-		  * One is for sequential execution, the other is for parallel. */
+		 * One is for sequential execution, the other is for parallel. */
 		virtual ReturnType exec(Real dt = 0.0) = 0;
 		virtual ReturnType parallel_exec(Real dt = 0.0) = 0;
 
@@ -164,9 +164,9 @@ namespace SPH
 	};
 
 	/**
-	* @class DataDelegateBase
-	* @brief empty base class mixin template.
-	*/
+	 * @class DataDelegateBase
+	 * @brief empty base class mixin template.
+	 */
 	class DataDelegateEmptyBase
 	{
 	public:
@@ -175,9 +175,9 @@ namespace SPH
 	};
 
 	/**
-	* @class DataDelegateSimple
-	* @brief prepare data for simple particle dynamics.
-	*/
+	 * @class DataDelegateSimple
+	 * @brief prepare data for simple particle dynamics.
+	 */
 	template <class BodyType = SPHBody,
 			  class ParticlesType = BaseParticles,
 			  class MaterialType = BaseMaterial>
@@ -205,9 +205,9 @@ namespace SPH
 	};
 
 	/**
-	* @class DataDelegateInner
-	* @brief prepare data for inner particle dynamics
-	*/
+	 * @class DataDelegateInner
+	 * @brief prepare data for inner particle dynamics
+	 */
 	template <class BodyType = SPHBody,
 			  class ParticlesType = BaseParticles,
 			  class MaterialType = BaseMaterial,
@@ -226,9 +226,9 @@ namespace SPH
 	};
 
 	/**
-	* @class DataDelegateContact
-	* @brief prepare data for contact particle dynamics
-	*/
+	 * @class DataDelegateContact
+	 * @brief prepare data for contact particle dynamics
+	 */
 	template <class BodyType = SPHBody,
 			  class ParticlesType = BaseParticles,
 			  class MaterialType = BaseMaterial,
@@ -251,9 +251,9 @@ namespace SPH
 	};
 
 	/**
-	* @class DataDelegateComplex
-	* @brief prepare data for complex particle dynamics
-	*/
+	 * @class DataDelegateComplex
+	 * @brief prepare data for complex particle dynamics
+	 */
 	template <class BodyType = SPHBody,
 			  class ParticlesType = BaseParticles,
 			  class MaterialType = BaseMaterial,
@@ -273,9 +273,9 @@ namespace SPH
 	};
 
 	/**
-	* @class ParticleDynamicsComplex
-	* @brief particle dynamics by considering  contribution from extra contact bodies
-	*/
+	 * @class ParticleDynamicsComplex
+	 * @brief particle dynamics by considering  contribution from extra contact bodies
+	 */
 	template <class ParticleDynamicsInnerType, class ContactDataType>
 	class ParticleDynamicsComplex : public ParticleDynamicsInnerType, public ContactDataType
 	{
@@ -294,33 +294,63 @@ namespace SPH
 	};
 
 	/**
-	* @class AbstractParticleDynamics
-	* @brief The new version of base class for all particle dynamics
-	* This class contains the only two interface functions available
-	* for particle dynamics. An specific implementation should be realized.
-	*/
+	 * @class AbstractParticleDynamics
+	 * @brief The new version of base class for all particle dynamics
+	 * This class contains the only two interface functions available
+	 * for particle dynamics. An specific implementation should be realized.
+	 */
 	template <class ReturnType = void>
 	class AbstractParticleDynamics : public GlobalStaticVariables
 	{
 	public:
-		explicit AbstractParticleDynamics();
+		explicit AbstractParticleDynamics(){};
 		virtual ~AbstractParticleDynamics(){};
 
 		/** The only two functions can be called from outside
-		  * One is for sequential execution, the other is for parallel. */
+		 * One is for sequential execution, the other is for parallel. */
 		virtual ReturnType exec(Real dt = 0.0) = 0;
 		virtual ReturnType parallel_exec(Real dt = 0.0) = 0;
 	};
 
 	/**
-	* @class LocalParticleDynamics
-	* @brief The new version of base class for all local particle dynamics.
-	*/
+	 * @class BaseParticleDynamics
+	 * @brief The basic particle dynamics in which a range of particles are looped.
+	 */
+	template <typename LoopRange>
+	class BaseParticleDynamics : public AbstractParticleDynamics<void>
+	{
+	public:
+		BaseParticleDynamics(LoopRange &loop_range, ParticleFunctor particle_functor)
+			: AbstractParticleDynamics<void>(),
+			  loop_range_(loop_range), particle_functor_(particle_functor){};
+
+		virtual ~BaseParticleDynamics(){};
+
+		virtual void exec(Real dt = 0.0) override
+		{
+			ParticleIterator(loop_range_, particle_functor_, dt);
+		};
+
+		virtual void parallel_exec(Real dt = 0.0) override
+		{
+			ParticleIterator_parallel(loop_range_, particle_functor_, dt);
+		};
+
+	protected:
+		LoopRange &loop_range_;
+		ParticleFunctor particle_functor_;
+	};
+
+	/**
+	 * @class LocalParticleDynamics
+	 * @brief The new version of base class for all local particle dynamics.
+	 */
 	class LocalParticleDynamics
 	{
 		SPHBody *sph_body_;
+
 	public:
-		explicit LocalParticleDynamics(SPHBody &sph_body) : sph_body_(&sph_body) {};
+		explicit LocalParticleDynamics(SPHBody &sph_body) : sph_body_(&sph_body){};
 		virtual ~LocalParticleDynamics(){};
 
 		void setBodyUpdated() { sph_body_->setNewlyUpdated(); };
@@ -328,4 +358,4 @@ namespace SPH
 		virtual void setupDynamics(Real dt = 0.0){};
 	};
 }
-#endif //BASE_PARTICLE_DYNAMICS_H
+#endif // BASE_PARTICLE_DYNAMICS_H

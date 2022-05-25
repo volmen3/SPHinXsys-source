@@ -217,54 +217,29 @@ namespace SPH
 	//		Aiming to use template on local dynamics so that
 	//		it can be used in different dynamics.
 	//----------------------------------------------------------------------
-	template <typename IteRange>
-	class BaseParticleDynamics : public AbstractParticleDynamics<void>
-	{
-	public:
-		BaseParticleDynamics(IteRange &ite_range, ParticleFunctor particle_functor)
-			: AbstractParticleDynamics<void>(),
-			  ite_range_(ite_range), particle_functor_(particle_functor){};
-
-		virtual ~BaseParticleDynamics(){};
-
-		virtual void exec(Real dt = 0.0) override
-		{
-			ParticleIterator(ite_range_, particle_functor_, dt);
-		};
-
-		virtual void parallel_exec(Real dt = 0.0) override
-		{
-			ParticleIterator_parallel(ite_range_, particle_functor_, dt);
-		};
-
-	protected:
-		IteRange &ite_range_;
-		ParticleFunctor particle_functor_;
-	};
-
-	template <typename IteRange, class LocalDynamicsSimple>
-	class SimpleParticleDynamics : public LocalDynamicsSimple, public BaseParticleDynamics<IteRange>
+	template <typename LoopRange, class LocalDynamicsSimple>
+	class SimpleParticleDynamics : public LocalDynamicsSimple, public BaseParticleDynamics<LoopRange>
 	{
 	public:
 		template <typename... Args>
-		explicit SimpleParticleDynamics(IteRange &ite_range, Args &&...args)
+		explicit SimpleParticleDynamics(LoopRange &loop_range, Args &&...args)
 			: LocalDynamicsSimple(std::forward<Args>(args)...),
-			  BaseParticleDynamics<IteRange>(
-				  ite_range, std::bind(&LocalDynamicsSimple::update, this, _1, _2)){};
+			  BaseParticleDynamics<LoopRange>(
+				  loop_range, std::bind(&LocalDynamicsSimple::update, this, _1, _2)){};
 		virtual ~SimpleParticleDynamics(){};
 
 		virtual void exec(Real dt = 0.0) override
 		{
 			LocalDynamicsSimple::setBodyUpdated();
 			LocalDynamicsSimple::setupDynamics(dt);
-			BaseParticleDynamics<IteRange>::exec(dt);
+			BaseParticleDynamics<LoopRange>::exec(dt);
 		};
 
 		virtual void parallel_exec(Real dt = 0.0) override
 		{
 			LocalDynamicsSimple::setBodyUpdated();
 			LocalDynamicsSimple::setupDynamics(dt);
-			BaseParticleDynamics<IteRange>::parallel_exec(dt);
+			BaseParticleDynamics<LoopRange>::parallel_exec(dt);
 		};
 	};
 

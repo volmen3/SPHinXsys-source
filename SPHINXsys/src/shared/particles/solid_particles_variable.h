@@ -46,9 +46,9 @@ namespace SPH
 	 * @class Displacement
 	 * @brief computing displacement from current and initial particle position
 	 */
-	class Displacement : public BaseDerivedVariable<Real>,
+	class Displacement : public BaseDerivedVariable<Vecd>,
 						 public LocalParticleDynamics,
-						 public ElasticSolidDataSimple
+						 public SolidDataSimple
 	{
 	public:
 		explicit Displacement(SPHBody &sph_body);
@@ -77,7 +77,7 @@ namespace SPH
 
 	/**
 	 * @class TranslationAndRotation
-	 * @brief transfermation on particle position and rotation
+	 * @brief transformation on particle position and rotation
 	 */
 	class TranslationAndRotation : public SolidDataSimple
 	{
@@ -95,7 +95,7 @@ namespace SPH
 	 * @class NormalDirectionFromBodyShape
 	 * @brief normal direction at particles
 	 */
-	class NormalDirectionFromBodyShape : public SolidDataSimple
+	class NormalDirectionFromBodyShape : public LocalParticleDynamics, public SolidDataSimple
 	{
 	public:
 		explicit NormalDirectionFromBodyShape(SPHBody &sph_body);

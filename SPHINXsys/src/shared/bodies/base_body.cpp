@@ -37,6 +37,11 @@ namespace SPH
 		return sph_system_;
 	}
 	//=================================================================================================//
+	size_t &SPHBody::BodyRange() 
+	{
+		return base_particles_->total_real_particles_;
+	};
+	//=================================================================================================//
 	void SPHBody::assignBaseParticles(BaseParticles *base_particles)
 	{
 		base_particles_ = base_particles;

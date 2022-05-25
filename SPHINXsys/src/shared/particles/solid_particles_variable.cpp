@@ -10,7 +10,7 @@ namespace SPH
 {
     //=============================================================================================//
     Displacement::Displacement(SPHBody &sph_body)
-        : BaseDerivedVariable<Vecd>(sph_body, "Displacemant"),
+        : BaseDerivedVariable<Vecd>(sph_body, "Displacement"),
           LocalParticleDynamics(sph_body), SolidDataSimple(sph_body),
           pos_n_(particles_->pos_n_), pos_0_(particles_->pos_0_) {}
     //=============================================================================================//
@@ -43,7 +43,7 @@ namespace SPH
     //=============================================================================================//
     NormalDirectionFromBodyShape::
         NormalDirectionFromBodyShape(SPHBody &sph_body)
-        : SolidDataSimple(sph_body), body_shape_(*sph_body.body_shape_),
+        : LocalParticleDynamics(sph_body), SolidDataSimple(sph_body), body_shape_(*sph_body.body_shape_),
           pos_n_(particles_->pos_n_), n_(particles_->n_), n_0_(particles_->n_0_) {}
     //=============================================================================================//
     void NormalDirectionFromBodyShape::update(size_t index_i, Real dt)

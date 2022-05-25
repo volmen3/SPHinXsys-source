@@ -101,6 +101,7 @@ namespace SPH
 
 		std::string getBodyName();
 		SPHSystem &getSPHSystem();
+		size_t &BodyRange();
 		Real getSPHBodyResolutionRef() { return sph_adaptation_->ReferenceSpacing(); };
 		void setNewlyUpdated() { newly_updated_ = true; };
 		void setNotNewlyUpdated() { newly_updated_ = false; };

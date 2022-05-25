@@ -217,65 +217,59 @@ namespace SPH
 	//		Aiming to use template on local dynamics so that
 	//		it can be used in different dynamics.
 	//----------------------------------------------------------------------
-
-	class BodyParticleDynamics : public ParticleDynamics<void>
+	template <typename IteRange>
+	class BaseParticleDynamics : public AbstractParticleDynamics<void>
 	{
 	public:
-		explicit BodyParticleDynamics(SPHBody &sph_body)
-			: ParticleDynamics<void>(sph_body){};
+		BaseParticleDynamics(IteRange &ite_range, ParticleFunctor particle_functor)
+			: AbstractParticleDynamics<void>(),
+			  ite_range_(ite_range), particle_functor_(particle_functor){};
 
-		virtual ~BodyParticleDynamics(){};
+		virtual ~BaseParticleDynamics(){};
 
 		virtual void exec(Real dt = 0.0) override
 		{
-			size_t total_real_particles = base_particles_->total_real_particles_;
-			ParticleIterator(total_real_particles, particle_functor_, dt);
+			ParticleIterator(ite_range_, particle_functor_, dt);
 		};
 
 		virtual void parallel_exec(Real dt = 0.0) override
 		{
-			size_t total_real_particles = base_particles_->total_real_particles_;
-			ParticleIterator_parallel(total_real_particles, particle_functor_, dt);
+			ParticleIterator_parallel(ite_range_, particle_functor_, dt);
 		};
 
 	protected:
+		IteRange &ite_range_;
 		ParticleFunctor particle_functor_;
 	};
 
-	template <class BodyDynamicsType, class LocalDynamicsSimple>
-	class SimpleParticleDynamics : public BodyDynamicsType
+	template <typename IteRange, class LocalDynamicsSimple>
+	class SimpleParticleDynamics : public LocalDynamicsSimple, public BaseParticleDynamics<IteRange>
 	{
-		LocalDynamicsSimple local_dynamics_;
-
 	public:
-		template <typename... ConstructorArgs>
-		SimpleParticleDynamics(SPHBody &sph_body, ConstructorArgs &&...args)
-			: BodyDynamicsType(sph_body),
-			  local_dynamics_(sph_body, std::forward<ConstructorArgs>(args)...)
-		{
-			this->particle_functor_ = std::bind(&LocalDynamicsSimple::update, &local_dynamics_, _1, _2);
-		};
+		template <typename... Args>
+		explicit SimpleParticleDynamics(IteRange &ite_range, Args &&...args)
+			: LocalDynamicsSimple(std::forward<Args>(args)...),
+			  BaseParticleDynamics<IteRange>(
+				  ite_range, std::bind(&LocalDynamicsSimple::update, this, _1, _2)){};
 		virtual ~SimpleParticleDynamics(){};
-
-		LocalDynamicsSimple &LocalDynamics() { return local_dynamics_; };
 
 		virtual void exec(Real dt = 0.0) override
 		{
-			this->setBodyUpdated();
-			this->setupDynamics(dt); //TODO: this function should be in LocalDynamicsSimple
-			BodyDynamicsType::exec(dt);
+			LocalDynamicsSimple::setBodyUpdated();
+			LocalDynamicsSimple::setupDynamics(dt);
+			BaseParticleDynamics<IteRange>::exec(dt);
 		};
 
 		virtual void parallel_exec(Real dt = 0.0) override
 		{
-			this->setBodyUpdated();
-			this->setupDynamics(dt); //TODO: this function should be in LocalDynamicsSimple
-			BodyDynamicsType::parallel_exec(dt);
+			LocalDynamicsSimple::setBodyUpdated();
+			LocalDynamicsSimple::setupDynamics(dt);
+			BaseParticleDynamics<IteRange>::parallel_exec(dt);
 		};
 	};
 
 	//temporary usage before full revamping the code.
 	template <class LocalDynamicsType>
-	using SimpleDynamics = SimpleParticleDynamics<BodyParticleDynamics, LocalDynamicsType>;
+	using SimpleDynamics = SimpleParticleDynamics<size_t, LocalDynamicsType>;
 }
 #endif // PARTICLE_DYNAMICS_ALGORITHMS_H

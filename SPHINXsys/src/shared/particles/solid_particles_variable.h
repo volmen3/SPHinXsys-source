@@ -46,7 +46,9 @@ namespace SPH
 	 * @class Displacement
 	 * @brief computing displacement from current and initial particle position
 	 */
-	class Displacement : public BaseDerivedVariable<Vecd>, public SolidDataSimple
+	class Displacement : public BaseDerivedVariable<Real>,
+						 public LocalParticleDynamics,
+						 public ElasticSolidDataSimple
 	{
 	public:
 		explicit Displacement(SPHBody &sph_body);
@@ -104,7 +106,7 @@ namespace SPH
 		Shape &body_shape_;
 		StdLargeVec<Vecd> &pos_n_, &n_, &n_0_;
 	};
-	
+
 	/**
 	 * @class NormalDirectionFromBodyShape
 	 * @brief normal direction at particles
@@ -132,7 +134,9 @@ namespace SPH
 	 * @class VonMisesStress
 	 * @brief computing von_Mises_stress
 	 */
-	class VonMisesStress : public BaseDerivedVariable<Real>, public ElasticSolidDataSimple
+	class VonMisesStress : public BaseDerivedVariable<Real>,
+						   public LocalParticleDynamics,
+						   public ElasticSolidDataSimple
 	{
 	public:
 		explicit VonMisesStress(SPHBody &sph_body);
@@ -149,7 +153,9 @@ namespace SPH
 	 * @class VonMisesStress
 	 * @brief computing von_Mises_stress
 	 */
-	class VonMisesStrain : public BaseDerivedVariable<Real>, public ElasticSolidDataSimple
+	class VonMisesStrain : public BaseDerivedVariable<Real>,
+						   public LocalParticleDynamics,
+						   public ElasticSolidDataSimple
 	{
 	public:
 		explicit VonMisesStrain(SPHBody &sph_body);

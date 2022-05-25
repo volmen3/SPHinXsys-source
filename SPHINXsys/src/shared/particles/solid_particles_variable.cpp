@@ -10,7 +10,8 @@ namespace SPH
 {
     //=============================================================================================//
     Displacement::Displacement(SPHBody &sph_body)
-        : BaseDerivedVariable<Vecd>(sph_body, "Displacemant"), SolidDataSimple(sph_body),
+        : BaseDerivedVariable<Vecd>(sph_body, "Displacemant"),
+          LocalParticleDynamics(sph_body), SolidDataSimple(sph_body),
           pos_n_(particles_->pos_n_), pos_0_(particles_->pos_0_) {}
     //=============================================================================================//
     void Displacement::update(size_t index_i, Real dt)
@@ -33,13 +34,13 @@ namespace SPH
         TranslationAndRotation(SPHBody &sph_body, Transformd &transform)
         : SolidDataSimple(sph_body), transform_(transform),
           pos_n_(particles_->pos_n_), pos_0_(particles_->pos_0_) {}
-	//=============================================================================================//
-	void TranslationAndRotation::update(size_t index_i, Real dt)
-	{
-		pos_n_[index_i] = transform_.shiftFrameStationToBase(pos_n_[index_i]);
-		pos_0_[index_i] = transform_.shiftFrameStationToBase(pos_0_[index_i]);
-	}
-   //=============================================================================================//
+    //=============================================================================================//
+    void TranslationAndRotation::update(size_t index_i, Real dt)
+    {
+        pos_n_[index_i] = transform_.shiftFrameStationToBase(pos_n_[index_i]);
+        pos_0_[index_i] = transform_.shiftFrameStationToBase(pos_0_[index_i]);
+    }
+    //=============================================================================================//
     NormalDirectionFromBodyShape::
         NormalDirectionFromBodyShape(SPHBody &sph_body)
         : SolidDataSimple(sph_body), body_shape_(*sph_body.body_shape_),
@@ -68,12 +69,13 @@ namespace SPH
     }
     //=============================================================================================//
     VonMisesStress::VonMisesStress(SPHBody &sph_body)
-        : BaseDerivedVariable<Real>(sph_body, "VonMiesStress"), ElasticSolidDataSimple(sph_body),
+        : BaseDerivedVariable<Real>(sph_body, "VonMiesStress"),
+          LocalParticleDynamics(sph_body), ElasticSolidDataSimple(sph_body),
           rho0_(particles_->rho0_), rho_n_(particles_->rho_n_),
           F_(particles_->F_), stress_PK1_(particles_->stress_PK1_) {}
     //=============================================================================================//
     VonMisesStrain::VonMisesStrain(SPHBody &sph_body)
         : BaseDerivedVariable<Real>(sph_body, "VonMiesStrain"),
-          ElasticSolidDataSimple(sph_body), F_(particles_->F_) {}
+          LocalParticleDynamics(sph_body), ElasticSolidDataSimple(sph_body), F_(particles_->F_) {}
     //=================================================================================================//
 }

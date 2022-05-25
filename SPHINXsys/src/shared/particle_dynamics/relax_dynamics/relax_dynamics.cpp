@@ -278,7 +278,7 @@ namespace SPH
 			: ParticleDynamics<void>(*inner_relation.sph_body_),
 			  convergence_criterion_(cos(0.01 * Pi)),
 			  consistency_criterion_(consistency_criterion),
-			  normal_prediction_(*sph_body_, thickness),
+			  normal_prediction_(base_particles_->total_real_particles_, *sph_body_, thickness),
 			  normal_prediction_convergence_check_(*sph_body_, convergence_criterion_),
 			  consistency_correction_(inner_relation, consistency_criterion_),
 			  consistency_updated_check_(*sph_body_),
@@ -333,7 +333,8 @@ namespace SPH
 		//=================================================================================================//
 		ShellNormalDirectionPrediction::NormalPrediction::
 			NormalPrediction(SPHBody &sph_body, Real thickness)
-			: RelaxDataDelegateSimple(sph_body), thickness_(thickness),
+			: LocalParticleDynamics(sph_body),
+			  RelaxDataDelegateSimple(sph_body), thickness_(thickness),
 			  level_set_shape_(DynamicCast<LevelSetShape>(this, body_->body_shape_)),
 			  pos_n_(particles_->pos_n_), n_(*particles_->getVariableByName<Vecd>("NormalDirection"))
 		{

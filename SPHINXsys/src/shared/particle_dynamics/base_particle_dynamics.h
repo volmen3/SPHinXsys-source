@@ -44,7 +44,6 @@ using namespace std::placeholders;
 namespace SPH
 {
 
-
 	/** Functor for operation on particles. */
 	typedef std::function<void(size_t, Real)> ParticleFunctor;
 	/** Functors for reducing operation on particles. */
@@ -292,6 +291,41 @@ namespace SPH
 
 	protected:
 		virtual void prepareContactData() = 0;
+	};
+
+	/**
+	* @class AbstractParticleDynamics
+	* @brief The new version of base class for all particle dynamics
+	* This class contains the only two interface functions available
+	* for particle dynamics. An specific implementation should be realized.
+	*/
+	template <class ReturnType = void>
+	class AbstractParticleDynamics : public GlobalStaticVariables
+	{
+	public:
+		explicit AbstractParticleDynamics();
+		virtual ~AbstractParticleDynamics(){};
+
+		/** The only two functions can be called from outside
+		  * One is for sequential execution, the other is for parallel. */
+		virtual ReturnType exec(Real dt = 0.0) = 0;
+		virtual ReturnType parallel_exec(Real dt = 0.0) = 0;
+	};
+
+	/**
+	* @class LocalParticleDynamics
+	* @brief The new version of base class for all local particle dynamics.
+	*/
+	class LocalParticleDynamics
+	{
+		SPHBody *sph_body_;
+	public:
+		explicit LocalParticleDynamics(SPHBody &sph_body) : sph_body_(&sph_body) {};
+		virtual ~LocalParticleDynamics(){};
+
+		void setBodyUpdated() { sph_body_->setNewlyUpdated(); };
+		/** the function for set global parameters for the particle dynamics */
+		virtual void setupDynamics(Real dt = 0.0){};
 	};
 }
 #endif //BASE_PARTICLE_DYNAMICS_H

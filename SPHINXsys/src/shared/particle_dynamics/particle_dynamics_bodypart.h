@@ -53,7 +53,7 @@ namespace SPH
 	 * That is the constrained particles will be the same
 	 * during the simulation.
 	 */
-	class PartDynamicsByParticle : public ParticleDynamics<void>
+	class PartDynamicsByParticle : public OldParticleDynamics<void>
 	{
 	public:
 		PartDynamicsByParticle(SPHBody &sph_body, BodyPartByParticle &body_part);
@@ -140,7 +140,7 @@ namespace SPH
 	 * @brief Abstract class for imposing Eulerian constrain to a body.
 	 * The constrained particles are in the tagged cells .
 	 */
-	class PartDynamicsByCell : public ParticleDynamics<void>
+	class PartDynamicsByCell : public OldParticleDynamics<void>
 	{
 	public:
 		PartDynamicsByCell(SPHBody &sph_body, BodyPartByCell &body_part);
@@ -159,11 +159,11 @@ namespace SPH
 	 * @brief Abstract class for reduce operation in a Eulerian constrain region.
 	 */
 	template <class ReturnType, typename ReduceOperation>
-	class PartDynamicsByCellReduce : public ParticleDynamics<ReturnType>
+	class PartDynamicsByCellReduce : public OldParticleDynamics<ReturnType>
 	{
 	public:
 		PartDynamicsByCellReduce(SPHBody &sph_body, BodyPartByCell &body_part)
-			: ParticleDynamics<ReturnType>(sph_body), body_part_cells_(body_part.body_part_cells_),
+			: OldParticleDynamics<ReturnType>(sph_body), body_part_cells_(body_part.body_part_cells_),
 			  quantity_name_("ReducedQuantity"), initial_reference_(){};
 		virtual ~PartDynamicsByCellReduce(){};
 
@@ -224,11 +224,11 @@ namespace SPH
 	 * @brief reduce operation in a Lagrangian contrained region.
 	 */
 	template <class ReturnType, typename ReduceOperation>
-	class PartDynamicsByParticleReduce : public ParticleDynamics<ReturnType>
+	class PartDynamicsByParticleReduce : public OldParticleDynamics<ReturnType>
 	{
 	public:
 		PartDynamicsByParticleReduce(SPHBody &sph_body, BodyPartByParticle &body_part)
-			: ParticleDynamics<ReturnType>(sph_body),
+			: OldParticleDynamics<ReturnType>(sph_body),
 			  body_part_particles_(body_part.body_part_particles_),
 			  quantity_name_("ReducedQuantity"), initial_reference_(){};
 		virtual ~PartDynamicsByParticleReduce(){};

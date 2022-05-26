@@ -21,7 +21,7 @@ namespace SPH
 	template <class BodyType, class BaseParticlesType, class BaseMaterialType>
 	GetDiffusionTimeStepSize<BodyType, BaseParticlesType, BaseMaterialType>::
 		GetDiffusionTimeStepSize(BodyType &body)
-		: ParticleDynamics<Real>(body),
+		: OldParticleDynamics<Real>(body),
 		  DiffusionReactionSimpleData<BodyType, BaseParticlesType, BaseMaterialType>(body)
 	{
 		Real smoothing_length = body.sph_adaptation_->ReferenceSmoothingLength();
@@ -219,7 +219,7 @@ namespace SPH
 	template <class FirstStageType>
 	RelaxationOfAllDiffusionSpeciesRK2<FirstStageType>::
 		RelaxationOfAllDiffusionSpeciesRK2(typename FirstStageType::BodyRelationType &body_relation)
-		: ParticleDynamics<void>(*body_relation.sph_body_),
+		: OldParticleDynamics<void>(*body_relation.sph_body_),
 		  rk2_initialization_(*body_relation.sph_body_, species_s_),
 		  rk2_1st_stage_(body_relation),
 		  rk2_2nd_stage_(body_relation, species_s_)

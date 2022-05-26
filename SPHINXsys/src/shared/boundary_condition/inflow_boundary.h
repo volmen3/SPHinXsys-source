@@ -52,11 +52,11 @@ namespace SPH
         BaseParticles* base_particles_;
     };
 
-    class PartDynamicsByParticleWithFace : public ParticleDynamics<void>
+    class PartDynamicsByParticleWithFace : public OldParticleDynamics<void>
     {
     public:
         PartDynamicsByParticleWithFace(RealBody& real_body, BodyRegionByParticleWithFace& body_part)
-            : ParticleDynamics<void>(real_body),
+            : OldParticleDynamics<void>(real_body),
             body_part_particles_(body_part.body_part_particles_) {};
         virtual ~PartDynamicsByParticleWithFace() {}
 

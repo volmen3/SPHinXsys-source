@@ -126,7 +126,7 @@ namespace SPH
         RealBody& real_body_;
     };
 
-    class PartDynamicsByCellsWithFace : public ParticleDynamics<void>
+    class PartDynamicsByCellsWithFace : public OldParticleDynamics<void>
     {
     public:
         PartDynamicsByCellsWithFace(RealBody& real_body, BodyRegionByCellsWithFace& body_region);

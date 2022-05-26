@@ -81,7 +81,7 @@ namespace SPH
 	 */
 	template <class BodyType, class BaseParticlesType, class BaseMaterialType>
 	class GetDiffusionTimeStepSize
-		: public ParticleDynamics<Real>,
+		: public OldParticleDynamics<Real>,
 		  public DiffusionReactionSimpleData<BodyType, BaseParticlesType, BaseMaterialType>
 	{
 	public:
@@ -201,7 +201,7 @@ namespace SPH
 	 * with second order Runge-Kutta time stepping
 	 */
 	template <class FirstStageType>
-	class RelaxationOfAllDiffusionSpeciesRK2 : public ParticleDynamics<void>
+	class RelaxationOfAllDiffusionSpeciesRK2 : public OldParticleDynamics<void>
 	{
 	protected:
 		StdVec<BaseDiffusion *> species_diffusion_;

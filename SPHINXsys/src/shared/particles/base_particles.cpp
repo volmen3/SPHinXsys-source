@@ -191,7 +191,7 @@ namespace SPH
 		output_file << "\n";
 
 		//compute derived particle variables
-		for (AbstractParticleDynamics<void> *derived_variable : derived_variables_)
+		for (BaseParticleDynamics<void> *derived_variable : derived_variables_)
 		{
 			derived_variable->parallel_exec();
 		}

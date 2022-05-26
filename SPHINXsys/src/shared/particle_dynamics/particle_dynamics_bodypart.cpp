@@ -58,7 +58,7 @@ namespace SPH
 	}
 	//=================================================================================================//
 	PartDynamicsByParticle::PartDynamicsByParticle(SPHBody &sph_body, BodyPartByParticle &body_part)
-		: ParticleDynamics<void>(sph_body),
+		: OldParticleDynamics<void>(sph_body),
 		  body_part_particles_(body_part.body_part_particles_) {}
 	//=================================================================================================//
 	PartSimpleDynamicsByParticle::
@@ -145,7 +145,7 @@ namespace SPH
 	}
 	//=================================================================================================//
 	PartDynamicsByCell::PartDynamicsByCell(SPHBody &sph_body, BodyPartByCell &body_part)
-		: ParticleDynamics<void>(sph_body),
+		: OldParticleDynamics<void>(sph_body),
 		  body_part_cells_(body_part.body_part_cells_),
 		  functor_update_(std::bind(&PartDynamicsByCell::Update, this, _1, _2)){};
 	//=================================================================================================//

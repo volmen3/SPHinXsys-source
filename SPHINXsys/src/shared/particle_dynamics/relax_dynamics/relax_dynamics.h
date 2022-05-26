@@ -204,7 +204,7 @@ namespace SPH
 		 * @class RelaxationStepInner
 		 * @brief carry out particle relaxation step of particles within the body
 		 */
-		class RelaxationStepInner : public ParticleDynamics<void>
+		class RelaxationStepInner : public OldParticleDynamics<void>
 		{
 		protected:
 			RealBody *real_body_;
@@ -248,7 +248,7 @@ namespace SPH
 		 * @class RelaxationStepComplex
 		 * @brief carry out particle relaxation step of particles within multi bodies
 		 */
-		class RelaxationStepComplex : public ParticleDynamics<void>
+		class RelaxationStepComplex : public OldParticleDynamics<void>
 		{
 		protected:
 			RealBody *real_body_;
@@ -296,7 +296,7 @@ namespace SPH
 		 * @class ShellNormalDirectionPrediction
 		 * @brief prodict the normal direction of shell particles.
 		 */
-		class ShellNormalDirectionPrediction : public ParticleDynamics<void>
+		class ShellNormalDirectionPrediction : public OldParticleDynamics<void>
 		{
 			const Real convergence_criterion_;
 			const Real consistency_criterion_;

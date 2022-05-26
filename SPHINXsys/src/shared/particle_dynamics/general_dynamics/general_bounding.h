@@ -38,7 +38,7 @@ namespace SPH
 	* @brief Bounding particle position in a axis direction.
 	* The axis_direction must be 0, 1 for 2d and 0, 1, 2 for 3d
 	*/
-	class BoundingInAxisDirection : public ParticleDynamics<void>, public GeneralDataDelegateSimple
+	class BoundingInAxisDirection : public OldParticleDynamics<void>, public GeneralDataDelegateSimple
 	{
 	protected:
 		const int axis_;				 /**< the axis directions for bounding*/

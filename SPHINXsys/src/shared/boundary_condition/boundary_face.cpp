@@ -73,7 +73,7 @@ namespace SPH
     }
 
     PartDynamicsByCellsWithFace::PartDynamicsByCellsWithFace(RealBody &real_body, BodyRegionByCellsWithFace &body_region)
-        : ParticleDynamics<void>(real_body),
+        : OldParticleDynamics<void>(real_body),
           body_region_(body_region)
     {
         body_region.tagBodyDomainBoundingCells(bound_cells_);

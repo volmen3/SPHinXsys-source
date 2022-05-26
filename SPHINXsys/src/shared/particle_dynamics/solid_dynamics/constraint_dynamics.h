@@ -236,7 +236,7 @@ namespace SPH
 		 * @class ClampConstrainSolidBodyRegion
 		 * @brief Constrain a solid body part with prescribed motion and smoothing to mimic the clamping effect.
 		 */
-		class ClampConstrainSolidBodyRegion : public ParticleDynamics<void>
+		class ClampConstrainSolidBodyRegion : public OldParticleDynamics<void>
 		{
 		public:
 			ConstrainSolidBodyRegion constrianing_;

@@ -9,7 +9,7 @@ namespace SPH
 {
 	//=================================================================================================//
 	BoundingInAxisDirection::BoundingInAxisDirection(RealBody &real_body, int axis_direction)
-		: ParticleDynamics<void>(real_body), DataDelegateSimple<SPHBody, BaseParticles>(real_body),
+		: OldParticleDynamics<void>(real_body), DataDelegateSimple<SPHBody, BaseParticles>(real_body),
 		  axis_(axis_direction), body_domain_bounds_(real_body.getBodyDomainBounds()),
 		  pos_n_(particles_->pos_n_),
 		  cell_linked_list_(real_body.cell_linked_list_),

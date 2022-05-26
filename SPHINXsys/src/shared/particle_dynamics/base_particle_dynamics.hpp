@@ -14,7 +14,7 @@ namespace SPH
 {
 	//=================================================================================================//
 	template <class ReturnType>
-	ParticleDynamics<ReturnType>::ParticleDynamics(SPHBody &sph_body)
+	OldParticleDynamics<ReturnType>::OldParticleDynamics(SPHBody &sph_body)
 		: GlobalStaticVariables(), sph_body_(&sph_body),
 		  sph_adaptation_(sph_body.sph_adaptation_),
 		  base_particles_(sph_body.base_particles_) {}

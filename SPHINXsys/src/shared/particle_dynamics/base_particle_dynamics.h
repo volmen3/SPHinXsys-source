@@ -135,17 +135,82 @@ namespace SPH
 	};
 
 	/**
+	 * @class BaseParticleDynamics
+	 * @brief The new version of base class for all particle dynamics
+	 * This class contains the only two interface functions available
+	 * for particle dynamics. An specific implementation should be realized.
+	 */
+	template <class ReturnType = void>
+	class BaseParticleDynamics : public GlobalStaticVariables
+	{
+	public:
+		explicit BaseParticleDynamics(){};
+		virtual ~BaseParticleDynamics(){};
+
+		/** The only two functions can be called from outside
+		 * One is for sequential execution, the other is for parallel. */
+		virtual ReturnType exec(Real dt = 0.0) = 0;
+		virtual ReturnType parallel_exec(Real dt = 0.0) = 0;
+	};
+
+	/**
 	 * @class ParticleDynamics
+	 * @brief The basic particle dynamics in which a range of particles are looped.
+	 */
+	template <typename LoopRange>
+	class ParticleDynamics : public BaseParticleDynamics<void>
+	{
+	public:
+		ParticleDynamics(LoopRange &loop_range, ParticleFunctor particle_functor)
+			: BaseParticleDynamics<void>(),
+			  loop_range_(loop_range), particle_functor_(particle_functor){};
+
+		virtual ~ParticleDynamics(){};
+
+		virtual void exec(Real dt = 0.0) override
+		{
+			ParticleIterator(loop_range_, particle_functor_, dt);
+		};
+
+		virtual void parallel_exec(Real dt = 0.0) override
+		{
+			ParticleIterator_parallel(loop_range_, particle_functor_, dt);
+		};
+
+	protected:
+		LoopRange &loop_range_;
+		ParticleFunctor particle_functor_;
+	};
+
+	/**
+	 * @class LocalParticleDynamics
+	 * @brief The new version of base class for all local particle dynamics.
+	 */
+	class LocalParticleDynamics
+	{
+		SPHBody *sph_body_;
+
+	public:
+		explicit LocalParticleDynamics(SPHBody &sph_body) : sph_body_(&sph_body){};
+		virtual ~LocalParticleDynamics(){};
+
+		void setBodyUpdated() { sph_body_->setNewlyUpdated(); };
+		/** the function for set global parameters for the particle dynamics */
+		virtual void setupDynamics(Real dt = 0.0){};
+	};
+	
+	/**
+	 * @class OldParticleDynamics
 	 * @brief The base class for all particle dynamics
 	 * This class contains the only two interface functions available
 	 * for particle dynamics. An specific implementation should be realized.
 	 */
 	template <class ReturnType = void>
-	class ParticleDynamics : public GlobalStaticVariables
+	class OldParticleDynamics : public GlobalStaticVariables
 	{
 	public:
-		explicit ParticleDynamics(SPHBody &sph_body);
-		virtual ~ParticleDynamics(){};
+		explicit OldParticleDynamics(SPHBody &sph_body);
+		virtual ~OldParticleDynamics(){};
 
 		SPHBody *getSPHBody() { return sph_body_; };
 		/** The only two functions can be called from outside
@@ -291,71 +356,6 @@ namespace SPH
 
 	protected:
 		virtual void prepareContactData() = 0;
-	};
-
-	/**
-	 * @class AbstractParticleDynamics
-	 * @brief The new version of base class for all particle dynamics
-	 * This class contains the only two interface functions available
-	 * for particle dynamics. An specific implementation should be realized.
-	 */
-	template <class ReturnType = void>
-	class AbstractParticleDynamics : public GlobalStaticVariables
-	{
-	public:
-		explicit AbstractParticleDynamics(){};
-		virtual ~AbstractParticleDynamics(){};
-
-		/** The only two functions can be called from outside
-		 * One is for sequential execution, the other is for parallel. */
-		virtual ReturnType exec(Real dt = 0.0) = 0;
-		virtual ReturnType parallel_exec(Real dt = 0.0) = 0;
-	};
-
-	/**
-	 * @class BaseParticleDynamics
-	 * @brief The basic particle dynamics in which a range of particles are looped.
-	 */
-	template <typename LoopRange>
-	class BaseParticleDynamics : public AbstractParticleDynamics<void>
-	{
-	public:
-		BaseParticleDynamics(LoopRange &loop_range, ParticleFunctor particle_functor)
-			: AbstractParticleDynamics<void>(),
-			  loop_range_(loop_range), particle_functor_(particle_functor){};
-
-		virtual ~BaseParticleDynamics(){};
-
-		virtual void exec(Real dt = 0.0) override
-		{
-			ParticleIterator(loop_range_, particle_functor_, dt);
-		};
-
-		virtual void parallel_exec(Real dt = 0.0) override
-		{
-			ParticleIterator_parallel(loop_range_, particle_functor_, dt);
-		};
-
-	protected:
-		LoopRange &loop_range_;
-		ParticleFunctor particle_functor_;
-	};
-
-	/**
-	 * @class LocalParticleDynamics
-	 * @brief The new version of base class for all local particle dynamics.
-	 */
-	class LocalParticleDynamics
-	{
-		SPHBody *sph_body_;
-
-	public:
-		explicit LocalParticleDynamics(SPHBody &sph_body) : sph_body_(&sph_body){};
-		virtual ~LocalParticleDynamics(){};
-
-		void setBodyUpdated() { sph_body_->setNewlyUpdated(); };
-		/** the function for set global parameters for the particle dynamics */
-		virtual void setupDynamics(Real dt = 0.0){};
 	};
 }
 #endif // BASE_PARTICLE_DYNAMICS_H

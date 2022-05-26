@@ -302,7 +302,7 @@ namespace SPH
 		//=================================================================================================//
 		ClampConstrainSolidBodyRegion::
 			ClampConstrainSolidBodyRegion(BaseBodyRelationInner &inner_relation, BodyPartByParticle &body_part)
-			: ParticleDynamics<void>(*inner_relation.sph_body_),
+			: OldParticleDynamics<void>(*inner_relation.sph_body_),
 			  constrianing_(ConstrainSolidBodyRegion(*inner_relation.sph_body_, body_part)),
 			  softing_(SoftConstrainSolidBodyRegion(inner_relation, body_part)) {}
 		//=================================================================================================//

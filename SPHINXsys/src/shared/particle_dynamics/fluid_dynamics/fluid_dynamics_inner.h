@@ -51,7 +51,7 @@ namespace SPH
 		 * @brief  Set initial condition for a fluid body.
 		 * This is a abstract class to be override for case specific initial conditions
 		 */
-		class FluidInitialCondition : public ParticleDynamicsSimple, public FluidDataSimple
+		class FluidInitialCondition : public OldParticleDynamicsSimple, public FluidDataSimple
 		{
 		public:
 			explicit FluidInitialCondition(FluidBody &fluid_body);
@@ -290,11 +290,11 @@ namespace SPH
 		 * @brief  set initial condition for Oldroyd_B_Fluid dynamics
 		 * This is a abstract class to be override for case specific initial conditions
 		 */
-		class Oldroyd_B_FluidInitialCondition : public ParticleDynamicsSimple, public FluidDataSimple
+		class Oldroyd_B_FluidInitialCondition : public OldParticleDynamicsSimple, public FluidDataSimple
 		{
 		public:
 			explicit Oldroyd_B_FluidInitialCondition(FluidBody &fluid_body)
-				: ParticleDynamicsSimple(fluid_body), FluidDataSimple(fluid_body){};
+				: OldParticleDynamicsSimple(fluid_body), FluidDataSimple(fluid_body){};
 			virtual ~Oldroyd_B_FluidInitialCondition(){};
 		};
 

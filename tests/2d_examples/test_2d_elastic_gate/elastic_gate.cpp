@@ -197,9 +197,9 @@ int main()
 	//	Algorithms of FSI.
 	//----------------------------------------------------------------------
 	/** offset particle position */
-	SimpleDynamics<OffsetInitialPosition> gate_offset_position(gate, offset);
-	SimpleDynamics<NormalDirectionFromBodyShape> wall_boundary_normal_direction(wall_boundary);
-	SimpleDynamics<NormalDirectionFromBodyShape> gate_normal_direction(gate);
+	BodyDynamicsSimple<OffsetInitialPosition> gate_offset_position(gate, offset);
+	BodyDynamicsSimple<NormalDirectionFromBodyShape> wall_boundary_normal_direction(wall_boundary);
+	BodyDynamicsSimple<NormalDirectionFromBodyShape> gate_normal_direction(gate);
 	/** Corrected configuration for solid dynamics. */
 	solid_dynamics::CorrectConfiguration gate_corrected_configuration(gate_inner_relation);
 	/** Compute the force exerted on elastic gate due to fluid pressure. */

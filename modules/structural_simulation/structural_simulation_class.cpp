@@ -39,7 +39,7 @@ SolidBodyForSimulation::SolidBodyForSimulation(
 	Real physical_viscosity, shared_ptr<LinearElasticSolid> material_model, StdLargeVec<Vecd> &pos_0, StdLargeVec<Real> &volume)
 	: solid_body_from_mesh_(system, triangle_mesh_shape, resolution, material_model, pos_0, volume),
 	  inner_body_relation_(solid_body_from_mesh_),
-	  initial_normal_direction_(SimpleDynamics<NormalDirectionFromBodyShape>(solid_body_from_mesh_)),
+	  initial_normal_direction_(BodyDynamicsSimple<NormalDirectionFromBodyShape>(solid_body_from_mesh_)),
 	  correct_configuration_(inner_body_relation_),
 	  stress_relaxation_first_half_(inner_body_relation_),
 	  stress_relaxation_second_half_(inner_body_relation_),

@@ -63,7 +63,7 @@ namespace SPH
 	 */
 	template <class BodyType, class BaseParticlesType, class BaseMaterialType>
 	class DiffusionReactionInitialCondition
-		: public ParticleDynamicsSimple,
+		: public OldParticleDynamicsSimple,
 		  public DiffusionReactionSimpleData<BodyType, BaseParticlesType, BaseMaterialType>
 	{
 	public:
@@ -160,7 +160,7 @@ namespace SPH
 	 */
 	template <class BodyType, class BaseParticlesType, class BaseMaterialType>
 	class InitializationRK
-		: public ParticleDynamicsSimple,
+		: public OldParticleDynamicsSimple,
 		  public DiffusionReactionSimpleData<BodyType, BaseParticlesType, BaseMaterialType>
 	{
 		StdVec<BaseDiffusion *> species_diffusion_;
@@ -237,7 +237,7 @@ namespace SPH
 	 */
 	template <class BodyType, class BaseParticlesType, class BaseMaterialType>
 	class RelaxationOfAllReactionsForward
-		: public ParticleDynamicsSimple,
+		: public OldParticleDynamicsSimple,
 		  public DiffusionReactionSimpleData<BodyType, BaseParticlesType, BaseMaterialType>
 	{
 		BaseReactionModel *species_reaction_;
@@ -258,7 +258,7 @@ namespace SPH
 	 */
 	template <class BodyType, class BaseParticlesType, class BaseMaterialType>
 	class RelaxationOfAllReactionsBackward
-		: public ParticleDynamicsSimple,
+		: public OldParticleDynamicsSimple,
 		  public DiffusionReactionSimpleData<BodyType, BaseParticlesType, BaseMaterialType>
 	{
 		BaseReactionModel *species_reaction_;
@@ -301,12 +301,12 @@ namespace SPH
 	 */
 	template <class BodyType, class BaseParticlesType, class BaseMaterialType>
 	class DiffusionBasedMapping
-		: public ParticleDynamicsSimple,
+		: public OldParticleDynamicsSimple,
 		  public DiffusionReactionSimpleData<BodyType, BaseParticlesType, BaseMaterialType>
 	{
 	public:
 		explicit DiffusionBasedMapping(BodyType &body)
-			: ParticleDynamicsSimple(body),
+			: OldParticleDynamicsSimple(body),
 			  DiffusionReactionSimpleData<BodyType, BaseParticlesType, BaseMaterialType>(body),
 			  pos_n_(this->particles_->pos_n_), species_n_(this->particles_->species_n_){};
 		virtual ~DiffusionBasedMapping(){};

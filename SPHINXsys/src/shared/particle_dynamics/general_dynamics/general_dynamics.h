@@ -51,7 +51,7 @@ namespace SPH
 	 * set the number of ghost particles into zero.
 	 */
 	class TimeStepInitialization
-		: public ParticleDynamicsSimple,
+		: public OldParticleDynamicsSimple,
 		  public GeneralDataDelegateSimple
 	{
 	private:
@@ -74,7 +74,7 @@ namespace SPH
 	 * @brief Randomize the initial particle position
 	 */
 	class RandomizeParticlePosition
-		: public ParticleDynamicsSimple,
+		: public OldParticleDynamicsSimple,
 		  public GeneralDataDelegateSimple
 	{
 	public:

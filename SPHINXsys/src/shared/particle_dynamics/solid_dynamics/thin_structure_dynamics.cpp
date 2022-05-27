@@ -15,7 +15,7 @@ namespace SPH
 		//=================================================================================================//
 		ShellDynamicsInitialCondition::
 			ShellDynamicsInitialCondition(SolidBody &solid_body)
-			: ParticleDynamicsSimple(solid_body),
+			: OldParticleDynamicsSimple(solid_body),
 			  ShellDataSimple(solid_body),
 			  n_0_(particles_->n_0_), n_(particles_->n_), pseudo_n_(particles_->pseudo_n_),
 			  pos_0_(particles_->pos_0_),
@@ -498,7 +498,7 @@ namespace SPH
 			DistributingPointForcesToShell(SolidBody &solid_body, std::vector<Vecd> point_forces,
 				std::vector<Vecd> reference_positions, Real time_to_full_external_force,
 				Real particle_spacing_ref, Real h_spacing_ratio)
-			: ParticleDynamicsSimple(solid_body), ShellDataSimple(solid_body),
+			: OldParticleDynamicsSimple(solid_body), ShellDataSimple(solid_body),
 			point_forces_(point_forces), reference_positions_(reference_positions),
 			time_to_full_external_force_(time_to_full_external_force),
 			particle_spacing_ref_(particle_spacing_ref), h_spacing_ratio_(h_spacing_ratio),

@@ -12,7 +12,7 @@
 namespace SPH
 {
 	//=================================================================================================//
-	void ParticleDynamicsSimple::exec(Real dt)
+	void OldParticleDynamicsSimple::exec(Real dt)
 	{
 		setBodyUpdated();
 		setupDynamics(dt);
@@ -20,7 +20,7 @@ namespace SPH
 		ParticleIterator(total_real_particles, functor_update_, dt);
 	}
 	//=================================================================================================//
-	void ParticleDynamicsSimple::parallel_exec(Real dt)
+	void OldParticleDynamicsSimple::parallel_exec(Real dt)
 	{
 		setBodyUpdated();
 		setupDynamics(dt);

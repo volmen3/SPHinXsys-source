@@ -253,7 +253,7 @@ namespace SPH
 		 * @class ConstrainSolidBodyMassCenter
 		 * @brief Constrain the mass center of a solid body.
 		 */
-		class ConstrainSolidBodyMassCenter : public ParticleDynamicsSimple, public SolidDataSimple
+		class ConstrainSolidBodyMassCenter : public OldParticleDynamicsSimple, public SolidDataSimple
 		{
 		public:
 			explicit ConstrainSolidBodyMassCenter(SPHBody &sph_body, Vecd constrain_direction = Vecd(1.0));

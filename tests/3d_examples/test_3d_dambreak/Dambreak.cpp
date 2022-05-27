@@ -102,7 +102,7 @@ int main()
 	//-------------------------------------------------------------------
 	//-------- common particle dynamics ----------------------------------------
 	Gravity gravity(Vec3d(0.0, -gravity_g, 0.0));
-	SimpleDynamics<NormalDirectionFromBodyShape> wall_boundary_normal_direction(wall_boundary);
+	BodyDynamicsSimple<NormalDirectionFromBodyShape> wall_boundary_normal_direction(wall_boundary);
 	TimeStepInitialization initialize_a_fluid_step(water_block, gravity);
 	//-------- fluid dynamics --------------------------------------------------
 	//evaluation of density by summation approach

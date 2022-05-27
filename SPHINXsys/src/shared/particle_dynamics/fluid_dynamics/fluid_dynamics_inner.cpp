@@ -14,7 +14,7 @@ namespace SPH
 		//=================================================================================================//
 		FluidInitialCondition::
 			FluidInitialCondition(FluidBody &fluid_body)
-			: ParticleDynamicsSimple(fluid_body), FluidDataSimple(fluid_body),
+			: OldParticleDynamicsSimple(fluid_body), FluidDataSimple(fluid_body),
 			  pos_n_(particles_->pos_n_), vel_n_(particles_->vel_n_) {}
 		//=================================================================================================//
 		DensitySummationInner::DensitySummationInner(BaseBodyRelationInner &inner_relation)

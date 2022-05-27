@@ -45,7 +45,7 @@ namespace SPH
 		typedef DataDelegateInner<EulerianFluidBody, CompressibleFluidParticles, CompressibleFluid> CompressibleFluidDataInner;
 
 		class CompressibleFlowTimeStepInitialization
-			: public ParticleDynamicsSimple,
+			: public OldParticleDynamicsSimple,
 			  public CompressibleFluidDataSimple
 		{
 		private:
@@ -70,7 +70,7 @@ namespace SPH
 		 * This is a abstract class to be override for case specific initial conditions
 		 */
 		class CompressibleFluidInitialCondition
-			: public ParticleDynamicsSimple,
+			: public OldParticleDynamicsSimple,
 			  public CompressibleFluidDataSimple
 		{
 		public:

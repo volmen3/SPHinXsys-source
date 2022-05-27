@@ -113,7 +113,7 @@ int main(int ac, char *av[])
 	/**
 	 * @brief 	Methods used for time stepping.
 	 */
-	SimpleDynamics<NormalDirectionFromBodyShape> cylinder_normal_direction(cylinder);
+	BodyDynamicsSimple<NormalDirectionFromBodyShape> cylinder_normal_direction(cylinder);
 	/** Initialize particle acceleration. */
 	eulerian_weakly_compressible_fluid_dynamics::EulerianFlowTimeStepInitialization initialize_a_fluid_step(water_block);
 	/** Time step size with considering sound wave speed. */

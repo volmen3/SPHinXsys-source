@@ -89,7 +89,7 @@ int main(int ac, char *av[])
 	//----------------------------------------------------------------------
 	//	All numerical methods will be used in this case.
 	//----------------------------------------------------------------------
-	SimpleDynamics<NormalDirectionFromBodyShape> wall_normal_direction(wall);
+	BodyDynamicsSimple<NormalDirectionFromBodyShape> wall_normal_direction(wall);
 	InitialCondition initial_condition(column);
 	/** Corrected configuration. */
 	solid_dynamics::CorrectConfiguration corrected_configuration(column_inner);

@@ -159,7 +159,7 @@ namespace SPH
 		 * @brief  set initial condition for a muscle body
 		 * This is a abstract class to be override for case specific initial conditions.
 		 */
-		class ElectroPhysiologyInitialCondition : public ParticleDynamicsSimple,
+		class ElectroPhysiologyInitialCondition : public OldParticleDynamicsSimple,
 												  public ElectroPhysiologyDataDelegateSimple
 		{
 		public:
@@ -239,12 +239,12 @@ namespace SPH
 		 * @brief Apply specific stimulus currents
 		 * This is a abstract class to be override for case specific implementations.
 		 */
-		class ApplyStimulusCurrents : public ParticleDynamicsSimple,
+		class ApplyStimulusCurrents : public OldParticleDynamicsSimple,
 									  public ElectroPhysiologyDataDelegateSimple
 		{
 		public:
 			explicit ApplyStimulusCurrents(RealBody &real_body)
-				: ParticleDynamicsSimple(real_body),
+				: OldParticleDynamicsSimple(real_body),
 				  ElectroPhysiologyDataDelegateSimple(real_body) {}
 			virtual ~ApplyStimulusCurrents(){};
 		};

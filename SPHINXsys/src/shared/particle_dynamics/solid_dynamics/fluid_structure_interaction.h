@@ -324,7 +324,7 @@ namespace SPH
 		* This class is for FSI applications to achieve smaller solid dynamics
 		* time step size compared to the fluid dynamics
 		*/
-		class InitializeDisplacement : public ParticleDynamicsSimple, public SolidDataSimple
+		class InitializeDisplacement : public OldParticleDynamicsSimple, public SolidDataSimple
 		{
 		public:
 			explicit InitializeDisplacement(SolidBody &solid_body, StdLargeVec<Vecd> &pos_temp);

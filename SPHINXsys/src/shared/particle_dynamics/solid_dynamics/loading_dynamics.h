@@ -80,7 +80,7 @@ namespace SPH
          * Only for 3D applications
          */
         class SpringDamperConstraintParticleWise
-            : public ParticleDynamicsSimple,
+            : public OldParticleDynamicsSimple,
               public SolidDataSimple
         {
         public:
@@ -138,7 +138,7 @@ namespace SPH
          * Only for uniform surface particle size.
          */
         class SpringOnSurfaceParticles
-            : public ParticleDynamicsSimple,
+            : public OldParticleDynamicsSimple,
               public SolidDataSimple
         {
         public:
@@ -160,7 +160,7 @@ namespace SPH
          * @brief Adds acceleration to the part of the body that's inside a bounding box
          */
         class AccelerationForBodyPartInBoundingBox
-            : public ParticleDynamicsSimple,
+            : public OldParticleDynamicsSimple,
               public SolidDataSimple
         {
         public:

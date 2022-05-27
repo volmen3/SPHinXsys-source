@@ -56,7 +56,7 @@ namespace SPH
 		 * This is a abstract class to be override for case specific activation
 		 */
 		class MuscleActivation :
-			public ParticleDynamicsSimple, public ElasticSolidDataSimple
+			public OldParticleDynamicsSimple, public ElasticSolidDataSimple
 		{
 		public:
 			explicit MuscleActivation(SolidBody &solid_body);

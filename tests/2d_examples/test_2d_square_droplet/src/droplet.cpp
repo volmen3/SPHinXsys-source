@@ -49,7 +49,7 @@ int main()
 	/** Initialize particle acceleration. */
 	TimeStepInitialization initialize_a_water_step(water_block, gravity);
 	TimeStepInitialization initialize_a_air_step(air_block, gravity);
-	SimpleDynamics<NormalDirectionFromBodyShape> wall_boundary_normal_direction(wall_boundary);
+	BodyDynamicsSimple<NormalDirectionFromBodyShape> wall_boundary_normal_direction(wall_boundary);
 	/**
 	 * @brief 	Algorithms of fluid dynamics.
 	 */

@@ -67,7 +67,7 @@ namespace SPH
 		}
 		//=================================================================================================//
 		UpdateParticlePosition::UpdateParticlePosition(SPHBody &sph_body)
-			: ParticleDynamicsSimple(sph_body), RelaxDataDelegateSimple(sph_body),
+			: OldParticleDynamicsSimple(sph_body), RelaxDataDelegateSimple(sph_body),
 			  pos_n_(particles_->pos_n_), dvel_dt_(particles_->dvel_dt_) {}
 		//=================================================================================================//
 		void UpdateParticlePosition::Update(size_t index_i, Real dt_square)
@@ -76,7 +76,7 @@ namespace SPH
 		}
 		//=================================================================================================//
 		UpdateSmoothingLengthRatioByBodyShape::UpdateSmoothingLengthRatioByBodyShape(SPHBody &sph_body)
-			: ParticleDynamicsSimple(sph_body), RelaxDataDelegateSimple(sph_body),
+			: OldParticleDynamicsSimple(sph_body), RelaxDataDelegateSimple(sph_body),
 			  h_ratio_(*particles_->getVariableByName<Real>("SmoothingLengthRatio")),
 			  Vol_(particles_->Vol_), pos_n_(particles_->pos_n_),
 			  body_shape_(*sph_body.body_shape_), kernel_(*sph_body.sph_adaptation_->getKernel())

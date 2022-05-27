@@ -44,7 +44,7 @@ namespace SPH
 		typedef DataDelegateInner<EulerianFluidBody, WeaklyCompressibleFluidParticles, Fluid> EulerianWeaklyCompressibleFluidDataInner;
 
 		class EulerianFlowTimeStepInitialization
-			: public ParticleDynamicsSimple,
+			: public OldParticleDynamicsSimple,
 			public EulerianWeaklyCompressibleFluidDataSimple
 		{
 		private:

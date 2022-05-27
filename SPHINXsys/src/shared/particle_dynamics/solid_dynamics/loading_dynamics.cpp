@@ -30,7 +30,7 @@ namespace SPH
 		//=================================================================================================//
 		SpringDamperConstraintParticleWise::
 			SpringDamperConstraintParticleWise(SolidBody &solid_body, Vecd stiffness, Real damping_ratio)
-			: ParticleDynamicsSimple(solid_body), SolidDataSimple(solid_body),
+			: OldParticleDynamicsSimple(solid_body), SolidDataSimple(solid_body),
 			  pos_n_(particles_->pos_n_),
 			  pos_0_(particles_->pos_0_),
 			  vel_n_(particles_->vel_n_),
@@ -161,7 +161,7 @@ namespace SPH
 		//=================================================================================================//
 		SpringOnSurfaceParticles::
 			SpringOnSurfaceParticles(SolidBody &body, Real stiffness, Real damping_ratio)
-			: ParticleDynamicsSimple(body), SolidDataSimple(body),
+			: OldParticleDynamicsSimple(body), SolidDataSimple(body),
 			  pos_n_(particles_->pos_n_),
 			  pos_0_(particles_->pos_0_),
 			  vel_n_(particles_->vel_n_),
@@ -203,7 +203,7 @@ namespace SPH
 		//=================================================================================================//
 		AccelerationForBodyPartInBoundingBox::
 			AccelerationForBodyPartInBoundingBox(SolidBody &solid_body, BoundingBox &bounding_box, Vecd acceleration)
-			: ParticleDynamicsSimple(solid_body), SolidDataSimple(solid_body),
+			: OldParticleDynamicsSimple(solid_body), SolidDataSimple(solid_body),
 			  pos_n_(particles_->pos_n_),
 			  dvel_dt_prior_(particles_->dvel_dt_prior_),
 			  bounding_box_(bounding_box),

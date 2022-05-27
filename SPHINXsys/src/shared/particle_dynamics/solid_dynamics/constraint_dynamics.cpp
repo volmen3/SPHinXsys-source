@@ -320,7 +320,7 @@ namespace SPH
 		//=================================================================================================//
 		ConstrainSolidBodyMassCenter::
 			ConstrainSolidBodyMassCenter(SPHBody &sph_body, Vecd constrain_direction)
-			: ParticleDynamicsSimple(sph_body), SolidDataSimple(sph_body),
+			: OldParticleDynamicsSimple(sph_body), SolidDataSimple(sph_body),
 			  correction_matrix_(Matd(1.0)), vel_n_(particles_->vel_n_),
 			  compute_total_momentum_(sph_body, "Velocity")
 		{

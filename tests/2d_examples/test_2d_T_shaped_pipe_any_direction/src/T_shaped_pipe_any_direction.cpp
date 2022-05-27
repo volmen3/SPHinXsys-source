@@ -219,7 +219,7 @@ int main(int ac, char *av[])
 	//----------------------------------------------------------------------
 	/** Initialize particle acceleration. */
 	TimeStepInitialization initialize_a_fluid_step(water_block);
-	SimpleDynamics<NormalDirectionFromBodyShape> wall_boundary_normal_direction(wall_boundary);
+	BodyDynamicsSimple<NormalDirectionFromBodyShape> wall_boundary_normal_direction(wall_boundary);
 	/** Emmiter. */
 	BodyRegionByParticleWithFace emitter(water_block, inflow_face, 4);
 	InflowInjectingWithFace emitter_inflow_injecting(water_block, emitter, 10);

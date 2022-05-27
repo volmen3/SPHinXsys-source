@@ -16,14 +16,14 @@ namespace SPH
 	{
 		//=================================================================================================//
 		EulerianFlowTimeStepInitialization::EulerianFlowTimeStepInitialization(SPHBody &sph_body)
-			: ParticleDynamicsSimple(sph_body), EulerianWeaklyCompressibleFluidDataSimple(sph_body),
+			: OldParticleDynamicsSimple(sph_body), EulerianWeaklyCompressibleFluidDataSimple(sph_body),
 			rho_n_(particles_->rho_n_), pos_n_(particles_->pos_n_), mass_(particles_->mass_),
 			vel_n_(particles_->vel_n_), dmom_dt_prior_(particles_->dmom_dt_prior_),
 			gravity_(gravity_ptr_keeper_.createPtr<Gravity>(Vecd(0))) {}
 		//=================================================================================================//
 		EulerianFlowTimeStepInitialization::
 			EulerianFlowTimeStepInitialization(SPHBody &sph_body, Gravity &gravity)
-			: ParticleDynamicsSimple(sph_body), EulerianWeaklyCompressibleFluidDataSimple(sph_body),
+			: OldParticleDynamicsSimple(sph_body), EulerianWeaklyCompressibleFluidDataSimple(sph_body),
 			rho_n_(particles_->rho_n_), pos_n_(particles_->pos_n_), mass_(particles_->mass_),
 			vel_n_(particles_->vel_n_), dmom_dt_prior_(particles_->dmom_dt_prior_),
 			gravity_(&gravity) {}

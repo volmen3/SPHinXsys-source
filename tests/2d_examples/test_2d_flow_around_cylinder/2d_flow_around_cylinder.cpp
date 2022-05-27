@@ -99,7 +99,7 @@ int main(int ac, char *av[])
 	//	Define the main numerical methods used in the simulation.
 	//	Note that there may be data dependence on the constructors of these methods.
 	//----------------------------------------------------------------------
-	SimpleDynamics<NormalDirectionFromBodyShape> cylinder_normal_direction(cylinder);
+	BodyDynamicsSimple<NormalDirectionFromBodyShape> cylinder_normal_direction(cylinder);
 	/** Initialize particle acceleration. */
 	TimeStepInitialization initialize_a_fluid_step(water_block);
 	/** Periodic BCs in x direction. */

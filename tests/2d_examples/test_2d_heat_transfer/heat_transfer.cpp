@@ -266,7 +266,7 @@ int main()
 	PeriodicConditionInAxisDirectionUsingCellLinkedList periodic_condition(thermofluid_body, xAxis);
 	ThermosolidBodyInitialCondition thermosolid_condition(thermosolid_body);
 	ThermofluidBodyInitialCondition thermofluid_initial_condition(thermofluid_body);
-	SimpleDynamics<NormalDirectionFromBodyShape> thermosolid_body_normal_direction(thermosolid_body);
+	BodyDynamicsSimple<NormalDirectionFromBodyShape> thermosolid_body_normal_direction(thermosolid_body);
 	/** Initialize particle acceleration. */
 	TimeStepInitialization initialize_a_fluid_step(thermofluid_body);
 	/** Evaluation of density by summation approach. */

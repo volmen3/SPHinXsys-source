@@ -107,7 +107,7 @@ namespace SPH
 		 * @class UpdateParticlePosition
 		 * @brief update the particle position for a time step
 		 */
-		class UpdateParticlePosition : public ParticleDynamicsSimple,
+		class UpdateParticlePosition : public OldParticleDynamicsSimple,
 									   public RelaxDataDelegateSimple
 		{
 		public:
@@ -123,7 +123,7 @@ namespace SPH
 		 * @class UpdateSmoothingLengthRatioByBodyShape
 		 * @brief update the particle smoothing length ratio
 		 */
-		class UpdateSmoothingLengthRatioByBodyShape : public ParticleDynamicsSimple,
+		class UpdateSmoothingLengthRatioByBodyShape : public OldParticleDynamicsSimple,
 													  public RelaxDataDelegateSimple
 		{
 		public:
@@ -376,7 +376,7 @@ namespace SPH
 				virtual void Update(size_t index_i, Real dt = 0.0) override;
 			};
 
-			SimpleDynamics<NormalPrediction> normal_prediction_;
+			BodyDynamicsSimple<NormalPrediction> normal_prediction_;
 			PredictionConvergenceCheck normal_prediction_convergence_check_;
 			ConsistencyCorrection consistency_correction_;
 			ConsistencyUpdatedCheck consistency_updated_check_;

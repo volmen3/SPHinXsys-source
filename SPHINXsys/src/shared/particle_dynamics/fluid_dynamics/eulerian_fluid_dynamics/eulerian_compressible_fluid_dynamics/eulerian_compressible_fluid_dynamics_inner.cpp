@@ -15,14 +15,14 @@ namespace SPH
 	{
 		//=================================================================================================//
 		CompressibleFlowTimeStepInitialization::CompressibleFlowTimeStepInitialization(SPHBody &sph_body)
-			: ParticleDynamicsSimple(sph_body), CompressibleFluidDataSimple(sph_body),
+			: OldParticleDynamicsSimple(sph_body), CompressibleFluidDataSimple(sph_body),
 			  rho_n_(particles_->rho_n_), dE_dt_prior_(particles_->dE_dt_prior_), pos_n_(particles_->pos_n_),
 			  vel_n_(particles_->vel_n_), dmom_dt_prior_(particles_->dmom_dt_prior_),
 			  gravity_(gravity_ptr_keeper_.createPtr<Gravity>(Vecd(0))) {}
 		//=================================================================================================//
 		CompressibleFlowTimeStepInitialization::
 			CompressibleFlowTimeStepInitialization(SPHBody &sph_body, Gravity &gravity)
-			: ParticleDynamicsSimple(sph_body), CompressibleFluidDataSimple(sph_body),
+			: OldParticleDynamicsSimple(sph_body), CompressibleFluidDataSimple(sph_body),
 			  rho_n_(particles_->rho_n_), dE_dt_prior_(particles_->dE_dt_prior_), pos_n_(particles_->pos_n_),
 			  vel_n_(particles_->vel_n_), dmom_dt_prior_(particles_->dmom_dt_prior_),
 			  gravity_(&gravity) {}
@@ -40,7 +40,7 @@ namespace SPH
 		//=================================================================================================//
 		CompressibleFluidInitialCondition::
 			CompressibleFluidInitialCondition(EulerianFluidBody &body)
-			: ParticleDynamicsSimple(body), CompressibleFluidDataSimple(body),
+			: OldParticleDynamicsSimple(body), CompressibleFluidDataSimple(body),
 			  pos_n_(particles_->pos_n_), vel_n_(particles_->vel_n_), mom_(particles_->mom_),
 			  rho_n_(particles_->rho_n_), E_(particles_->E_), p_(particles_->p_),
 			  gamma_(material_->HeatCapacityRatio()) {}

@@ -35,7 +35,7 @@ namespace SPH
 		//=================================================================================================//
 		ElasticDynamicsInitialCondition::
 			ElasticDynamicsInitialCondition(SolidBody &solid_body)
-			: ParticleDynamicsSimple(solid_body),
+			: OldParticleDynamicsSimple(solid_body),
 			  ElasticSolidDataSimple(solid_body),
 			  pos_n_(particles_->pos_n_), vel_n_(particles_->vel_n_)
 		{
@@ -43,7 +43,7 @@ namespace SPH
 		//=================================================================================================//
 		UpdateElasticNormalDirection::
 			UpdateElasticNormalDirection(SolidBody &solid_body)
-			: ParticleDynamicsSimple(solid_body),
+			: OldParticleDynamicsSimple(solid_body),
 			  ElasticSolidDataSimple(solid_body),
 			  n_(particles_->n_), n_0_(particles_->n_0_), F_(particles_->F_)
 		{

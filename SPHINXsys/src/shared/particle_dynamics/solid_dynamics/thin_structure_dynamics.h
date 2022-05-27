@@ -49,7 +49,7 @@ namespace SPH
 		 * @brief  set initial condition for shell particles
 		 * This is a abstract class to be override for case specific initial conditions.
 		 */
-		class ShellDynamicsInitialCondition : public ParticleDynamicsSimple, public ShellDataSimple
+		class ShellDynamicsInitialCondition : public OldParticleDynamicsSimple, public ShellDataSimple
 		{
 		public:
 			explicit ShellDynamicsInitialCondition(SolidBody &solid_body);
@@ -284,7 +284,7 @@ namespace SPH
 		 * @class DistributingPointForcesToShell
 		 * @brief Distribute a series of point forces to its contact shell bodies.
 		 */
-		class DistributingPointForcesToShell : public ParticleDynamicsSimple, public ShellDataSimple
+		class DistributingPointForcesToShell : public OldParticleDynamicsSimple, public ShellDataSimple
 		{
 		protected:
 			std::vector<Vecd> point_forces_, reference_positions_, time_dependent_point_forces_;

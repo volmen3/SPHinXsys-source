@@ -14,7 +14,7 @@ namespace SPH
 	template <class BodyType, class BaseParticlesType, class BaseMaterialType>
 	DiffusionReactionInitialCondition<BodyType, BaseParticlesType, BaseMaterialType>::
 		DiffusionReactionInitialCondition(BodyType &body)
-		: ParticleDynamicsSimple(body),
+		: OldParticleDynamicsSimple(body),
 		  DiffusionReactionSimpleData<BodyType, BaseParticlesType, BaseMaterialType>(body),
 		  pos_n_(this->particles_->pos_n_), species_n_(this->particles_->species_n_) {}
 	//=================================================================================================//
@@ -168,7 +168,7 @@ namespace SPH
 	template <class BodyType, class BaseParticlesType, class BaseMaterialType>
 	InitializationRK<BodyType, BaseParticlesType, BaseMaterialType>::
 		InitializationRK(SPHBody &sph_body, StdVec<StdLargeVec<Real>> &species_s)
-		: ParticleDynamicsSimple(sph_body),
+		: OldParticleDynamicsSimple(sph_body),
 		  DiffusionReactionSimpleData<BodyType, BaseParticlesType, BaseMaterialType>(sph_body),
 		  species_n_(this->particles_->species_n_), species_s_(species_s)
 	{
@@ -256,7 +256,7 @@ namespace SPH
 	template <class BodyType, class BaseParticlesType, class BaseMaterialType>
 	RelaxationOfAllReactionsForward<BodyType, BaseParticlesType, BaseMaterialType>::
 		RelaxationOfAllReactionsForward(BodyType &body)
-		: ParticleDynamicsSimple(body),
+		: OldParticleDynamicsSimple(body),
 		  DiffusionReactionSimpleData<BodyType, BaseParticlesType, BaseMaterialType>(body),
 		  species_n_(this->particles_->species_n_)
 	{
@@ -281,7 +281,7 @@ namespace SPH
 	template <class BodyType, class BaseParticlesType, class BaseMaterialType>
 	RelaxationOfAllReactionsBackward<BodyType, BaseParticlesType, BaseMaterialType>::
 		RelaxationOfAllReactionsBackward(BodyType &body)
-		: ParticleDynamicsSimple(body),
+		: OldParticleDynamicsSimple(body),
 		  DiffusionReactionSimpleData<BodyType, BaseParticlesType, BaseMaterialType>(body),
 		  species_n_(this->particles_->species_n_)
 	{

@@ -55,11 +55,11 @@ namespace SPH
 		 * @brief  set initial condition for solid fluid body
 		 * This is a abstract class to be override for case specific initial conditions.
 		 */
-		class SolidDynamicsInitialCondition : public ParticleDynamicsSimple, public SolidDataSimple
+		class SolidDynamicsInitialCondition : public OldParticleDynamicsSimple, public SolidDataSimple
 		{
 		public:
 			explicit SolidDynamicsInitialCondition(SolidBody &solid_body)
-				: ParticleDynamicsSimple(solid_body), SolidDataSimple(solid_body){};
+				: OldParticleDynamicsSimple(solid_body), SolidDataSimple(solid_body){};
 			virtual ~SolidDynamicsInitialCondition(){};
 		};
 

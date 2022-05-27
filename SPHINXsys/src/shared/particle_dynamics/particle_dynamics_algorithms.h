@@ -46,51 +46,51 @@ namespace SPH
 	//		Aiming to use template on local dynamics so that
 	//		it can be used in different dynamics.
 	//----------------------------------------------------------------------
-	template <typename LoopRange, class LocalDynamicsType>
-	class ParticleDynamicsUpdate : public BaseParticleDynamics<void>
+	template <typename LoopRange, class LocalDynamicsSimple>
+	class ParticleDynamicsSimple : public BaseParticleDynamics<void>
 	{
-		LocalDynamicsType local_dynamics_;
-		ParticleDynamics<LoopRange> update_dynamics_;
+		LocalDynamicsSimple local_dynamics_;
+		ParticleDynamics<LoopRange> global_dynamics_;
 
 	public:
 		template <typename... Args>
-		explicit ParticleDynamicsUpdate(LoopRange &loop_range, Args &&...args)
+		explicit ParticleDynamicsSimple(LoopRange &loop_range, Args &&...args)
 			: BaseParticleDynamics<void>(), local_dynamics_(std::forward<Args>(args)...),
-			  update_dynamics_(loop_range, std::bind(&LocalDynamicsType::update, &local_dynamics_, _1, _2)){};
-		virtual ~ParticleDynamicsUpdate(){};
+			  global_dynamics_(loop_range, std::bind(&LocalDynamicsSimple::update, &local_dynamics_, _1, _2)){};
+		virtual ~ParticleDynamicsSimple(){};
 
-		LocalDynamicsType &LocalDynamics() { return local_dynamics_; };
+		LocalDynamicsSimple &LocalDynamics() { return local_dynamics_; };
 
 		virtual void exec(Real dt = 0.0) override
 		{
 			local_dynamics_.setBodyUpdated();
 			local_dynamics_.setupDynamics(dt);
-			update_dynamics_.exec(dt);
+			global_dynamics_.exec(dt);
 		};
 
 		virtual void parallel_exec(Real dt = 0.0) override
 		{
 			local_dynamics_.setBodyUpdated();
 			local_dynamics_.setupDynamics(dt);
-			update_dynamics_.parallel_exec(dt);
+			global_dynamics_.parallel_exec(dt);
 		};
 	};
 
 	// temporary usage before full revamping the code.
-	template <class LocalDynamicsType>
-	using SimpleDynamics = ParticleDynamicsUpdate<size_t, LocalDynamicsType>;
+	template <class LocalDynamicsSimple>
+	using BodyDynamicsSimple = ParticleDynamicsSimple<size_t, LocalDynamicsSimple>;
 
 	/**
-	 * @class ParticleDynamicsSimple
+	 * @class OldParticleDynamicsSimple
 	 * @brief Simple particle dynamics without considering particle interaction
 	 */
-	class ParticleDynamicsSimple : public OldParticleDynamics<void>
+	class OldParticleDynamicsSimple : public OldParticleDynamics<void>
 	{
 	public:
-		explicit ParticleDynamicsSimple(SPHBody &sph_body)
+		explicit OldParticleDynamicsSimple(SPHBody &sph_body)
 			: OldParticleDynamics<void>(sph_body),
-			  functor_update_(std::bind(&ParticleDynamicsSimple::Update, this, _1, _2)){};
-		virtual ~ParticleDynamicsSimple(){};
+			  functor_update_(std::bind(&OldParticleDynamicsSimple::Update, this, _1, _2)){};
+		virtual ~OldParticleDynamicsSimple(){};
 
 		virtual void exec(Real dt = 0.0) override;
 		virtual void parallel_exec(Real dt = 0.0) override;

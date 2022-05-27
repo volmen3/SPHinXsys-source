@@ -9,12 +9,12 @@ namespace SPH
 {
 	//=================================================================================================//
 	TimeStepInitialization::TimeStepInitialization(SPHBody &sph_body)
-		: ParticleDynamicsSimple(sph_body), GeneralDataDelegateSimple(sph_body),
+		: OldParticleDynamicsSimple(sph_body), GeneralDataDelegateSimple(sph_body),
 		  pos_n_(particles_->pos_n_), dvel_dt_prior_(particles_->dvel_dt_prior_),
 		  gravity_(gravity_ptr_keeper_.createPtr<Gravity>(Vecd(0))) {}
 	//=================================================================================================//
 	TimeStepInitialization ::TimeStepInitialization(SPHBody &sph_body, Gravity &gravity)
-		: ParticleDynamicsSimple(sph_body), GeneralDataDelegateSimple(sph_body),
+		: OldParticleDynamicsSimple(sph_body), GeneralDataDelegateSimple(sph_body),
 		  pos_n_(particles_->pos_n_), dvel_dt_prior_(particles_->dvel_dt_prior_),
 		  gravity_(&gravity) {}
 	//=================================================================================================//
@@ -29,7 +29,7 @@ namespace SPH
 	}
 	//=================================================================================================//
 	RandomizeParticlePosition::RandomizeParticlePosition(SPHBody &sph_body)
-		: ParticleDynamicsSimple(sph_body), DataDelegateSimple<SPHBody, BaseParticles>(sph_body),
+		: OldParticleDynamicsSimple(sph_body), DataDelegateSimple<SPHBody, BaseParticles>(sph_body),
 		  pos_n_(particles_->pos_n_), randomize_scale_(sph_body.sph_adaptation_->MinimumSpacing()) {}
 	//=================================================================================================//
 	void RandomizeParticlePosition::Update(size_t index_i, Real dt)

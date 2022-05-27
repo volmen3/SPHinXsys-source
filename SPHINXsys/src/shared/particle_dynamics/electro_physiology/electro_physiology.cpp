@@ -104,7 +104,7 @@ namespace SPH
 	{
 		//=================================================================================================//
 		ElectroPhysiologyInitialCondition::ElectroPhysiologyInitialCondition(RealBody &real_body)
-			: ParticleDynamicsSimple(real_body),
+			: OldParticleDynamicsSimple(real_body),
 			  ElectroPhysiologyDataDelegateSimple(real_body),
 			  pos_n_(particles_->pos_n_), species_n_(particles_->species_n_) {}
 		//=================================================================================================//

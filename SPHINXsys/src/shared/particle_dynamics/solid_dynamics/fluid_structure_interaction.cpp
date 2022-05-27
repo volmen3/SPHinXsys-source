@@ -166,7 +166,7 @@ namespace SPH
 		//=================================================================================================//
 		InitializeDisplacement::
 			InitializeDisplacement(SolidBody &solid_body, StdLargeVec<Vecd> &pos_temp)
-			: ParticleDynamicsSimple(solid_body), SolidDataSimple(solid_body),
+			: OldParticleDynamicsSimple(solid_body), SolidDataSimple(solid_body),
 			  pos_temp_(pos_temp), pos_n_(particles_->pos_n_),
 			  vel_ave_(particles_->vel_ave_), dvel_dt_ave_(particles_->dvel_dt_ave_)
 		{

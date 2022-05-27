@@ -60,7 +60,7 @@ namespace SPH
 		 * @brief  set initial condition for a solid body with different material
 		 * This is a abstract class to be override for case specific initial conditions.
 		 */
-		class ElasticDynamicsInitialCondition : public ParticleDynamicsSimple, public ElasticSolidDataSimple
+		class ElasticDynamicsInitialCondition : public OldParticleDynamicsSimple, public ElasticSolidDataSimple
 		{
 		public:
 			explicit ElasticDynamicsInitialCondition(SolidBody &solid_body);
@@ -74,7 +74,7 @@ namespace SPH
 		* @class UpdateElasticNormalDirection
 		* @brief update particle normal directions for elastic solid
 		*/
-		class UpdateElasticNormalDirection : public ParticleDynamicsSimple, public ElasticSolidDataSimple
+		class UpdateElasticNormalDirection : public OldParticleDynamicsSimple, public ElasticSolidDataSimple
 		{
 		public:
 			explicit UpdateElasticNormalDirection(SolidBody &solid_body);

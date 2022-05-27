@@ -56,7 +56,7 @@ int main()
 	/** Define external force. */
 	Gravity gravity(Vecd(0.0, -gravity_g));
 	/** Initialize particle acceleration. */
-	SimpleDynamics<NormalDirectionFromShapeAndOp> inner_normal_direction(wall_boundary, "InnerWall");
+	BodyDynamicsSimple<NormalDirectionFromShapeAndOp> inner_normal_direction(wall_boundary, "InnerWall");
 	TimeStepInitialization initialize_a_water_step(water_block, gravity);
 	TimeStepInitialization initialize_a_air_step(air_block, gravity);
 	/** Evaluation of density by summation approach. */

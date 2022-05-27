@@ -70,7 +70,7 @@ private:
 	SolidBodyFromMesh solid_body_from_mesh_;
 	BodyRelationInner inner_body_relation_;
 
-	SimpleDynamics<NormalDirectionFromBodyShape> initial_normal_direction_;
+	BodyDynamicsSimple<NormalDirectionFromBodyShape> initial_normal_direction_;
 	solid_dynamics::CorrectConfiguration correct_configuration_;
 	solid_dynamics::StressRelaxationFirstHalf stress_relaxation_first_half_;
 	solid_dynamics::StressRelaxationSecondHalf stress_relaxation_second_half_;
@@ -87,7 +87,7 @@ public:
 	ElasticSolidParticles *getElasticSolidParticles() { return DynamicCast<ElasticSolidParticles>(this, solid_body_from_mesh_.base_particles_); };
 	BodyRelationInner *getInnerBodyRelation() { return &inner_body_relation_; };
 
-	SimpleDynamics<NormalDirectionFromBodyShape> *getInitialNormalDirection() { return &initial_normal_direction_; };
+	BodyDynamicsSimple<NormalDirectionFromBodyShape> *getInitialNormalDirection() { return &initial_normal_direction_; };
 	solid_dynamics::CorrectConfiguration *getCorrectConfiguration() { return &correct_configuration_; };
 	solid_dynamics::StressRelaxationFirstHalf *getStressRelaxationFirstHalf() { return &stress_relaxation_first_half_; };
 	solid_dynamics::StressRelaxationSecondHalf *getStressRelaxationSecondHalf() { return &stress_relaxation_second_half_; };

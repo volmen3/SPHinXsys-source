@@ -126,11 +126,11 @@ namespace SPH
         * @brief this function is applied to freestream flows
 		* @brief modify the velocity of free surface particles with far-field velocity
         */
-		class FreeStreamBoundaryVelocityCorrection : public ParticleDynamicsSimple, public FluidDataInner
+		class FreeStreamBoundaryVelocityCorrection : public OldParticleDynamicsSimple, public FluidDataInner
 		{
 		public:
 			explicit FreeStreamBoundaryVelocityCorrection(BaseBodyRelationInner &inner_relation)
-				: ParticleDynamicsSimple(*inner_relation.sph_body_),
+				: OldParticleDynamicsSimple(*inner_relation.sph_body_),
 				  FluidDataInner(inner_relation), u_ref_(1.0), t_ref_(2.0),
 				  rho_ref_(material_->ReferenceDensity()), rho_sum(particles_->rho_sum_),
 				  vel_n_(particles_->vel_n_), dvel_dt_(particles_->dvel_dt_),

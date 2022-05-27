@@ -109,7 +109,7 @@ int main()
 	 */
 	/** Define external force. */
 	Gravity gravity(Vecd(gravity_g, 0.0));
-	SimpleDynamics<NormalDirectionFromBodyShape> wall_boundary_normal_direction(wall_boundary);
+	BodyDynamicsSimple<NormalDirectionFromBodyShape> wall_boundary_normal_direction(wall_boundary);
 	/** Initialize particle acceleration. */
 	TimeStepInitialization initialize_a_fluid_step(water_block, gravity);
 	/** Periodic BCs in x direction. */

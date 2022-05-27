@@ -67,7 +67,7 @@ namespace SPH
 		* @class CorrectConfiguration
 		* @brief obtain the corrected initial configuration in strong form
 		*/
-		class CorrectConfiguration : public InteractionDynamics, public SolidDataInner
+		class CorrectConfiguration : public OldInteractionDynamics, public SolidDataInner
 		{
 		public:
 			explicit CorrectConfiguration(BaseBodyRelationInner &inner_relation);

@@ -36,16 +36,14 @@
 #ifndef PARTICLE_DYNAMICS_ALGORITHMS_H
 #define PARTICLE_DYNAMICS_ALGORITHMS_H
 
-#include "base_particle_dynamics.h"
 #include "base_particle_dynamics.hpp"
 
 namespace SPH
 {
-	//----------------------------------------------------------------------
-	//		New version particle dynamics base classes.
-	//		Aiming to use template on local dynamics so that
-	//		it can be used in different dynamics.
-	//----------------------------------------------------------------------
+	/**
+	 * @class ParticleDynamicsSimple
+	 * @brief Simple particle dynamics without considering particle interaction
+	 */
 	template <typename LoopRange, class LocalDynamicsSimple>
 	class ParticleDynamicsSimple : public BaseParticleDynamics<void>
 	{
@@ -76,9 +74,42 @@ namespace SPH
 		};
 	};
 
-	// temporary usage before full revamping the code.
 	template <class LocalDynamicsSimple>
 	using BodyDynamicsSimple = ParticleDynamicsSimple<size_t, LocalDynamicsSimple>;
+
+	/**
+	 * @class ParticleDynamicsOneStage
+	 * @brief  This is the class for particle interaction with other particles
+	 */
+	template <typename LoopRange, class LocalDynamicsOneStage>
+	class InteractionDynamicsOneStage : public BaseParticleDynamics<void>
+	{
+		LocalDynamicsOneStage local_dynamics_;
+		ParticleDynamics<LoopRange> interaction_dynamics_;
+
+	public:
+		template <typename... Args>
+		explicit InteractionDynamicsOneStage(LoopRange &loop_range, Args &&...args)
+			: BaseParticleDynamics<void>(), local_dynamics_(std::forward<Args>(args)...),
+			  global_dynamics_(loop_range, std::bind(&LocalDynamicsOneStage::interaction, &local_dynamics_, _1, _2)){};
+		virtual ~InteractionDynamicsOneStage(){};
+
+		LocalDynamicsOneStage &LocalDynamics() { return local_dynamics_; };
+
+		virtual void exec(Real dt = 0.0) override
+		{
+			local_dynamics_.setBodyUpdated();
+			local_dynamics_.setupDynamics(dt);
+			interaction_dynamics_.exec(dt);
+		};
+
+		virtual void parallel_exec(Real dt = 0.0) override
+		{
+			local_dynamics_.setBodyUpdated();
+			local_dynamics_.setupDynamics(dt);
+			interaction_dynamics_.parallel_exec(dt);
+		};
+	};
 
 	/**
 	 * @class OldParticleDynamicsSimple
@@ -148,17 +179,17 @@ namespace SPH
 	};
 
 	/**
-	 * @class InteractionDynamics
+	 * @class OldInteractionDynamics
 	 * @brief This is the class for particle interaction with other particles
 	 */
-	class InteractionDynamics : public OldParticleDynamics<void>
+	class OldInteractionDynamics : public OldParticleDynamics<void>
 	{
 	public:
-		explicit InteractionDynamics(SPHBody &sph_body)
+		explicit OldInteractionDynamics(SPHBody &sph_body)
 			: OldParticleDynamics<void>(sph_body),
-			  functor_interaction_(std::bind(&InteractionDynamics::Interaction,
+			  functor_interaction_(std::bind(&OldInteractionDynamics::Interaction,
 											 this, _1, _2)){};
-		virtual ~InteractionDynamics(){};
+		virtual ~OldInteractionDynamics(){};
 
 		/** pre process such as update ghost state */
 		StdVec<OldParticleDynamics<void> *> pre_processes_;
@@ -180,14 +211,14 @@ namespace SPH
 	 * which share the particle loop but are independent from each other,
 	 * aiming to increase computing intensity under the data caching environment
 	 */
-	class CombinedInteractionDynamics : public InteractionDynamics
+	class CombinedInteractionDynamics : public OldInteractionDynamics
 	{
 	public:
-		explicit CombinedInteractionDynamics(InteractionDynamics &dynamics_a, InteractionDynamics &dynamics_b);
+		explicit CombinedInteractionDynamics(OldInteractionDynamics &dynamics_a, OldInteractionDynamics &dynamics_b);
 		virtual ~CombinedInteractionDynamics(){};
 
 	protected:
-		InteractionDynamics &dynamics_a_, &dynamics_b_;
+		OldInteractionDynamics &dynamics_a_, &dynamics_b_;
 		virtual void setupDynamics(Real dt = 0.0) override;
 		virtual void Interaction(size_t index_i, Real dt = 0.0) override;
 	};
@@ -196,11 +227,11 @@ namespace SPH
 	 * @class InteractionDynamicsWithUpdate
 	 * @brief This class includes an interaction and a update steps
 	 */
-	class InteractionDynamicsWithUpdate : public InteractionDynamics
+	class InteractionDynamicsWithUpdate : public OldInteractionDynamics
 	{
 	public:
 		explicit InteractionDynamicsWithUpdate(SPHBody &sph_body)
-			: InteractionDynamics(sph_body),
+			: OldInteractionDynamics(sph_body),
 			  functor_update_(std::bind(&InteractionDynamicsWithUpdate::Update,
 										this, _1, _2)) {}
 		virtual ~InteractionDynamicsWithUpdate(){};
@@ -238,7 +269,7 @@ namespace SPH
 	 * @class InteractionDynamicsSplitting
 	 * @brief This is for the splitting algorithm
 	 */
-	class InteractionDynamicsSplitting : public InteractionDynamics
+	class InteractionDynamicsSplitting : public OldInteractionDynamics
 	{
 	public:
 		explicit InteractionDynamicsSplitting(SPHBody &sph_body);

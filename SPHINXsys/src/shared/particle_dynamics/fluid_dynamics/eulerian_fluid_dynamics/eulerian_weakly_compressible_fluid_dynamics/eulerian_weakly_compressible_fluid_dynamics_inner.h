@@ -93,7 +93,7 @@ namespace SPH
 		 * @brief  the viscosity force induced acceleration
 		 */
 		class ViscousAccelerationInner
-			: public InteractionDynamics, public EulerianWeaklyCompressibleFluidDataInner
+			: public OldInteractionDynamics, public EulerianWeaklyCompressibleFluidDataInner
 		{
 		public:
 			explicit ViscousAccelerationInner(BaseBodyRelationInner &inner_relation);
@@ -130,7 +130,7 @@ namespace SPH
 		* @brief  compute vorticity in the fluid field
 		*/
 		class VorticityInner
-			: public InteractionDynamics, public EulerianWeaklyCompressibleFluidDataInner
+			: public OldInteractionDynamics, public EulerianWeaklyCompressibleFluidDataInner
 		{
 		public:
 			explicit VorticityInner(BaseBodyRelationInner &inner_relation);
@@ -230,11 +230,11 @@ namespace SPH
 		* @brief this function is applied to non_reflective flows
 		* @brief modify the velocity of particles with far-field velocity under non_reflective boundary condition
 		*/
-		class NonReflectiveBoundaryVariableCorrection :public InteractionDynamics, public EulerianWeaklyCompressibleFluidDataInner
+		class NonReflectiveBoundaryVariableCorrection :public OldInteractionDynamics, public EulerianWeaklyCompressibleFluidDataInner
 		{
 		public:
 			NonReflectiveBoundaryVariableCorrection(BaseBodyRelationInner &inner_relation) :
-				InteractionDynamics(*inner_relation.sph_body_), EulerianWeaklyCompressibleFluidDataInner(inner_relation),
+				OldInteractionDynamics(*inner_relation.sph_body_), EulerianWeaklyCompressibleFluidDataInner(inner_relation),
 				rho_n_(particles_->rho_n_), p_(particles_->p_), vel_n_(particles_->vel_n_),
 				mom_(particles_->mom_), pos_n_(particles_->pos_n_), mass_(particles_->mass_), Vol_(particles_->Vol_),
 				surface_indicator_(particles_->surface_indicator_)

@@ -85,7 +85,7 @@ namespace SPH
 		 * @class 	SurfaceNormWithWall
 		 * @brief  Modify surface norm when contact with wall
 		 */
-		class SurfaceNormWithWall : public InteractionDynamics, public FSIContactData
+		class SurfaceNormWithWall : public OldInteractionDynamics, public FSIContactData
 		{
 		public:
 			SurfaceNormWithWall(BaseBodyRelationContact &contact_relation, Real contact_angle);

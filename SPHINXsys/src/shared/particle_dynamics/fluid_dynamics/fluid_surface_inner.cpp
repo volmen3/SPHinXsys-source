@@ -99,7 +99,7 @@ namespace SPH
         }
         //=================================================================================================//
         ColorFunctionGradientInner::ColorFunctionGradientInner(BaseBodyRelationInner &inner_relation)
-            : InteractionDynamics(*inner_relation.sph_body_), FluidDataInner(inner_relation),
+            : OldInteractionDynamics(*inner_relation.sph_body_), FluidDataInner(inner_relation),
               Vol_(particles_->Vol_),
               surface_indicator_(particles_->surface_indicator_),
               pos_div_(*particles_->getVariableByName<Real>("PositionDivergence")),
@@ -126,7 +126,7 @@ namespace SPH
         }
         //=================================================================================================//
         ColorFunctionGradientInterplationInner::ColorFunctionGradientInterplationInner(BaseBodyRelationInner &inner_relation)
-            : InteractionDynamics(*inner_relation.sph_body_), FluidDataInner(inner_relation), Vol_(particles_->Vol_),
+            : OldInteractionDynamics(*inner_relation.sph_body_), FluidDataInner(inner_relation), Vol_(particles_->Vol_),
               surface_indicator_(particles_->surface_indicator_),
               color_grad_(*particles_->getVariableByName<Vecd>("ColorGradient")),
               surface_norm_(*particles_->getVariableByName<Vecd>("SurfaceNormal")),
@@ -163,7 +163,7 @@ namespace SPH
         }
         //=================================================================================================//
         SurfaceTensionAccelerationInner::SurfaceTensionAccelerationInner(BaseBodyRelationInner &inner_relation, Real gamma)
-            : InteractionDynamics(*inner_relation.sph_body_), FluidDataInner(inner_relation),
+            : OldInteractionDynamics(*inner_relation.sph_body_), FluidDataInner(inner_relation),
               gamma_(gamma), Vol_(particles_->Vol_),
               mass_(particles_->mass_),
               dvel_dt_prior_(particles_->dvel_dt_prior_),

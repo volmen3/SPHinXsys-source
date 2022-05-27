@@ -84,7 +84,7 @@ namespace SPH
 		 * @class ViscousAccelerationInner
 		 * @brief  the viscosity force induced acceleration
 		 */
-		class ViscousAccelerationInner : public InteractionDynamics, public FluidDataInner
+		class ViscousAccelerationInner : public OldInteractionDynamics, public FluidDataInner
 		{
 		public:
 			explicit ViscousAccelerationInner(BaseBodyRelationInner &inner_relation);
@@ -119,7 +119,7 @@ namespace SPH
 		 * @class TransportVelocityCorrectionInner
 		 * @brief transport velocity correction
 		 */
-		class TransportVelocityCorrectionInner : public InteractionDynamics, public FluidDataInner
+		class TransportVelocityCorrectionInner : public OldInteractionDynamics, public FluidDataInner
 		{
 		public:
 			explicit TransportVelocityCorrectionInner(BaseBodyRelationInner &inner_relation);
@@ -185,7 +185,7 @@ namespace SPH
 		* @class VorticityInner
 		* @brief  compute vorticity in the fluid field
 		*/
-		class VorticityInner : public InteractionDynamics, public FluidDataInner
+		class VorticityInner : public OldInteractionDynamics, public FluidDataInner
 		{
 		public:
 			explicit VorticityInner(BaseBodyRelationInner &inner_relation);

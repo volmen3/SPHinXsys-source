@@ -83,7 +83,7 @@ namespace SPH
 		* @class ShellCorrectConfiguration
 		* @brief obtain the corrected initial configuration in strong form
 		*/
-		class ShellCorrectConfiguration : public InteractionDynamics, public ShellDataInner
+		class ShellCorrectConfiguration : public OldInteractionDynamics, public ShellDataInner
 		{
 		public:
 			explicit ShellCorrectConfiguration(BaseBodyRelationInner &inner_relation);
@@ -101,7 +101,7 @@ namespace SPH
 		* @class ShellDeformationGradientTensor
 		* @brief computing deformation gradient tensor for shell
 		*/
-		class ShellDeformationGradientTensor : public InteractionDynamics, public ShellDataInner
+		class ShellDeformationGradientTensor : public OldInteractionDynamics, public ShellDataInner
 		{
 		public:
 			explicit ShellDeformationGradientTensor(BaseBodyRelationInner &inner_relation);

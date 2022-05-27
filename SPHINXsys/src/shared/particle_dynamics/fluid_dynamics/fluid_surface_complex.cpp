@@ -85,7 +85,7 @@ namespace SPH
 		}
 		//=================================================================================================//
 		SurfaceNormWithWall::SurfaceNormWithWall(BaseBodyRelationContact &contact_relation, Real contact_angle)
-			: InteractionDynamics(*contact_relation.sph_body_), FSIContactData(contact_relation),
+			: OldInteractionDynamics(*contact_relation.sph_body_), FSIContactData(contact_relation),
 			  contact_angle_(contact_angle),
 			  surface_indicator_(particles_->surface_indicator_),
 			  surface_norm_(*particles_->getVariableByName<Vecd>("SurfaceNormal")),

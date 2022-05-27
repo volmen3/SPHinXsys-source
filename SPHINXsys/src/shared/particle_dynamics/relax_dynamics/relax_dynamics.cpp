@@ -36,7 +36,7 @@ namespace SPH
 		}
 		//=================================================================================================//
 		RelaxationAccelerationInner::RelaxationAccelerationInner(BaseBodyRelationInner &inner_relation)
-			: InteractionDynamics(*inner_relation.sph_body_),
+			: OldInteractionDynamics(*inner_relation.sph_body_),
 			  RelaxDataDelegateInner(inner_relation),
 			  Vol_(particles_->Vol_), dvel_dt_(particles_->dvel_dt_), pos_n_(particles_->pos_n_) {}
 		//=================================================================================================//
@@ -94,7 +94,7 @@ namespace SPH
 		//=================================================================================================//
 		RelaxationAccelerationComplex::
 			RelaxationAccelerationComplex(ComplexBodyRelation &complex_relation)
-			: InteractionDynamics(*complex_relation.sph_body_),
+			: OldInteractionDynamics(*complex_relation.sph_body_),
 			  RelaxDataDelegateComplex(complex_relation),
 			  Vol_(particles_->Vol_), dvel_dt_(particles_->dvel_dt_), pos_n_(particles_->pos_n_)
 		{
@@ -365,7 +365,7 @@ namespace SPH
 		//=================================================================================================//
 		ShellNormalDirectionPrediction::ConsistencyCorrection::
 			ConsistencyCorrection(BaseBodyRelationInner &inner_relation, Real consistency_criterion)
-			: InteractionDynamics(*inner_relation.sph_body_),
+			: OldInteractionDynamics(*inner_relation.sph_body_),
 			  RelaxDataDelegateInner(inner_relation),
 			  consistency_criterion_(consistency_criterion),
 			  n_(*particles_->getVariableByName<Vecd>("NormalDirection"))

@@ -51,7 +51,7 @@ namespace SPH
 		//=================================================================================================//
 		DeformationGradientTensorBySummation::
 			DeformationGradientTensorBySummation(BaseBodyRelationInner &inner_relation)
-			: InteractionDynamics(*inner_relation.sph_body_),
+			: OldInteractionDynamics(*inner_relation.sph_body_),
 			  ElasticSolidDataInner(inner_relation),
 			  Vol_(particles_->Vol_), pos_n_(particles_->pos_n_),
 			  B_(particles_->B_), F_(particles_->F_)

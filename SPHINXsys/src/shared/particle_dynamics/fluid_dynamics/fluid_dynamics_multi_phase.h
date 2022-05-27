@@ -133,7 +133,7 @@ namespace SPH
 		 * @class MultiPhaseColorFunctionGradient
 		 * @brief  indicate the particles near the interface of a fluid-fluid interaction and computing norm
 		 */
-		class MultiPhaseColorFunctionGradient : public InteractionDynamics, public MultiPhaseData
+		class MultiPhaseColorFunctionGradient : public OldInteractionDynamics, public MultiPhaseData
 		{
 		public:
 			explicit MultiPhaseColorFunctionGradient(BaseBodyRelationContact &contact_relation);

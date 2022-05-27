@@ -80,7 +80,7 @@ namespace SPH
 		}
 		//=================================================================================================//
 		ViscousAccelerationInner::ViscousAccelerationInner(BaseBodyRelationInner &inner_relation)
-			: InteractionDynamics(*inner_relation.sph_body_),
+			: OldInteractionDynamics(*inner_relation.sph_body_),
 			EulerianWeaklyCompressibleFluidDataInner(inner_relation),
 			Vol_(particles_->Vol_), rho_n_(particles_->rho_n_), p_(particles_->p_),
 			vel_n_(particles_->vel_n_),
@@ -131,7 +131,7 @@ namespace SPH
 		//=================================================================================================//
 		VorticityInner::
 			VorticityInner(BaseBodyRelationInner &inner_relation)
-			: InteractionDynamics(*inner_relation.sph_body_),
+			: OldInteractionDynamics(*inner_relation.sph_body_),
 			EulerianWeaklyCompressibleFluidDataInner(inner_relation),
 			Vol_(particles_->Vol_), vel_n_(particles_->vel_n_)
 		{

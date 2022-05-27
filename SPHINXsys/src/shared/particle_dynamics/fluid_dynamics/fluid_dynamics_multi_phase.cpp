@@ -67,7 +67,7 @@ namespace SPH
 		//=================================================================================================//
 		MultiPhaseColorFunctionGradient::
 			MultiPhaseColorFunctionGradient(BaseBodyRelationContact &contact_relation)
-			: InteractionDynamics(*contact_relation.sph_body_), MultiPhaseData(contact_relation),
+			: OldInteractionDynamics(*contact_relation.sph_body_), MultiPhaseData(contact_relation),
 			  rho0_(particles_->rho0_), Vol_(particles_->Vol_),
 			  pos_div_(*particles_->getVariableByName<Real>("PositionDivergence")),
 			  surface_indicator_(particles_->surface_indicator_)

@@ -53,7 +53,7 @@ namespace SPH
 		//=================================================================================================//
 		ShellCorrectConfiguration::
 			ShellCorrectConfiguration(BaseBodyRelationInner &inner_relation)
-			: InteractionDynamics(*inner_relation.sph_body_),
+			: OldInteractionDynamics(*inner_relation.sph_body_),
 			  ShellDataInner(inner_relation),
 			  Vol_(particles_->Vol_), B_(particles_->B_),
 			  n_0_(particles_->n_0_), transformation_matrix_(particles_->transformation_matrix_) {}
@@ -79,7 +79,7 @@ namespace SPH
 		//=================================================================================================//
 		ShellDeformationGradientTensor::
 			ShellDeformationGradientTensor(BaseBodyRelationInner &inner_relation)
-			: InteractionDynamics(*inner_relation.sph_body_),
+			: OldInteractionDynamics(*inner_relation.sph_body_),
 			  ShellDataInner(inner_relation),
 			  Vol_(particles_->Vol_), pos_n_(particles_->pos_n_),
 			  pseudo_n_(particles_->pseudo_n_), n_0_(particles_->n_0_),

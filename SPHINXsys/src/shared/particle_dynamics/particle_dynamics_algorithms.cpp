@@ -28,7 +28,7 @@ namespace SPH
 		ParticleIterator_parallel(total_real_particles, functor_update_, dt);
 	}
 	//=================================================================================================//
-	void InteractionDynamics::exec(Real dt)
+	void OldInteractionDynamics::exec(Real dt)
 	{
 		setBodyUpdated();
 		setupDynamics(dt);
@@ -40,7 +40,7 @@ namespace SPH
 			post_processes_[k]->exec(dt);
 	}
 	//=================================================================================================//
-	void InteractionDynamics::parallel_exec(Real dt)
+	void OldInteractionDynamics::parallel_exec(Real dt)
 	{
 		setBodyUpdated();
 		setupDynamics(dt);
@@ -53,8 +53,8 @@ namespace SPH
 	}
 	//=================================================================================================//
 	CombinedInteractionDynamics::
-		CombinedInteractionDynamics(InteractionDynamics &dynamics_a, InteractionDynamics &dynamics_b)
-		: InteractionDynamics(*dynamics_a.sph_body_),
+		CombinedInteractionDynamics(OldInteractionDynamics &dynamics_a, OldInteractionDynamics &dynamics_b)
+		: OldInteractionDynamics(*dynamics_a.sph_body_),
 		  dynamics_a_(dynamics_a), dynamics_b_(dynamics_b)
 	{
 		if (dynamics_a.sph_body_ != dynamics_b.sph_body_)
@@ -142,7 +142,7 @@ namespace SPH
 	}
 	//=================================================================================================//
 	InteractionDynamicsSplitting::InteractionDynamicsSplitting(SPHBody &sph_body)
-			: InteractionDynamics(sph_body),
+			: OldInteractionDynamics(sph_body),
 			  split_cell_lists_(sph_body.split_cell_lists_){};
 	//=================================================================================================//
 	void InteractionDynamicsSplitting::exec(Real dt)

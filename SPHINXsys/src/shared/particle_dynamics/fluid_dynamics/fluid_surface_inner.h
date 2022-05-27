@@ -172,7 +172,7 @@ namespace SPH
 		 * @class ColorFunctionGradientInner
 		 * @brief  indicate the particles near the interface of a fluid-fluid interaction and computing norm
 		 */
-		class ColorFunctionGradientInner : public InteractionDynamics, public FluidDataInner
+		class ColorFunctionGradientInner : public OldInteractionDynamics, public FluidDataInner
 		{
 		public:
 			explicit ColorFunctionGradientInner(BaseBodyRelationInner &inner_relation);
@@ -193,7 +193,7 @@ namespace SPH
 		 * @class ColorFunctionGradientInterplationInner
 		 * @brief  the viscous force induced acceleration
 		 */
-		class ColorFunctionGradientInterplationInner : public InteractionDynamics, public FluidDataInner
+		class ColorFunctionGradientInterplationInner : public OldInteractionDynamics, public FluidDataInner
 		{
 		public:
 			explicit ColorFunctionGradientInterplationInner(BaseBodyRelationInner &inner_relation);
@@ -214,7 +214,7 @@ namespace SPH
 		 * @class SurfaceTensionAccelerationInner
 		 * @brief  the viscous force induced acceleration
 		 */
-		class SurfaceTensionAccelerationInner : public InteractionDynamics, public FluidDataInner
+		class SurfaceTensionAccelerationInner : public OldInteractionDynamics, public FluidDataInner
 		{
 		public:
 			SurfaceTensionAccelerationInner(BaseBodyRelationInner &inner_relation, Real gamma);

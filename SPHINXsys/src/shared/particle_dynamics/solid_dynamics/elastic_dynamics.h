@@ -109,7 +109,7 @@ namespace SPH
 		* @class DeformationGradientTensorBySummation
 		* @brief computing deformation gradient tensor by summation
 		*/
-		class DeformationGradientTensorBySummation : public InteractionDynamics, public ElasticSolidDataInner
+		class DeformationGradientTensorBySummation : public OldInteractionDynamics, public ElasticSolidDataInner
 		{
 		public:
 			explicit DeformationGradientTensorBySummation(BaseBodyRelationInner &inner_relation);

@@ -74,7 +74,7 @@ namespace SPH
 		 * without considering contact interaction.
 		 * this is usually used for solid like bodies
 		 */
-		class RelaxationAccelerationInner : public InteractionDynamics, public RelaxDataDelegateInner
+		class RelaxationAccelerationInner : public OldInteractionDynamics, public RelaxDataDelegateInner
 		{
 		public:
 			explicit RelaxationAccelerationInner(BaseBodyRelationInner &inner_relation);
@@ -146,7 +146,7 @@ namespace SPH
 		 * with considering contact interaction
 		 * this is usually used for fluid like bodies
 		 */
-		class RelaxationAccelerationComplex : public InteractionDynamics,
+		class RelaxationAccelerationComplex : public OldInteractionDynamics,
 											  public RelaxDataDelegateComplex
 		{
 		public:
@@ -338,7 +338,7 @@ namespace SPH
 				bool ReduceFunction(size_t index_i, Real dt = 0.0) override;
 			};
 
-			class ConsistencyCorrection : public InteractionDynamics, public RelaxDataDelegateInner
+			class ConsistencyCorrection : public OldInteractionDynamics, public RelaxDataDelegateInner
 			{
 			public:
 				explicit ConsistencyCorrection(BaseBodyRelationInner &inner_relation, Real consistency_criterion);

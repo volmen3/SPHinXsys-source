@@ -47,7 +47,7 @@ namespace SPH
 		* @class FluidViscousForceOnSolid
 		* @brief Computing the viscous force from the fluid
 		*/
-		class FluidViscousForceOnSolid : public InteractionDynamics, public FSIContactData
+		class FluidViscousForceOnSolid : public OldInteractionDynamics, public FSIContactData
 		{
 		public:
 			explicit FluidViscousForceOnSolid(BaseBodyRelationContact &contact_relation);
@@ -69,7 +69,7 @@ namespace SPH
 		* @class FluidViscousForceOnSolidInEuler
 		* @brief Computing the viscous force from the fluid in eulerian framework
 		*/
-		class FluidViscousForceOnSolidInEuler : public InteractionDynamics, public EFSIContactData
+		class FluidViscousForceOnSolidInEuler : public OldInteractionDynamics, public EFSIContactData
 		{
 		public:
 			explicit FluidViscousForceOnSolidInEuler(BaseBodyRelationContact &contact_relation);
@@ -110,11 +110,11 @@ namespace SPH
 		* time step size compared to the fluid dynamics
 		*/
 		template <class RiemannSolverType>
-		class BaseFluidPressureForceOnSolid : public InteractionDynamics, public FSIContactData
+		class BaseFluidPressureForceOnSolid : public OldInteractionDynamics, public FSIContactData
 		{
 		public:
 			explicit BaseFluidPressureForceOnSolid(BaseBodyRelationContact &contact_relation)
-				: InteractionDynamics(*contact_relation.sph_body_),
+				: OldInteractionDynamics(*contact_relation.sph_body_),
 				  FSIContactData(contact_relation),
 				  Vol_(particles_->Vol_), vel_ave_(particles_->vel_ave_),
 				  force_from_fluid_(particles_->force_from_fluid_),
@@ -187,11 +187,11 @@ namespace SPH
 		* time step size compared to the fluid dynamics
 		*/
 		template <class RiemannSolverType>
-		class BaseFluidPressureForceOnSolidInEuler : public InteractionDynamics, public EFSIContactData
+		class BaseFluidPressureForceOnSolidInEuler : public OldInteractionDynamics, public EFSIContactData
 		{
 		public:
 			explicit BaseFluidPressureForceOnSolidInEuler(BaseBodyRelationContact &contact_relation)
-				: InteractionDynamics(*contact_relation.sph_body_),
+				: OldInteractionDynamics(*contact_relation.sph_body_),
 				EFSIContactData(contact_relation),
 				Vol_(particles_->Vol_), vel_ave_(particles_->vel_ave_),
 				force_from_fluid_(particles_->force_from_fluid_), n_(particles_->n_)

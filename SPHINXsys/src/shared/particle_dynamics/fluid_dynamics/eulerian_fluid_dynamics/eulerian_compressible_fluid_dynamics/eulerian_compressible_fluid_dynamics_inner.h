@@ -88,7 +88,7 @@ namespace SPH
 		 * @brief  the viscosity force induced acceleration
 		 */
 		class ViscousAccelerationInner
-			: public InteractionDynamics,
+			: public OldInteractionDynamics,
 			  public CompressibleFluidDataInner
 		{
 		public:

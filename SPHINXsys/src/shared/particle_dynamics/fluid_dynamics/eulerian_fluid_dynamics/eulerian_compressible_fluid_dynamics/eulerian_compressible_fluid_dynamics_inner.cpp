@@ -46,7 +46,7 @@ namespace SPH
 			  gamma_(material_->HeatCapacityRatio()) {}
 		//=================================================================================================//
 		ViscousAccelerationInner::ViscousAccelerationInner(BaseBodyRelationInner &inner_relation)
-			: InteractionDynamics(*inner_relation.sph_body_),
+			: OldInteractionDynamics(*inner_relation.sph_body_),
 			  CompressibleFluidDataInner(inner_relation),
 			  Vol_(particles_->Vol_), rho_n_(particles_->rho_n_), p_(particles_->p_),
 			  mass_(particles_->mass_), dE_dt_prior_(particles_->dE_dt_prior_),

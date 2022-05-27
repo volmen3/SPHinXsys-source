@@ -119,7 +119,7 @@ namespace SPH
 		 * @class BaseShellRelaxation
 		 * @brief abstract class for preparing shell relaxation
 		*/
-		class BaseShellRelaxation : public ParticleDynamics1Level, public ShellDataInner
+		class BaseShellRelaxation : public OldParticleDynamics1Level, public ShellDataInner
 		{
 		public:
 			explicit BaseShellRelaxation(BaseBodyRelationInner &inner_relation);

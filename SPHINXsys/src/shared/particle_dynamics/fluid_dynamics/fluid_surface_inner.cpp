@@ -13,7 +13,7 @@ namespace SPH
         //=================================================================================================//
         FreeSurfaceIndicationInner::
             FreeSurfaceIndicationInner(BaseBodyRelationInner &inner_relation, Real thereshold)
-            : InteractionDynamicsWithUpdate(*inner_relation.sph_body_),
+            : OldInteractionDynamicsWithUpdate(*inner_relation.sph_body_),
               FluidDataInner(inner_relation),
               thereshold_by_dimensions_(thereshold * (Real)Dimensions),
               Vol_(particles_->Vol_),

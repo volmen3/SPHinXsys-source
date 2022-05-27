@@ -134,7 +134,7 @@ namespace SPH
             = derived_particle_data_.createPtr<BodyDynamicsSimple<DerivedVariableMethod>>(total_real_particles_,*sph_body_);
         derived_variables_.push_back(derived_data);
         using DerivedVariableType = typename DerivedVariableMethod::DerivedVariableType;
-        addAVariableNameToList<DerivedVariableType>(variables_to_write_, derived_data->LocalDynamics().variable_name_);
+        addAVariableNameToList<DerivedVariableType>(variables_to_write_, derived_data->variable_name_);
     }
     //=================================================================================================//
     template <typename VariableType>

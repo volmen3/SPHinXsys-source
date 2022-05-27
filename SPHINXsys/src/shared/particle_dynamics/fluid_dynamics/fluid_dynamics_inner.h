@@ -65,7 +65,7 @@ namespace SPH
 		* @class DensitySummationInner
 		* @brief  computing density by summation
 		*/
-		class DensitySummationInner : public InteractionDynamicsWithUpdate, public FluidDataInner
+		class DensitySummationInner : public OldInteractionDynamicsWithUpdate, public FluidDataInner
 		{
 		public:
 			explicit DensitySummationInner(BaseBodyRelationInner &inner_relation);
@@ -202,7 +202,7 @@ namespace SPH
 		 * @class BaseRelaxation
 		 * @brief Pure abstract base class for all fluid relaxation schemes
 		 */
-		class BaseRelaxation : public ParticleDynamics1Level, public FluidDataInner
+		class BaseRelaxation : public OldParticleDynamics1Level, public FluidDataInner
 		{
 		public:
 			explicit BaseRelaxation(BaseBodyRelationInner &inner_relation);

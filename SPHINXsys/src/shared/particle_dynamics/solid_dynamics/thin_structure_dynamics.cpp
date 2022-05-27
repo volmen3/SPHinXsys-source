@@ -109,7 +109,7 @@ namespace SPH
 		}
 		//=================================================================================================//
 		BaseShellRelaxation::BaseShellRelaxation(BaseBodyRelationInner &inner_relation)
-			: ParticleDynamics1Level(*inner_relation.sph_body_),
+			: OldParticleDynamics1Level(*inner_relation.sph_body_),
 			  ShellDataInner(inner_relation), Vol_(particles_->Vol_),
 			  rho_n_(particles_->rho_n_), mass_(particles_->mass_),
 			  thickness_(particles_->thickness_),

@@ -18,7 +18,7 @@ namespace SPH
 			  pos_n_(particles_->pos_n_), vel_n_(particles_->vel_n_) {}
 		//=================================================================================================//
 		DensitySummationInner::DensitySummationInner(BaseBodyRelationInner &inner_relation)
-			: InteractionDynamicsWithUpdate(*inner_relation.sph_body_),
+			: OldInteractionDynamicsWithUpdate(*inner_relation.sph_body_),
 			  FluidDataInner(inner_relation),
 			  Vol_(particles_->Vol_), rho_n_(particles_->rho_n_), mass_(particles_->mass_),
 			  rho_sum_(particles_->rho_sum_),
@@ -209,7 +209,7 @@ namespace SPH
 		}
 		//=================================================================================================//
 		BaseRelaxation::BaseRelaxation(BaseBodyRelationInner &inner_relation)
-			: ParticleDynamics1Level(*inner_relation.sph_body_),
+			: OldParticleDynamics1Level(*inner_relation.sph_body_),
 			  FluidDataInner(inner_relation),
 			  Vol_(particles_->Vol_), mass_(particles_->mass_), rho_n_(particles_->rho_n_),
 			  p_(particles_->p_), drho_dt_(particles_->drho_dt_),

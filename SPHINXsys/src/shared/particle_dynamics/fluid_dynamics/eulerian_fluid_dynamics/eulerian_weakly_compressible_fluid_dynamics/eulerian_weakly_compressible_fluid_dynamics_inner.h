@@ -71,7 +71,7 @@ namespace SPH
 		* for masking some function which is only applicable for the bulk of the fluid body.
 		*/
 		class FreeSurfaceIndicationInner
-			: public InteractionDynamicsWithUpdate, public EulerianWeaklyCompressibleFluidDataInner
+			: public OldInteractionDynamicsWithUpdate, public EulerianWeaklyCompressibleFluidDataInner
 		{
 		public:
 			explicit FreeSurfaceIndicationInner(BaseBodyRelationInner &inner_relation, Real thereshold = 0.75);
@@ -146,7 +146,7 @@ namespace SPH
 		 * @class BaseRelaxation
 		 * @brief Pure abstract base class for all fluid relaxation schemes
 		 */
-		class BaseRelaxation : public ParticleDynamics1Level, public EulerianWeaklyCompressibleFluidDataInner
+		class BaseRelaxation : public OldParticleDynamics1Level, public EulerianWeaklyCompressibleFluidDataInner
 		{
 		public:
 			explicit BaseRelaxation(BaseBodyRelationInner &inner_relation);

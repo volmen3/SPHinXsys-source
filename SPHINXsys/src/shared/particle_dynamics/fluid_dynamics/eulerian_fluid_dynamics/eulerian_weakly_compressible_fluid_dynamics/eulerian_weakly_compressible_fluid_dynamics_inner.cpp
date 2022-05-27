@@ -40,7 +40,7 @@ namespace SPH
 		//=================================================================================================//
 		FreeSurfaceIndicationInner::
 			FreeSurfaceIndicationInner(BaseBodyRelationInner &inner_relation, Real thereshold)
-			: InteractionDynamicsWithUpdate(*inner_relation.sph_body_),
+			: OldInteractionDynamicsWithUpdate(*inner_relation.sph_body_),
 			EulerianWeaklyCompressibleFluidDataInner(inner_relation),
 			thereshold_by_dimensions_(thereshold * (Real)Dimensions),
 			Vol_(particles_->Vol_),
@@ -158,7 +158,7 @@ namespace SPH
 		}
 		//=================================================================================================//
 		BaseRelaxation::BaseRelaxation(BaseBodyRelationInner &inner_relation)
-			: ParticleDynamics1Level(*inner_relation.sph_body_),
+			: OldParticleDynamics1Level(*inner_relation.sph_body_),
 			EulerianWeaklyCompressibleFluidDataInner(inner_relation),
 			Vol_(particles_->Vol_), mass_(particles_->mass_), rho_n_(particles_->rho_n_),
 			p_(particles_->p_), drho_dt_(particles_->drho_dt_), vel_n_(particles_->vel_n_), mom_(particles_->mom_),

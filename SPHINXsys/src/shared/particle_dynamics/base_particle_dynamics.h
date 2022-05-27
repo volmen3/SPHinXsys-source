@@ -183,6 +183,145 @@ namespace SPH
 	};
 
 	/**
+	 * @class BaseInteractionDynamics
+	 * @brief  This is the class for particle interaction with other particles
+	 */
+	template <typename LoopRange>
+	class BaseInteractionDynamics : public BaseParticleDynamics<void>
+	{
+		ParticleDynamics<LoopRange> interaction_dynamics_;
+		/** pre process such as update ghost state */
+		StdVec<BaseParticleDynamics<void> *> pre_processes_;
+		/** post process such as impose constraint */
+		StdVec<BaseParticleDynamics<void> *> post_processes_;
+
+	public:
+		BaseInteractionDynamics(LoopRange &loop_range, ParticleFunctor functor_interaction)
+			: BaseParticleDynamics<void>(), interaction_dynamics_(loop_range, functor_interaction){};
+
+		virtual ~BaseInteractionDynamics(){};
+
+		void addPreProcess(BaseParticleDynamics<void> *pre_process) { pre_processes_.push_back(pre_process); };
+		void addPostProcess(BaseParticleDynamics<void> *post_process) { post_processes_.push_back(post_process); };
+
+		virtual void exec(Real dt = 0.0) override
+		{
+			runSetup(dt);
+			runInteraction(dt);
+		};
+
+		virtual void parallel_exec(Real dt = 0.0) override
+		{
+			runSetup(dt);
+			runInteraction_parallel(dt);
+		};
+
+		virtual void runSetup(Real dt = 0.0) = 0;
+
+		void runInteraction(Real dt = 0.0)
+		{
+			for (size_t k = 0; k < pre_processes_.size(); ++k)
+				pre_processes_[k]->exec(dt);
+			interaction_dynamics_.exec(dt);
+			for (size_t k = 0; k < post_processes_.size(); ++k)
+				post_processes_[k]->exec(dt);
+		};
+
+		void runInteraction_parallel(Real dt = 0.0)
+		{
+			for (size_t k = 0; k < pre_processes_.size(); ++k)
+				pre_processes_[k]->parallel_exec(dt);
+			interaction_dynamics_.parallel_exec(dt);
+			for (size_t k = 0; k < post_processes_.size(); ++k)
+				post_processes_[k]->parallel_exec(dt);
+		};
+	};
+
+	/**
+	 * @class BaseInteractionDynamicsWithUpdate
+	 * @brief This class includes an interaction and a update steps
+	 */
+	template <typename LoopRange>
+	class BaseInteractionDynamicsWithUpdate : public BaseInteractionDynamics<LoopRange>
+	{
+		ParticleDynamics<LoopRange> update_dynamics_;
+
+	public:
+		BaseInteractionDynamicsWithUpdate(LoopRange &loop_range, ParticleFunctor functor_interaction,
+										  ParticleFunctor functor_update)
+			: BaseInteractionDynamics<LoopRange>(loop_range, functor_interaction),
+			  update_dynamics_(loop_range, functor_update){};
+		virtual ~BaseInteractionDynamicsWithUpdate(){};
+
+		virtual void exec(Real dt = 0.0) override
+		{
+			this->runSetup(dt);
+			BaseInteractionDynamics<LoopRange>::runInteraction(dt);
+			runUpdate(dt);
+		};
+
+		virtual void parallel_exec(Real dt = 0.0) override
+		{
+			this->runSetup(dt);
+			BaseInteractionDynamics<LoopRange>::runInteraction_parallel(dt);
+			runUpdate_parallel(dt);
+		};
+
+		void runUpdate(Real dt = 0.0)
+		{
+			update_dynamics_.exec(dt);
+		};
+
+		void runUpdate_parallel(Real dt = 0.0)
+		{
+			update_dynamics_.parallel_exec(dt);
+		};
+	};
+
+	/**
+	 * @class BaseInteractionDynamics1Level
+	 * @brief This class includes an initialization, an interaction and a update steps
+	 */
+	template <typename LoopRange>
+	class BaseInteractionDynamics1Level : public BaseInteractionDynamicsWithUpdate<LoopRange>
+	{
+		ParticleDynamics<LoopRange> initialize_dynamics_;
+
+	public:
+		BaseInteractionDynamics1Level(LoopRange &loop_range, ParticleFunctor functor_initialization,
+									  ParticleFunctor functor_interaction, ParticleFunctor functor_update)
+			: BaseInteractionDynamicsWithUpdate<LoopRange>(loop_range, functor_interaction, functor_update),
+			  initialize_dynamics_(loop_range, functor_initialization){};
+		virtual ~BaseInteractionDynamics1Level(){};
+
+		virtual void exec(Real dt = 0.0) override
+		{
+			this->runSetup(dt);
+			runInitialization(dt);
+			BaseInteractionDynamics<LoopRange>::runInteraction(dt);
+			BaseInteractionDynamicsWithUpdate<LoopRange>::runUpdate(dt);
+		};
+
+		virtual void parallel_exec(Real dt = 0.0) override
+		{
+			this->runSetup(dt);
+			runInitialization_parallel(dt);
+			BaseInteractionDynamics<LoopRange>::runInteraction_parallel(dt);
+			BaseInteractionDynamicsWithUpdate<LoopRange>::runUpdate_parallel(dt);
+		};
+
+		void runInitialization(Real dt = 0.0)
+		{
+			initialize_dynamics_.exec(dt);
+		};
+
+		void runInitialization_parallel(Real dt = 0.0)
+		{
+			initialize_dynamics_.parallel_exec(dt);
+		};
+	};
+
+	/**
 	 * @class LocalParticleDynamics
 	 * @brief The new version of base class for all local particle dynamics.
 	 */
@@ -198,7 +337,7 @@ namespace SPH
 		/** the function for set global parameters for the particle dynamics */
 		virtual void setupDynamics(Real dt = 0.0){};
 	};
-	
+
 	/**
 	 * @class OldParticleDynamics
 	 * @brief The base class for all particle dynamics

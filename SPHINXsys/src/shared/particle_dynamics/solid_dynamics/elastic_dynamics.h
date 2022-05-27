@@ -127,7 +127,7 @@ namespace SPH
 		* @brief base class for elastic relaxation
 		*/
 		class BaseElasticRelaxation
-			: public ParticleDynamics1Level,
+			: public OldParticleDynamics1Level,
 			  public ElasticSolidDataInner
 		{
 		public:

@@ -77,7 +77,7 @@ namespace SPH
 		//=================================================================================================//
 		BaseElasticRelaxation::
 			BaseElasticRelaxation(BaseBodyRelationInner &inner_relation)
-			: ParticleDynamics1Level(*inner_relation.sph_body_),
+			: OldParticleDynamics1Level(*inner_relation.sph_body_),
 			  ElasticSolidDataInner(inner_relation), Vol_(particles_->Vol_),
 			  rho_n_(particles_->rho_n_), mass_(particles_->mass_),
 			  pos_n_(particles_->pos_n_), vel_n_(particles_->vel_n_), dvel_dt_(particles_->dvel_dt_),

@@ -44,7 +44,7 @@ namespace SPH
 		* for masking some function which is only applicable for the bulk of the fluid body.
 		*/
 		class FreeSurfaceIndicationInner
-			: public InteractionDynamicsWithUpdate,
+			: public OldInteractionDynamicsWithUpdate,
 			  public FluidDataInner
 		{
 		public:

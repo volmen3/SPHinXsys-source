@@ -31,7 +31,7 @@ namespace SPH
 	template <class BodyType, class BaseParticlesType, class BaseMaterialType>
 	RelaxationOfAllDiffussionSpeciesInner<BodyType, BaseParticlesType, BaseMaterialType>::
 		RelaxationOfAllDiffussionSpeciesInner(BaseBodyRelationInner &inner_relation)
-		: InteractionDynamicsWithUpdate(*inner_relation.sph_body_),
+		: OldInteractionDynamicsWithUpdate(*inner_relation.sph_body_),
 		  DiffusionReactionInnerData<BodyType, BaseParticlesType, BaseMaterialType>(inner_relation),
 		  species_n_(this->particles_->species_n_),
 		  diffusion_dt_(this->particles_->diffusion_dt_), Vol_(this->particles_->Vol_)

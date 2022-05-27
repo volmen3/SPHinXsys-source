@@ -96,7 +96,7 @@ namespace SPH
 		}
 		//=================================================================================================//
 		BaseRelaxation::BaseRelaxation(BaseBodyRelationInner &inner_relation)
-			: ParticleDynamics1Level(*inner_relation.sph_body_),
+			: OldParticleDynamics1Level(*inner_relation.sph_body_),
 			  CompressibleFluidDataInner(inner_relation),
 			  Vol_(particles_->Vol_), rho_n_(particles_->rho_n_), p_(particles_->p_),
 			  drho_dt_(particles_->drho_dt_), E_(particles_->E_), dE_dt_(particles_->dE_dt_),

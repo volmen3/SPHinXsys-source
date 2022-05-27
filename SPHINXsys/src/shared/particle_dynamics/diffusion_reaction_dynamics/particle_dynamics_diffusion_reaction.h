@@ -101,7 +101,7 @@ namespace SPH
 	 */
 	template <class BodyType, class BaseParticlesType, class BaseMaterialType>
 	class RelaxationOfAllDiffussionSpeciesInner
-		: public InteractionDynamicsWithUpdate,
+		: public OldInteractionDynamicsWithUpdate,
 		  public DiffusionReactionInnerData<BodyType, BaseParticlesType, BaseMaterialType>
 	{
 		/** all diffusion species and diffusion relation. */

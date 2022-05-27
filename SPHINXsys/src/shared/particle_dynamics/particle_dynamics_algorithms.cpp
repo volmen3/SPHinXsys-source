@@ -87,7 +87,7 @@ namespace SPH
 		dynamics_b_.Interaction(index_i, dt);
 	}
 	//=================================================================================================//
-	void InteractionDynamicsWithUpdate::exec(Real dt)
+	void OldInteractionDynamicsWithUpdate::exec(Real dt)
 	{
 		setBodyUpdated();
 		setupDynamics(dt);
@@ -100,7 +100,7 @@ namespace SPH
 		ParticleIterator(total_real_particles, functor_update_, dt);
 	}
 	//=================================================================================================//
-	void InteractionDynamicsWithUpdate::parallel_exec(Real dt)
+	void OldInteractionDynamicsWithUpdate::parallel_exec(Real dt)
 	{
 		setBodyUpdated();
 		setupDynamics(dt);
@@ -113,7 +113,7 @@ namespace SPH
 		ParticleIterator_parallel(total_real_particles, functor_update_, dt);
 	}
 	//=================================================================================================//
-	void ParticleDynamics1Level::exec(Real dt)
+	void OldParticleDynamics1Level::exec(Real dt)
 	{
 		setBodyUpdated();
 		setupDynamics(dt);
@@ -127,7 +127,7 @@ namespace SPH
 		ParticleIterator(total_real_particles, functor_update_, dt);
 	}
 	//=================================================================================================//
-	void ParticleDynamics1Level::parallel_exec(Real dt)
+	void OldParticleDynamics1Level::parallel_exec(Real dt)
 	{
 		setBodyUpdated();
 		setupDynamics(dt);

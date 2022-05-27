@@ -92,11 +92,11 @@ namespace SPH
 	 * @brief computing smoothed variable field by averaging with neighbors
 	 */
 	template <typename VariableType>
-	class ParticleSmoothing : public InteractionDynamicsWithUpdate, public GeneralDataDelegateInner
+	class ParticleSmoothing : public OldInteractionDynamicsWithUpdate, public GeneralDataDelegateInner
 	{
 	public:
 		explicit ParticleSmoothing(BaseBodyRelationInner &inner_relation, const std::string &variable_name)
-			: InteractionDynamicsWithUpdate(*inner_relation.sph_body_),
+			: OldInteractionDynamicsWithUpdate(*inner_relation.sph_body_),
 			  GeneralDataDelegateInner(inner_relation),
 			  W0_(body_->sph_adaptation_->getKernel()->W0(Vecd(0))),
 			  smoothed_(*particles_->getVariableByName<VariableType>(variable_name))

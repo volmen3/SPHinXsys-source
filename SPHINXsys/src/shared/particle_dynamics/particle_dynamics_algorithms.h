@@ -71,17 +71,6 @@ namespace SPH
 		};
 	};
 
-	template <class LocalDynamicsSimple>
-	class BodyDynamicsSimple : public ParticleDynamicsSimple<size_t, LocalDynamicsSimple>
-	{
-	public:
-		template <typename... Args>
-		explicit BodyDynamicsSimple(SPHBody &sph_body, Args &&...args)
-			: ParticleDynamicsSimple<size_t, LocalDynamicsSimple>(
-				  sph_body.BodyRange(), sph_body, std::forward<Args>(args)...){};
-		virtual ~BodyDynamicsSimple(){};
-	};
-
 	/**
 	 * @class InteractionDynamics
 	 * @brief  This is the class for particle interaction with other particles
@@ -231,6 +220,19 @@ namespace SPH
 		LoopRange &loop_range_;
 		ReduceFunctor<ReturnType> functor_reduce_;
 	};
+
+	template <class LocalDynamics, template <typename LoopRangeType, class LocalDynamicsType> class ParticleDynamicsType>
+	class BodyDynamics : public ParticleDynamicsType<size_t, LocalDynamics>
+	{
+	public:
+		template <typename... Args>
+		explicit BodyDynamics(SPHBody &sph_body, Args &&...args)
+			: ParticleDynamicsType<size_t, LocalDynamics>(sph_body.BodyRange(), sph_body, std::forward<Args>(args)...){};
+		virtual ~BodyDynamics(){};
+	};
+
+	template <class LocalDynamicsSimple>
+	using BodyDynamicsSimple = BodyDynamics<LocalDynamicsSimple, ParticleDynamicsSimple>;
 
 	/**
 	 * @class OldParticleDynamicsReduce

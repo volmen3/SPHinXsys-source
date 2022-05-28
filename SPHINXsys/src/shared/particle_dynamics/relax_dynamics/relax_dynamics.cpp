@@ -17,7 +17,7 @@ namespace SPH
 	{
 		//=================================================================================================//
 		GetTimeStepSizeSquare::GetTimeStepSizeSquare(SPHBody &sph_body)
-			: ParticleDynamicsReduce<Real, ReduceMax>(sph_body),
+			: OldParticleDynamicsReduce<Real, ReduceMax>(sph_body),
 			  RelaxDataDelegateSimple(sph_body), dvel_dt_(particles_->dvel_dt_),
 			  h_ref_(sph_body.sph_adaptation_->ReferenceSmoothingLength())
 		{
@@ -278,7 +278,7 @@ namespace SPH
 			: OldParticleDynamics<void>(*inner_relation.sph_body_),
 			  convergence_criterion_(cos(0.01 * Pi)),
 			  consistency_criterion_(consistency_criterion),
-			  normal_prediction_(base_particles_->total_real_particles_, *sph_body_, thickness),
+			  normal_prediction_(*sph_body_, thickness),
 			  normal_prediction_convergence_check_(*sph_body_, convergence_criterion_),
 			  consistency_correction_(inner_relation, consistency_criterion_),
 			  consistency_updated_check_(*sph_body_),
@@ -349,7 +349,7 @@ namespace SPH
 		//=================================================================================================//
 		ShellNormalDirectionPrediction::PredictionConvergenceCheck::
 			PredictionConvergenceCheck(SPHBody &sph_body, Real convergence_criterion)
-			: ParticleDynamicsReduce<bool, ReduceAND>(sph_body),
+			: OldParticleDynamicsReduce<bool, ReduceAND>(sph_body),
 			  RelaxDataDelegateSimple(sph_body), convergence_criterion_(convergence_criterion),
 			  n_(*particles_->getVariableByName<Vecd>("NormalDirection")),
 			  n_temp_(*particles_->getVariableByName<Vecd>("PreviousNormalDirection"))
@@ -406,7 +406,7 @@ namespace SPH
 		//=================================================================================================//
 		ShellNormalDirectionPrediction::ConsistencyUpdatedCheck::
 			ConsistencyUpdatedCheck(SPHBody &sph_body)
-			: ParticleDynamicsReduce<bool, ReduceAND>(sph_body),
+			: OldParticleDynamicsReduce<bool, ReduceAND>(sph_body),
 			  RelaxDataDelegateSimple(sph_body),
 			  updated_indicator_(*particles_->getVariableByName<int>("UpdatedIndicator"))
 		{

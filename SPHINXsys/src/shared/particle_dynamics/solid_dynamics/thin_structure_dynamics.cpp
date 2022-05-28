@@ -22,7 +22,7 @@ namespace SPH
 			  transformation_matrix_(particles_->transformation_matrix_) {}
 		//=================================================================================================//
 		ShellAcousticTimeStepSize::ShellAcousticTimeStepSize(SolidBody &solid_body)
-			: ParticleDynamicsReduce<Real, ReduceMin>(solid_body),
+			: OldParticleDynamicsReduce<Real, ReduceMin>(solid_body),
 			  ShellDataSimple(solid_body),
 			  vel_n_(particles_->vel_n_), dvel_dt_(particles_->dvel_dt_),
 			  angular_vel_(particles_->angular_vel_), dangular_vel_dt_(particles_->dangular_vel_dt_),

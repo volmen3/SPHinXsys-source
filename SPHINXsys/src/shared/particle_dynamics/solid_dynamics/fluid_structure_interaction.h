@@ -292,7 +292,7 @@ namespace SPH
 		* @class TotalViscousForceOnSolid
 		* @brief Computing the total viscous force from fluid
 		*/
-		class TotalViscousForceOnSolid : public ParticleDynamicsReduce<Vecd, ReduceSum<Vecd>>, public SolidDataSimple
+		class TotalViscousForceOnSolid : public OldParticleDynamicsReduce<Vecd, ReduceSum<Vecd>>, public SolidDataSimple
 		{
 		public:
 			explicit TotalViscousForceOnSolid(SolidBody &solid_body);
@@ -307,7 +307,7 @@ namespace SPH
 		 * @class TotalForceOnSolid
 		 * @brief Computing total force from fluid.
 		 */
-		class TotalForceOnSolid : public ParticleDynamicsReduce<Vecd, ReduceSum<Vecd>>, public SolidDataSimple
+		class TotalForceOnSolid : public OldParticleDynamicsReduce<Vecd, ReduceSum<Vecd>>, public SolidDataSimple
 		{
 		public:
 			explicit TotalForceOnSolid(SolidBody &solid_body);

@@ -16,7 +16,7 @@ namespace SPH
 	{
 		//=================================================================================================//
 		AcousticTimeStepSize::AcousticTimeStepSize(SolidBody &solid_body, Real CFL)
-			: ParticleDynamicsReduce<Real, ReduceMin>(solid_body),
+			: OldParticleDynamicsReduce<Real, ReduceMin>(solid_body),
 			  ElasticSolidDataSimple(solid_body), CFL_(CFL),
 			  vel_n_(particles_->vel_n_), dvel_dt_(particles_->dvel_dt_),
 			  smoothing_length_(sph_adaptation_->ReferenceSmoothingLength())

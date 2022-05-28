@@ -108,7 +108,7 @@ namespace SPH
 		* @class AcousticTimeStepSize
 		* @brief Computing the acoustic time step size
 		*/
-		class AcousticTimeStepSize : public ParticleDynamicsReduce<Real, ReduceMax>, public CompressibleFluidDataSimple
+		class AcousticTimeStepSize : public OldParticleDynamicsReduce<Real, ReduceMax>, public CompressibleFluidDataSimple
 		{
 		public:
 			explicit AcousticTimeStepSize(EulerianFluidBody &body);

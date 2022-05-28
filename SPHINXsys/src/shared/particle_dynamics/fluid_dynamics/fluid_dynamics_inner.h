@@ -139,7 +139,7 @@ namespace SPH
 		* @class AcousticTimeStepSize
 		* @brief Computing the acoustic time step size
 		*/
-		class AcousticTimeStepSize : public ParticleDynamicsReduce<Real, ReduceMax>, public FluidDataSimple
+		class AcousticTimeStepSize : public OldParticleDynamicsReduce<Real, ReduceMax>, public FluidDataSimple
 		{
 		public:
 			explicit AcousticTimeStepSize(FluidBody &fluid_body);
@@ -157,7 +157,7 @@ namespace SPH
 		* @class AdvectionTimeStepSize
 		* @brief Computing the advection time step size
 		*/
-		class AdvectionTimeStepSize : public ParticleDynamicsReduce<Real, ReduceMax>, public FluidDataSimple
+		class AdvectionTimeStepSize : public OldParticleDynamicsReduce<Real, ReduceMax>, public FluidDataSimple
 		{
 		public:
 			explicit AdvectionTimeStepSize(FluidBody &fluid_body, Real U_max);

@@ -54,7 +54,7 @@ namespace SPH
 		 * @brief relaxation dynamics for particle initialization
 		 * computing the square of time step size
 		 */
-		class GetTimeStepSizeSquare : public ParticleDynamicsReduce<Real, ReduceMax>,
+		class GetTimeStepSizeSquare : public OldParticleDynamicsReduce<Real, ReduceMax>,
 									  public RelaxDataDelegateSimple
 		{
 		public:
@@ -325,7 +325,7 @@ namespace SPH
 				void update(size_t index_i, Real dt = 0.0);
 			};
 
-			class PredictionConvergenceCheck : public ParticleDynamicsReduce<bool, ReduceAND>,
+			class PredictionConvergenceCheck : public OldParticleDynamicsReduce<bool, ReduceAND>,
 											   public RelaxDataDelegateSimple
 			{
 			public:
@@ -354,7 +354,7 @@ namespace SPH
 				virtual void Interaction(size_t index_i, Real dt = 0.0) override;
 			};
 
-			class ConsistencyUpdatedCheck : public ParticleDynamicsReduce<bool, ReduceAND>,
+			class ConsistencyUpdatedCheck : public OldParticleDynamicsReduce<bool, ReduceAND>,
 								 public RelaxDataDelegateSimple
 			{
 			public:

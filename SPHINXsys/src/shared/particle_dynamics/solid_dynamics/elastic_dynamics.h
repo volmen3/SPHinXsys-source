@@ -91,7 +91,7 @@ namespace SPH
 		* @brief Computing the acoustic time step size
 		* computing time step size
 		*/
-		class AcousticTimeStepSize : public ParticleDynamicsReduce<Real, ReduceMin>,
+		class AcousticTimeStepSize : public OldParticleDynamicsReduce<Real, ReduceMin>,
 									 public ElasticSolidDataSimple
 		{
 		public:

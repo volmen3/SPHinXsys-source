@@ -72,7 +72,15 @@ namespace SPH
 	};
 
 	template <class LocalDynamicsSimple>
-	using BodyDynamicsSimple = ParticleDynamicsSimple<size_t, LocalDynamicsSimple>;
+	class BodyDynamicsSimple : public ParticleDynamicsSimple<size_t, LocalDynamicsSimple>
+	{
+	public:
+		template <typename... Args>
+		explicit BodyDynamicsSimple(SPHBody &sph_body, Args &&...args)
+			: ParticleDynamicsSimple<size_t, LocalDynamicsSimple>(
+				  sph_body.BodyRange(), sph_body, std::forward<Args>(args)...){};
+		virtual ~BodyDynamicsSimple(){};
+	};
 
 	/**
 	 * @class InteractionDynamics
@@ -148,14 +156,16 @@ namespace SPH
 
 	/**
 	 * @class MultipleInteractionDynamics1Level
-	 * @brief Several body updated together
+	 * @brief Several body dynamic updating together so that they
+	 * are not dependent on their sequence.
 	 */
 	class MultipleInteractionDynamics1Level : public BaseParticleDynamics<void>
 	{
 		StdVec<BaseInteractionDynamics1Level<size_t> *> bodies_dynamics_1level_;
 
 	public:
-		explicit MultipleInteractionDynamics1Level(StdVec<BaseInteractionDynamics1Level<size_t> *> bodies_dynamics_1level)
+		explicit MultipleInteractionDynamics1Level(
+			StdVec<BaseInteractionDynamics1Level<size_t> *> bodies_dynamics_1level)
 			: BaseParticleDynamics<void>(), bodies_dynamics_1level_(bodies_dynamics_1level){};
 		virtual ~MultipleInteractionDynamics1Level(){};
 
@@ -188,14 +198,52 @@ namespace SPH
 	 * @class ParticleDynamicsReduce
 	 * @brief Base abstract class for reduce
 	 */
+	template <typename LoopRange, class LocalDynamicsReduce>
+	class ParticleDynamicsReduce : public LocalDynamicsReduce,
+								   public BaseParticleDynamics<decltype(LocalDynamicsReduce::initial_reference_)>
+	{
+		using ReturnType = decltype(LocalDynamicsReduce::initial_reference_);
+
+	public:
+		template <typename... Args>
+		explicit ParticleDynamicsReduce(LoopRange &loop_range, Args &&...args)
+			: LocalDynamicsReduce(std::forward<Args>(args)...),
+			  BaseParticleDynamics<decltype(LocalDynamicsReduce::initial_reference_)>(),
+			  loop_range_(loop_range), functor_reduce_(std::bind(&LocalDynamicsReduce::reduce, this, _1, _2)){};
+		virtual ~ParticleDynamicsReduce(){};
+
+		virtual ReturnType exec(Real dt = 0.0) override
+		{
+			LocalDynamicsReduce::setupReduce();
+			ReturnType temp = ReduceIterator(
+				loop_range_, this->initial_reference_, functor_reduce_, this->reduce_operation_, dt);
+			return LocalDynamicsReduce::outputResult(temp);
+		};
+		virtual ReturnType parallel_exec(Real dt = 0.0) override
+		{
+			LocalDynamicsReduce::setupReduce();
+			ReturnType temp = ReduceIterator_parallel(
+				loop_range_, this->initial_reference_, functor_reduce_, this->reduce_operation_, dt);
+			return LocalDynamicsReduce::outputResult(temp);
+		};
+
+	protected:
+		LoopRange &loop_range_;
+		ReduceFunctor<ReturnType> functor_reduce_;
+	};
+
+	/**
+	 * @class OldParticleDynamicsReduce
+	 * @brief Base abstract class for reduce
+	 */
 	template <class ReturnType, typename ReduceOperation>
-	class ParticleDynamicsReduce : public OldParticleDynamics<ReturnType>
+	class OldParticleDynamicsReduce : public OldParticleDynamics<ReturnType>
 	{
 	public:
-		explicit ParticleDynamicsReduce(SPHBody &sph_body)
+		explicit OldParticleDynamicsReduce(SPHBody &sph_body)
 			: OldParticleDynamics<ReturnType>(sph_body), quantity_name_("ReducedQuantity"), initial_reference_(),
-			  functor_reduce_function_(std::bind(&ParticleDynamicsReduce::ReduceFunction, this, _1, _2)){};
-		virtual ~ParticleDynamicsReduce(){};
+			  functor_reduce_function_(std::bind(&OldParticleDynamicsReduce::ReduceFunction, this, _1, _2)){};
+		virtual ~OldParticleDynamicsReduce(){};
 
 		ReturnType InitialReference() { return initial_reference_; };
 		std::string QuantityName() { return quantity_name_; };

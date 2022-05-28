@@ -131,7 +131,7 @@ namespace SPH
     void BaseParticles::addDerivedVariableToWrite()
     {
         BodyDynamicsSimple<DerivedVariableMethod> *derived_data 
-            = derived_particle_data_.createPtr<BodyDynamicsSimple<DerivedVariableMethod>>(total_real_particles_,*sph_body_);
+            = derived_particle_data_.createPtr<BodyDynamicsSimple<DerivedVariableMethod>>(*sph_body_);
         derived_variables_.push_back(derived_data);
         using DerivedVariableType = typename DerivedVariableMethod::DerivedVariableType;
         addAVariableNameToList<DerivedVariableType>(variables_to_write_, derived_data->variable_name_);

@@ -64,7 +64,7 @@ namespace SPH
 		* @class ShellAcousticTimeStepSize
 		* @brief Computing the acoustic time step size for shell
 		*/
-		class ShellAcousticTimeStepSize : public ParticleDynamicsReduce<Real, ReduceMin>,
+		class ShellAcousticTimeStepSize : public OldParticleDynamicsReduce<Real, ReduceMin>,
 										  public ShellDataSimple
 		{
 		public:

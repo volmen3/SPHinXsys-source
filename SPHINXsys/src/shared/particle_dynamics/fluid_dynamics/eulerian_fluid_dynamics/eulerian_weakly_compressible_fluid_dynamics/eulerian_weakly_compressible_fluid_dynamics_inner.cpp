@@ -108,7 +108,7 @@ namespace SPH
 		}
 		//=================================================================================================//
 		AcousticTimeStepSize::AcousticTimeStepSize(EulerianFluidBody &fluid_body)
-			: ParticleDynamicsReduce<Real, ReduceMax>(fluid_body),
+			: OldParticleDynamicsReduce<Real, ReduceMax>(fluid_body),
 			EulerianWeaklyCompressibleFluidDataSimple(fluid_body), rho_n_(particles_->rho_n_),
 			p_(particles_->p_), vel_n_(particles_->vel_n_),
 			smoothing_length_(sph_adaptation_->ReferenceSmoothingLength())

@@ -134,7 +134,7 @@ namespace SPH
 	 * @class VelocityBoundCheck
 	 * @brief  check whether particle velocity within a given bound
 	 */
-	class VelocityBoundCheck : public ParticleDynamicsReduce<bool, ReduceOR>,
+	class VelocityBoundCheck : public OldParticleDynamicsReduce<bool, ReduceOR>,
 							   public GeneralDataDelegateSimple
 	{
 	public:
@@ -151,7 +151,7 @@ namespace SPH
 	 * @class UpperFrontInXDirection
 	 * @brief Get the upper front In X Direction for a SPH body
 	 */
-	class UpperFrontInXDirection : public ParticleDynamicsReduce<Real, ReduceMax>,
+	class UpperFrontInXDirection : public OldParticleDynamicsReduce<Real, ReduceMax>,
 								   public GeneralDataDelegateSimple
 	{
 	public:
@@ -167,7 +167,7 @@ namespace SPH
 	 * @class MaximumSpeed
 	 * @brief Get the maximum particle speed in a SPH body
 	 */
-	class MaximumSpeed : public ParticleDynamicsReduce<Real, ReduceMax>,
+	class MaximumSpeed : public OldParticleDynamicsReduce<Real, ReduceMax>,
 						 public GeneralDataDelegateSimple
 	{
 	public:
@@ -183,7 +183,7 @@ namespace SPH
 	 * @class BodyLowerBound
 	 * @brief the lower bound of a body by reduced particle positions.
 	 */
-	class BodyLowerBound : public ParticleDynamicsReduce<Vecd, ReduceLowerBound>,
+	class BodyLowerBound : public OldParticleDynamicsReduce<Vecd, ReduceLowerBound>,
 						   public GeneralDataDelegateSimple
 	{
 	public:
@@ -199,7 +199,7 @@ namespace SPH
 	 * @class BodyUpperBound
 	 * @brief the upper bound of a body by reduced particle positions.
 	 */
-	class BodyUpperBound : public ParticleDynamicsReduce<Vecd, ReduceUpperBound>,
+	class BodyUpperBound : public OldParticleDynamicsReduce<Vecd, ReduceUpperBound>,
 						   public GeneralDataDelegateSimple
 	{
 	public:
@@ -216,12 +216,12 @@ namespace SPH
 	 * @brief Compute the summation of  a particle variable in a body
 	 */
 	template <typename VariableType>
-	class BodySummation : public ParticleDynamicsReduce<VariableType, ReduceSum<VariableType>>,
+	class BodySummation : public OldParticleDynamicsReduce<VariableType, ReduceSum<VariableType>>,
 						  public GeneralDataDelegateSimple
 	{
 	public:
 		explicit BodySummation(SPHBody &sph_body, const std::string &variable_name)
-			: ParticleDynamicsReduce<VariableType, ReduceSum<VariableType>>(sph_body),
+			: OldParticleDynamicsReduce<VariableType, ReduceSum<VariableType>>(sph_body),
 			  GeneralDataDelegateSimple(sph_body),
 			  variable_(*particles_->getVariableByName<VariableType>(variable_name))
 		{
@@ -263,7 +263,7 @@ namespace SPH
 	 * @brief Compute the total mechanical (kinematic and potential) energy
 	 */
 	class TotalMechanicalEnergy
-		: public ParticleDynamicsReduce<Real, ReduceSum<Real>>,
+		: public OldParticleDynamicsReduce<Real, ReduceSum<Real>>,
 		  public GeneralDataDelegateSimple
 	{
 	private:

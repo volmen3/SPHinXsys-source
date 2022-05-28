@@ -128,7 +128,7 @@ namespace SPH
 		}
 		//=================================================================================================//
 		AcousticTimeStepSize::AcousticTimeStepSize(FluidBody &fluid_body)
-			: ParticleDynamicsReduce<Real, ReduceMax>(fluid_body),
+			: OldParticleDynamicsReduce<Real, ReduceMax>(fluid_body),
 			  FluidDataSimple(fluid_body), rho_n_(particles_->rho_n_),
 			  p_(particles_->p_), vel_n_(particles_->vel_n_),
 			  smoothing_length_(sph_adaptation_->ReferenceSmoothingLength())
@@ -150,7 +150,7 @@ namespace SPH
 		}
 		//=================================================================================================//
 		AdvectionTimeStepSize::AdvectionTimeStepSize(FluidBody &fluid_body, Real U_max)
-			: ParticleDynamicsReduce<Real, ReduceMax>(fluid_body),
+			: OldParticleDynamicsReduce<Real, ReduceMax>(fluid_body),
 			  FluidDataSimple(fluid_body), vel_n_(particles_->vel_n_),
 			  smoothing_length_(sph_adaptation_->ReferenceSmoothingLength())
 		{

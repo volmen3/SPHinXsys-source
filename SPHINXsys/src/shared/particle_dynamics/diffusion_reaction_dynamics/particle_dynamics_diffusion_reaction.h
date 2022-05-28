@@ -322,12 +322,12 @@ namespace SPH
 	 */
 	template <class BodyType, class BaseParticlesType, class BaseMaterialType>
 	class TotalAveragedParameterOnDiffusionBody
-		: public ParticleDynamicsReduce<Real, ReduceSum<Real>>,
+		: public OldParticleDynamicsReduce<Real, ReduceSum<Real>>,
 		  public DiffusionReactionSimpleData<BodyType, BaseParticlesType, BaseMaterialType>
 	{
 	public:
 		explicit TotalAveragedParameterOnDiffusionBody(BodyType &body, const std::string &species_name)
-			: ParticleDynamicsReduce<Real, ReduceSum<Real>>(body),
+			: OldParticleDynamicsReduce<Real, ReduceSum<Real>>(body),
 			  DiffusionReactionSimpleData<BodyType, BaseParticlesType, BaseMaterialType>(body),
 			  species_n_(this->particles_->species_n_), species_name_(species_name)
 		{

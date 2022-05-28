@@ -43,7 +43,7 @@ namespace SPH
 	//=================================================================================================//
 	VelocityBoundCheck::
 		VelocityBoundCheck(SPHBody &sph_body, Real velocity_bound)
-		: ParticleDynamicsReduce<bool, ReduceOR>(sph_body),
+		: OldParticleDynamicsReduce<bool, ReduceOR>(sph_body),
 		  GeneralDataDelegateSimple(sph_body),
 		  vel_n_(particles_->vel_n_), velocity_bound_(velocity_bound)
 	{
@@ -56,7 +56,7 @@ namespace SPH
 	}
 	//=================================================================================================//
 	UpperFrontInXDirection::
-		UpperFrontInXDirection(SPHBody &sph_body) : ParticleDynamicsReduce<Real, ReduceMax>(sph_body),
+		UpperFrontInXDirection(SPHBody &sph_body) : OldParticleDynamicsReduce<Real, ReduceMax>(sph_body),
 													GeneralDataDelegateSimple(sph_body),
 													pos_n_(particles_->pos_n_)
 	{
@@ -70,7 +70,7 @@ namespace SPH
 	}
 	//=================================================================================================//
 	MaximumSpeed::
-		MaximumSpeed(SPHBody &sph_body) : ParticleDynamicsReduce<Real, ReduceMax>(sph_body),
+		MaximumSpeed(SPHBody &sph_body) : OldParticleDynamicsReduce<Real, ReduceMax>(sph_body),
 										  GeneralDataDelegateSimple(sph_body),
 										  vel_n_(particles_->vel_n_)
 	{
@@ -84,7 +84,7 @@ namespace SPH
 	}
 	//=================================================================================================//
 	BodyLowerBound::BodyLowerBound(SPHBody &sph_body)
-		: ParticleDynamicsReduce<Vecd, ReduceLowerBound>(sph_body),
+		: OldParticleDynamicsReduce<Vecd, ReduceLowerBound>(sph_body),
 		  GeneralDataDelegateSimple(sph_body),
 		  pos_n_(particles_->pos_n_)
 	{
@@ -98,7 +98,7 @@ namespace SPH
 	}
 	//=================================================================================================//
 	BodyUpperBound::
-		BodyUpperBound(SPHBody &sph_body) : ParticleDynamicsReduce<Vecd, ReduceUpperBound>(sph_body),
+		BodyUpperBound(SPHBody &sph_body) : OldParticleDynamicsReduce<Vecd, ReduceUpperBound>(sph_body),
 											GeneralDataDelegateSimple(sph_body),
 											pos_n_(particles_->pos_n_)
 	{
@@ -112,7 +112,7 @@ namespace SPH
 	}
 	//=================================================================================================//
 	TotalMechanicalEnergy::TotalMechanicalEnergy(SPHBody &sph_body)
-		: ParticleDynamicsReduce<Real, ReduceSum<Real>>(sph_body),
+		: OldParticleDynamicsReduce<Real, ReduceSum<Real>>(sph_body),
 		  GeneralDataDelegateSimple(sph_body), mass_(particles_->mass_),
 		  vel_n_(particles_->vel_n_), pos_n_(particles_->pos_n_),
 		  gravity_(gravity_ptr_keeper_.createPtr<Gravity>(Vecd(0)))
@@ -122,7 +122,7 @@ namespace SPH
 	}
 	//=================================================================================================//
 	TotalMechanicalEnergy::TotalMechanicalEnergy(SPHBody &sph_body, Gravity &gravity)
-		: ParticleDynamicsReduce<Real, ReduceSum<Real>>(sph_body),
+		: OldParticleDynamicsReduce<Real, ReduceSum<Real>>(sph_body),
 		  GeneralDataDelegateSimple(sph_body), mass_(particles_->mass_),
 		  vel_n_(particles_->vel_n_), pos_n_(particles_->pos_n_),
 		  gravity_(&gravity)

@@ -137,7 +137,7 @@ namespace SPH
 		}
 		//=================================================================================================//
 		TotalViscousForceOnSolid ::TotalViscousForceOnSolid(SolidBody &solid_body)
-			: ParticleDynamicsReduce<Vecd, ReduceSum<Vecd>>(solid_body),
+			: OldParticleDynamicsReduce<Vecd, ReduceSum<Vecd>>(solid_body),
 			  SolidDataSimple(solid_body),
 			  viscous_force_from_fluid_(*particles_->getVariableByName<Vecd>("ViscousForceFromFluid"))
 		{
@@ -151,7 +151,7 @@ namespace SPH
 		}
 		//=================================================================================================//
 		TotalForceOnSolid::TotalForceOnSolid(SolidBody &solid_body)
-			: ParticleDynamicsReduce<Vecd, ReduceSum<Vecd>>(solid_body),
+			: OldParticleDynamicsReduce<Vecd, ReduceSum<Vecd>>(solid_body),
 			SolidDataSimple(solid_body),
 			force_from_fluid_(particles_->force_from_fluid_)
 		{

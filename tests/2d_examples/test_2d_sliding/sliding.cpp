@@ -1,6 +1,6 @@
 /**
  * @file 	sliding.cpp
- * @brief 	a 2D elastic cube sildes on a rigid slope.
+ * @brief 	a 2D elastic cube slides on a rigid slope.
  * @details This is the a case for test collision dynamics for
  * 			understanding SPH method for complex simulation.
  * @author 	chi Zhang and Xiangyu Hu
@@ -97,7 +97,7 @@ int main(int ac, char *av[])
 	//	Note that there may be data dependence on the constructors of these methods.
 	//----------------------------------------------------------------------
 	Gravity gravity(Vecd(0.0, -gravity_g));
-	Transform2d transform2d(Rotation2d(-0.5235, Vecd(0)));
+	Transform2d transform2d(Rotation2d(-0.5235));
 	BodyDynamicsSimple<TranslationAndRotation> wall_boundary_rotation(wall_boundary, transform2d);
 	BodyDynamicsSimple<TranslationAndRotation> free_cube_rotation(free_cube, transform2d);
 	TimeStepInitialization free_cube_initialize_timestep(free_cube, gravity);

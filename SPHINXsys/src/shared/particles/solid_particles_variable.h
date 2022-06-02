@@ -79,7 +79,7 @@ namespace SPH
 	 * @class TranslationAndRotation
 	 * @brief transformation on particle position and rotation
 	 */
-	class TranslationAndRotation : public SolidDataSimple
+	class TranslationAndRotation : public LocalParticleDynamics, public SolidDataSimple
 	{
 	public:
 		explicit TranslationAndRotation(SPHBody &sph_body, Transformd &transform);

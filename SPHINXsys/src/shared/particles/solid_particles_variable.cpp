@@ -32,7 +32,7 @@ namespace SPH
     //=============================================================================================//
     TranslationAndRotation::
         TranslationAndRotation(SPHBody &sph_body, Transformd &transform)
-        : SolidDataSimple(sph_body), transform_(transform),
+        : LocalParticleDynamics(sph_body), SolidDataSimple(sph_body), transform_(transform),
           pos_n_(particles_->pos_n_), pos_0_(particles_->pos_0_) {}
     //=============================================================================================//
     void TranslationAndRotation::update(size_t index_i, Real dt)

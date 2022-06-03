@@ -44,7 +44,7 @@ namespace SPH
 	 * @class ParticleDynamicsSimple
 	 * @brief Simple particle dynamics without considering particle interaction
 	 */
-	template <typename LoopRange, class LocalDynamicsSimple>
+	template <class LocalDynamicsSimple, typename LoopRange>
 	class ParticleDynamicsSimple : public LocalDynamicsSimple,
 								   public ParticleDynamics<LoopRange>
 	{
@@ -75,7 +75,7 @@ namespace SPH
 	 * @class InteractionDynamics
 	 * @brief  This is the class for particle interaction with other particles
 	 */
-	template <typename LoopRange, class LocalInteractionDynamics>
+	template <class LocalInteractionDynamics, typename LoopRange>
 	class InteractionDynamics : public LocalInteractionDynamics,
 								public BaseInteractionDynamics<LoopRange>
 	{
@@ -98,7 +98,7 @@ namespace SPH
 	 * @class InteractionDynamics
 	 * @brief This class includes an interaction and a update steps
 	 */
-	template <typename LoopRange, class LocalInteractionDynamics>
+	template <class LocalInteractionDynamics, typename LoopRange>
 	class InteractionDynamicsWithUpdate : public LocalInteractionDynamics,
 										  public BaseInteractionDynamicsWithUpdate<LoopRange>
 	{
@@ -122,7 +122,7 @@ namespace SPH
 	 * @class InteractionDynamics1Level
 	 * @brief This class includes an initialization, an interaction and a update steps
 	 */
-	template <typename LoopRange, class LocalInteractionDynamics>
+	template <class LocalInteractionDynamics, typename LoopRange>
 	class InteractionDynamics1Level : public LocalInteractionDynamics,
 									  public BaseInteractionDynamics1Level<LoopRange>
 	{
@@ -187,7 +187,7 @@ namespace SPH
 	 * @class ParticleDynamicsReduce
 	 * @brief Base abstract class for reduce
 	 */
-	template <typename LoopRange, class LocalDynamicsReduce>
+	template <class LocalDynamicsReduce, typename LoopRange>
 	class ParticleDynamicsReduce : public LocalDynamicsReduce,
 								   public BaseParticleDynamics<decltype(LocalDynamicsReduce::initial_reference_)>
 	{
@@ -221,13 +221,13 @@ namespace SPH
 		ReduceFunctor<ReturnType> functor_reduce_;
 	};
 
-	template <class LocalDynamics, template <typename LoopRangeType, class LocalDynamicsType> class ParticleDynamicsType>
-	class BodyDynamics : public ParticleDynamicsType<size_t, LocalDynamics>
+	template <class LocalDynamics, template <class LocalDynamicsType, typename LoopRangeType> class ParticleDynamicsType>
+	class BodyDynamics : public ParticleDynamicsType<LocalDynamics, size_t>
 	{
 	public:
 		template <typename... Args>
 		explicit BodyDynamics(SPHBody &sph_body, Args &&...args)
-			: ParticleDynamicsType<size_t, LocalDynamics>(sph_body.BodyRange(), sph_body, std::forward<Args>(args)...){};
+			: ParticleDynamicsType<LocalDynamics, size_t>(sph_body.BodyRange(), sph_body, std::forward<Args>(args)...){};
 		virtual ~BodyDynamics(){};
 	};
 

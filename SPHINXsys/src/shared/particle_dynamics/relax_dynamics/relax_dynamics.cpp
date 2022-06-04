@@ -21,7 +21,7 @@ namespace SPH
 			  RelaxDataDelegateSimple(sph_body), dvel_dt_(particles_->dvel_dt_),
 			  h_ref_(sph_body.sph_adaptation_->ReferenceSmoothingLength())
 		{
-			//The pressure is constant, so the speed of sound is zero
+			// The pressure is constant, so the speed of sound is zero
 			initial_reference_ = 0.0;
 		}
 		//=================================================================================================//
@@ -341,10 +341,18 @@ namespace SPH
 			particles_->registerAVariable(n_temp_, "PreviousNormalDirection", "NormalDirection");
 		}
 		//=================================================================================================//
-		void ShellNormalDirectionPrediction::NormalPrediction::update(size_t index_i, Real dt)
+		void ShellNormalDirectionPrediction::
+			NormalPrediction::updateRange(const blocked_range<size_t> &particle_range, Real dt)
 		{
-			n_temp_[index_i] = n_[index_i];
-			n_[index_i] = level_set_shape_->findNormalDirection(pos_n_[index_i] + 0.3 * thickness_ * n_temp_[index_i]);
+			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			{
+				n_temp_[index_i] = n_[index_i];
+			}
+
+			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			{
+				n_[index_i] = level_set_shape_->findNormalDirection(pos_n_[index_i] + 0.3 * thickness_ * n_temp_[index_i]);
+			}
 		}
 		//=================================================================================================//
 		ShellNormalDirectionPrediction::PredictionConvergenceCheck::

@@ -14,9 +14,12 @@ namespace SPH
           LocalParticleDynamics(sph_body), SolidDataSimple(sph_body),
           pos_n_(particles_->pos_n_), pos_0_(particles_->pos_0_) {}
     //=============================================================================================//
-    void Displacement::update(size_t index_i, Real dt)
+    void Displacement::updateRange(const blocked_range<size_t> &particle_range, Real dt)
     {
-        derived_variable_[index_i] = pos_n_[index_i] - pos_0_[index_i];
+        for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+        {
+            derived_variable_[index_i] = pos_n_[index_i] - pos_0_[index_i];
+        }
     }
     //=============================================================================================//
     OffsetInitialPosition::
@@ -46,11 +49,13 @@ namespace SPH
         : LocalParticleDynamics(sph_body), SolidDataSimple(sph_body), body_shape_(*sph_body.body_shape_),
           pos_n_(particles_->pos_n_), n_(particles_->n_), n_0_(particles_->n_0_) {}
     //=============================================================================================//
-    void NormalDirectionFromBodyShape::update(size_t index_i, Real dt)
+    void NormalDirectionFromBodyShape::updateRange(const blocked_range<size_t> &particle_range, Real dt)
     {
-        Vecd normal_direction = body_shape_.findNormalDirection(pos_n_[index_i]);
-        n_[index_i] = normal_direction;
-        n_0_[index_i] = normal_direction;
+        for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+        {
+            n_[index_i] = body_shape_.findNormalDirection(pos_n_[index_i]);
+            n_0_[index_i] = n_[index_i];
+        }
     }
     //=============================================================================================//
     NormalDirectionFromShapeAndOp::

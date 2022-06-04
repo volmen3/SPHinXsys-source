@@ -140,7 +140,7 @@ int main(int ac, char *av[])
 	//----------------------------------------------------------------------
 	//	Algorithms of FSI.
 	//----------------------------------------------------------------------
-	BodyDynamicsSimple<NormalDirectionFromBodyShape> cylinder_normal_direction(cylinder);
+	SimpleDynamics<NormalDirectionFromBodyShape> cylinder_normal_direction(cylinder);
 	/** Compute the force exerted on solid body due to fluid pressure and viscosity. */
 	solid_dynamics::FluidPressureForceOnSolid fluid_pressure_force_on_inserted_body(cylinder_contact);
 	solid_dynamics::FluidViscousForceOnSolid fluid_viscous_force_on_inserted_body(cylinder_contact);

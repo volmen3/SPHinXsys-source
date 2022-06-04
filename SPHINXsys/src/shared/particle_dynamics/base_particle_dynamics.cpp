@@ -107,5 +107,21 @@ namespace SPH
 		}
 	}
 	//=============================================================================================//
+	void ParticleIterator(size_t total_real_particles, const ParticleRangeFunctor &particle_functor, Real dt)
+	{
+		particle_functor(blocked_range<size_t>(0,total_real_particles), dt);
+	}
+	//=============================================================================================//
+	void ParticleIterator_parallel(size_t total_real_particles, const ParticleRangeFunctor &particle_functor, Real dt)
+	{
+		parallel_for(
+			blocked_range<size_t>(0, total_real_particles),
+			[&](const blocked_range<size_t> &r)
+			{
+				particle_functor(r, dt);
+			},
+			ap);
+	}
+	//=============================================================================================//
 }
 //=============================================================================================//

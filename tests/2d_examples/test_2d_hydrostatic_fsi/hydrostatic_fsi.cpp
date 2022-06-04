@@ -247,8 +247,8 @@ int main()
 	fluid_dynamics::ViscousAccelerationWithWall viscous_acceleration(water_block_complex);
 	DampingWithRandomChoice<DampingPairwiseWithWall<Vec2d, DampingPairwiseInner>>
 		fluid_damping(0.2, water_block_complex, "Velocity", mu_f);
-	BodyDynamicsSimple<NormalDirectionFromBodyShape> wall_boundary_normal_direction(wall_boundary);
-	BodyDynamicsSimple<NormalDirectionFromBodyShape> gate_normal_direction(gate);
+	SimpleDynamics<NormalDirectionFromBodyShape> wall_boundary_normal_direction(wall_boundary);
+	SimpleDynamics<NormalDirectionFromBodyShape> gate_normal_direction(gate);
 	/** Corrected configuration. */
 	solid_dynamics::CorrectConfiguration gate_corrected_configuration(gate_inner);
 	/** Compute time step size of elastic solid. */

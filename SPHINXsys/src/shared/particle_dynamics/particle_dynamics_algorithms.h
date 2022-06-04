@@ -41,33 +41,33 @@
 namespace SPH
 {
 	/**
-	 * @class ParticleDynamicsSimple
+	 * @class SimpleDynamics
 	 * @brief Simple particle dynamics without considering particle interaction
 	 */
-	template <class LocalDynamicsSimple, typename LoopRange>
-	class ParticleDynamicsSimple : public LocalDynamicsSimple,
-								   public ParticleDynamics<LoopRange>
+	template <class LocalDynamicsSimple>
+	class SimpleDynamics : public LocalDynamicsSimple,
+								   public ParticleDynamics<size_t, ParticleRangeFunctor>
 	{
 	public:
 		template <typename... Args>
-		explicit ParticleDynamicsSimple(LoopRange &loop_range, Args &&...args)
-			: LocalDynamicsSimple(std::forward<Args>(args)...),
-			  ParticleDynamics<LoopRange>(
-				  loop_range, std::bind(&LocalDynamicsSimple::update, this, _1, _2)){};
-		virtual ~ParticleDynamicsSimple(){};
+		explicit SimpleDynamics(SPHBody &sph_body, Args &&...args)
+			: LocalDynamicsSimple(sph_body, std::forward<Args>(args)...),
+			  ParticleDynamics<size_t, ParticleRangeFunctor>(
+				  sph_body.BodyRange(), std::bind(&LocalDynamicsSimple::updateRange, this, _1, _2)){};
+		virtual ~SimpleDynamics(){};
 
 		virtual void exec(Real dt = 0.0) override
 		{
 			LocalDynamicsSimple::setBodyUpdated();
 			LocalDynamicsSimple::setupDynamics(dt);
-			ParticleDynamics<LoopRange>::exec(dt);
+			ParticleDynamics<size_t, ParticleRangeFunctor>::exec(dt);
 		};
 
 		virtual void parallel_exec(Real dt = 0.0) override
 		{
 			LocalDynamicsSimple::setBodyUpdated();
 			LocalDynamicsSimple::setupDynamics(dt);
-			ParticleDynamics<LoopRange>::parallel_exec(dt);
+			ParticleDynamics<size_t, ParticleRangeFunctor>::parallel_exec(dt);
 		};
 	};
 
@@ -98,17 +98,17 @@ namespace SPH
 	 * @class InteractionDynamics
 	 * @brief This class includes an interaction and a update steps
 	 */
-	template <class LocalInteractionDynamics, typename LoopRange>
+	template <class LocalInteractionDynamics>
 	class InteractionDynamicsWithUpdate : public LocalInteractionDynamics,
-										  public BaseInteractionDynamicsWithUpdate<LoopRange>
+										  public BaseInteractionDynamicsWithUpdate<size_t, ParticleRangeFunctor>
 	{
 	public:
 		template <typename... Args>
-		explicit InteractionDynamicsWithUpdate(LoopRange &loop_range, Args &&...args)
-			: LocalInteractionDynamics(std::forward<Args>(args)...),
-			  BaseInteractionDynamicsWithUpdate<LoopRange>(
-				  loop_range, std::bind(&LocalInteractionDynamics::interaction, this, _1, _2),
-				  std::bind(&LocalInteractionDynamics::update, this, _1, _2)){};
+		explicit InteractionDynamicsWithUpdate(SPHBody &sph_body, Args &&...args)
+			: LocalInteractionDynamics(sph_body, std::forward<Args>(args)...),
+			  BaseInteractionDynamicsWithUpdate<size_t, ParticleRangeFunctor>(
+				  sph_body.BodyRange(), std::bind(&LocalInteractionDynamics::interaction, this, _1, _2),
+				  std::bind(&LocalInteractionDynamics::updateRange, this, _1, _2)){};
 		virtual ~InteractionDynamicsWithUpdate(){};
 
 		virtual void runSetup(Real dt = 0.0) override
@@ -122,18 +122,18 @@ namespace SPH
 	 * @class InteractionDynamics1Level
 	 * @brief This class includes an initialization, an interaction and a update steps
 	 */
-	template <class LocalInteractionDynamics, typename LoopRange>
+	template <class LocalInteractionDynamics>
 	class InteractionDynamics1Level : public LocalInteractionDynamics,
-									  public BaseInteractionDynamics1Level<LoopRange>
+									  public BaseInteractionDynamics1Level<size_t, ParticleRangeFunctor>
 	{
 	public:
 		template <typename... Args>
-		explicit InteractionDynamics1Level(LoopRange &loop_range, Args &&...args)
-			: LocalInteractionDynamics(std::forward<Args>(args)...),
-			  BaseInteractionDynamics1Level<LoopRange>(
-				  loop_range, std::bind(&LocalInteractionDynamics::initialize, this, _1, _2),
+		explicit InteractionDynamics1Level(SPHBody &sph_body, Args &&...args)
+			: LocalInteractionDynamics(sph_body, std::forward<Args>(args)...),
+			  BaseInteractionDynamics1Level<size_t, ParticleRangeFunctor>(
+				  sph_body.BodyRange(), std::bind(&LocalInteractionDynamics::initializeRange, this, _1, _2),
 				  std::bind(&LocalInteractionDynamics::interaction, this, _1, _2),
-				  std::bind(&LocalInteractionDynamics::update, this, _1, _2)){};
+				  std::bind(&LocalInteractionDynamics::updateRange, this, _1, _2)){};
 		virtual ~InteractionDynamics1Level() override{};
 
 		virtual void runSetup(Real dt = 0.0) override
@@ -150,11 +150,11 @@ namespace SPH
 	 */
 	class MultipleInteractionDynamics1Level : public BaseParticleDynamics<void>
 	{
-		StdVec<BaseInteractionDynamics1Level<size_t> *> bodies_dynamics_1level_;
+		StdVec<BaseInteractionDynamics1Level<size_t, ParticleRangeFunctor> *> bodies_dynamics_1level_;
 
 	public:
 		explicit MultipleInteractionDynamics1Level(
-			StdVec<BaseInteractionDynamics1Level<size_t> *> bodies_dynamics_1level)
+			StdVec<BaseInteractionDynamics1Level<size_t, ParticleRangeFunctor> *> bodies_dynamics_1level)
 			: BaseParticleDynamics<void>(), bodies_dynamics_1level_(bodies_dynamics_1level){};
 		virtual ~MultipleInteractionDynamics1Level(){};
 
@@ -220,19 +220,6 @@ namespace SPH
 		LoopRange &loop_range_;
 		ReduceFunctor<ReturnType> functor_reduce_;
 	};
-
-	template <class LocalDynamics, template <class LocalDynamicsType, typename LoopRangeType> class ParticleDynamicsType>
-	class BodyDynamics : public ParticleDynamicsType<LocalDynamics, size_t>
-	{
-	public:
-		template <typename... Args>
-		explicit BodyDynamics(SPHBody &sph_body, Args &&...args)
-			: ParticleDynamicsType<LocalDynamics, size_t>(sph_body.BodyRange(), sph_body, std::forward<Args>(args)...){};
-		virtual ~BodyDynamics(){};
-	};
-
-	template <class LocalDynamicsSimple>
-	using BodyDynamicsSimple = BodyDynamics<LocalDynamicsSimple, ParticleDynamicsSimple>;
 
 	/**
 	 * @class OldParticleDynamicsReduce

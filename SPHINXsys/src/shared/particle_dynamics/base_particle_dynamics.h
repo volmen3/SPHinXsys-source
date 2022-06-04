@@ -71,6 +71,13 @@ namespace SPH
 	void ParticleIteratorSplittingSweep_parallel(SplitCellLists &split_cell_lists,
 												 const ParticleFunctor &particle_functor, Real dt = 0.0);
 
+	/** Functor for operation on particles. */
+	typedef std::function<void(const blocked_range<size_t> &, Real)> ParticleRangeFunctor;
+	/** Iterators for particle functors. sequential computing. */
+	void ParticleIterator(size_t total_real_particles, const ParticleRangeFunctor &particle_functor, Real dt = 0.0);
+	/** Iterators for particle functors. parallel computing. */
+	void ParticleIterator_parallel(size_t total_real_particles, const ParticleRangeFunctor &particle_functor, Real dt = 0.0);
+
 	/** A Functor for Summation */
 	template <class ReturnType>
 	struct ReduceSum
@@ -157,11 +164,11 @@ namespace SPH
 	 * @class ParticleDynamics
 	 * @brief The basic particle dynamics in which a range of particles are looped.
 	 */
-	template <typename LoopRange>
+	template <typename LoopRange, typename ParticleFunctorType = ParticleFunctor>
 	class ParticleDynamics : public BaseParticleDynamics<void>
 	{
 	public:
-		ParticleDynamics(LoopRange &loop_range, ParticleFunctor particle_functor)
+		ParticleDynamics(LoopRange &loop_range, ParticleFunctorType particle_functor)
 			: BaseParticleDynamics<void>(),
 			  loop_range_(loop_range), particle_functor_(particle_functor){};
 
@@ -179,7 +186,7 @@ namespace SPH
 
 	protected:
 		LoopRange &loop_range_;
-		ParticleFunctor particle_functor_;
+		ParticleFunctorType particle_functor_;
 	};
 
 	/**
@@ -189,7 +196,7 @@ namespace SPH
 	template <typename LoopRange>
 	class BaseInteractionDynamics : public BaseParticleDynamics<void>
 	{
-		ParticleDynamics<LoopRange> interaction_dynamics_;
+		ParticleDynamics<LoopRange, ParticleFunctor> interaction_dynamics_;
 		/** pre process such as update ghost state */
 		StdVec<BaseParticleDynamics<void> *> pre_processes_;
 		/** post process such as impose constraint */
@@ -241,14 +248,14 @@ namespace SPH
 	 * @class BaseInteractionDynamicsWithUpdate
 	 * @brief This class includes an interaction and a update steps
 	 */
-	template <typename LoopRange>
+	template <typename LoopRange, typename ParticleFunctorType>
 	class BaseInteractionDynamicsWithUpdate : public BaseInteractionDynamics<LoopRange>
 	{
-		ParticleDynamics<LoopRange> update_dynamics_;
+		ParticleDynamics<LoopRange, ParticleFunctorType> update_dynamics_;
 
 	public:
 		BaseInteractionDynamicsWithUpdate(LoopRange &loop_range, ParticleFunctor functor_interaction,
-										  ParticleFunctor functor_update)
+										  ParticleFunctorType functor_update)
 			: BaseInteractionDynamics<LoopRange>(loop_range, functor_interaction),
 			  update_dynamics_(loop_range, functor_update){};
 		virtual ~BaseInteractionDynamicsWithUpdate(){};
@@ -282,15 +289,15 @@ namespace SPH
 	 * @class BaseInteractionDynamics1Level
 	 * @brief This class includes an initialization, an interaction and a update steps
 	 */
-	template <typename LoopRange>
-	class BaseInteractionDynamics1Level : public BaseInteractionDynamicsWithUpdate<LoopRange>
+	template <typename LoopRange, typename ParticleFunctorType>
+	class BaseInteractionDynamics1Level : public BaseInteractionDynamicsWithUpdate<LoopRange, ParticleFunctorType>
 	{
-		ParticleDynamics<LoopRange> initialize_dynamics_;
+		ParticleDynamics<LoopRange, ParticleFunctorType> initialize_dynamics_;
 
 	public:
-		BaseInteractionDynamics1Level(LoopRange &loop_range, ParticleFunctor functor_initialization,
-									  ParticleFunctor functor_interaction, ParticleFunctor functor_update)
-			: BaseInteractionDynamicsWithUpdate<LoopRange>(loop_range, functor_interaction, functor_update),
+		BaseInteractionDynamics1Level(LoopRange &loop_range, ParticleFunctorType functor_initialization,
+									  ParticleFunctor functor_interaction, ParticleFunctorType functor_update)
+			: BaseInteractionDynamicsWithUpdate<LoopRange, ParticleFunctorType>(loop_range, functor_interaction, functor_update),
 			  initialize_dynamics_(loop_range, functor_initialization){};
 		virtual ~BaseInteractionDynamics1Level(){};
 
@@ -299,7 +306,7 @@ namespace SPH
 			this->runSetup(dt);
 			runInitialization(dt);
 			BaseInteractionDynamics<LoopRange>::runInteraction(dt);
-			BaseInteractionDynamicsWithUpdate<LoopRange>::runUpdate(dt);
+			BaseInteractionDynamicsWithUpdate<LoopRange, ParticleFunctorType>::runUpdate(dt);
 		};
 
 		virtual void parallel_exec(Real dt = 0.0) override
@@ -307,7 +314,7 @@ namespace SPH
 			this->runSetup(dt);
 			runInitialization_parallel(dt);
 			BaseInteractionDynamics<LoopRange>::runInteraction_parallel(dt);
-			BaseInteractionDynamicsWithUpdate<LoopRange>::runUpdate_parallel(dt);
+			BaseInteractionDynamicsWithUpdate<LoopRange, ParticleFunctorType>::runUpdate_parallel(dt);
 		};
 
 		void runInitialization(Real dt = 0.0)

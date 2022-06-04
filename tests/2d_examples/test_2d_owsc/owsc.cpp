@@ -45,9 +45,9 @@ int main()
 	//----------------------------------------------------------------------
 	//	Define all numerical methods which are used in this case.
 	//----------------------------------------------------------------------
-	BodyDynamicsSimple<OffsetInitialPosition> flap_offset_position(flap, offset);
-	BodyDynamicsSimple<NormalDirectionFromBodyShape> wall_boundary_normal_direction(wall_boundary);
-	BodyDynamicsSimple<NormalDirectionFromBodyShape> flap_normal_direction(flap);
+	SimpleDynamics<OffsetInitialPosition> flap_offset_position(flap, offset);
+	SimpleDynamics<NormalDirectionFromBodyShape> wall_boundary_normal_direction(wall_boundary);
+	SimpleDynamics<NormalDirectionFromBodyShape> flap_normal_direction(flap);
 
 	/** corrected strong configuration. */
 	solid_dynamics::CorrectConfiguration flap_corrected_configuration(flap_inner);

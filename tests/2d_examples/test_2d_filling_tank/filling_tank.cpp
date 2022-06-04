@@ -122,7 +122,7 @@ int main()
 	//	Define all numerical methods which are used in this case.
 	//----------------------------------------------------------------------
 	Gravity gravity(Vecd(0.0, -gravity_g));
-	BodyDynamicsSimple<NormalDirectionFromBodyShape> wall_normal_direction(wall);
+	SimpleDynamics<NormalDirectionFromBodyShape> wall_normal_direction(wall);
 	TimeStepInitialization initialize_a_fluid_step(water_body, gravity);
 	/** Emitter. */
 	BodyAlignedBoxByParticle emitter(

@@ -137,8 +137,8 @@ int main(int ac, char *av[])
 	//----------------------------------------------------------------------
 	//	Algorithms of FSI.
 	//----------------------------------------------------------------------
-	BodyDynamicsSimple<NormalDirectionFromBodyShape> wall_boundary_normal_direction(wall_boundary);
-	BodyDynamicsSimple<NormalDirectionFromBodyShape> insert_body_normal_direction(insert_body);
+	SimpleDynamics<NormalDirectionFromBodyShape> wall_boundary_normal_direction(wall_boundary);
+	SimpleDynamics<NormalDirectionFromBodyShape> insert_body_normal_direction(insert_body);
 	/** Corrected configuration for the elastic  insertbody. */
 	solid_dynamics::CorrectConfiguration insert_body_corrected_configuration(insert_body_inner);
 	/** Compute the force exerted on solid body due to fluid pressure and viscosity. */

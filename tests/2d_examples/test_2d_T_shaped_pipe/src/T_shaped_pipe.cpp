@@ -141,7 +141,7 @@ int main(int ac, char *av[])
 	//----------------------------------------------------------------------
 	/** Initialize particle acceleration. */
 	TimeStepInitialization initialize_a_fluid_step(water_block);
-	BodyDynamicsSimple<NormalDirectionFromBodyShape> wall_boundary_normal_direction(wall_boundary);
+	SimpleDynamics<NormalDirectionFromBodyShape> wall_boundary_normal_direction(wall_boundary);
 	/** Emitter. */
 	BodyAlignedBoxByParticle emitter(
 		water_block, makeShared<AlignedBoxShape>(Transform2d(Vec2d(emitter_translation)), emitter_halfsize));

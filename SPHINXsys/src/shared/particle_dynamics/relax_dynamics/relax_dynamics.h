@@ -322,7 +322,7 @@ namespace SPH
 			public:
 				NormalPrediction(SPHBody &sph_body, Real thickness);
 				virtual ~NormalPrediction(){};
-				void update(size_t index_i, Real dt = 0.0);
+				void updateRange(const blocked_range<size_t> &particle_range, Real dt = 0.0);
 			};
 
 			class PredictionConvergenceCheck : public OldParticleDynamicsReduce<bool, ReduceAND>,
@@ -376,7 +376,7 @@ namespace SPH
 				virtual void Update(size_t index_i, Real dt = 0.0) override;
 			};
 
-			BodyDynamicsSimple<NormalPrediction> normal_prediction_;
+			SimpleDynamics<NormalPrediction> normal_prediction_;
 			PredictionConvergenceCheck normal_prediction_convergence_check_;
 			ConsistencyCorrection consistency_correction_;
 			ConsistencyUpdatedCheck consistency_updated_check_;

@@ -53,7 +53,7 @@ namespace SPH
 	public:
 		explicit Displacement(SPHBody &sph_body);
 		virtual ~Displacement(){};
-		void update(size_t index_i, Real dt = 0.0);
+		void updateRange(const blocked_range<size_t> &particle_range, Real dt = 0.0);
 
 	protected:
 		StdLargeVec<Vecd> &pos_n_, &pos_0_;
@@ -100,7 +100,7 @@ namespace SPH
 	public:
 		explicit NormalDirectionFromBodyShape(SPHBody &sph_body);
 		virtual ~NormalDirectionFromBodyShape(){};
-		void update(size_t index_i, Real dt = 0.0);
+		void updateRange(const blocked_range<size_t> &particle_range, Real dt = 0.0);
 
 	protected:
 		Shape &body_shape_;
@@ -141,7 +141,7 @@ namespace SPH
 	public:
 		explicit VonMisesStress(SPHBody &sph_body);
 		virtual ~VonMisesStress(){};
-		void update(size_t index_i, Real dt = 0.0);
+		void updateRange(const blocked_range<size_t> &particle_range, Real dt = 0.0);
 
 	protected:
 		Real rho0_;
@@ -160,7 +160,7 @@ namespace SPH
 	public:
 		explicit VonMisesStrain(SPHBody &sph_body);
 		virtual ~VonMisesStrain(){};
-		void update(size_t index_i, Real dt = 0.0);
+		void updateRange(const blocked_range<size_t> &particle_range, Real dt = 0.0);
 
 	protected:
 		StdLargeVec<Matd> &F_;

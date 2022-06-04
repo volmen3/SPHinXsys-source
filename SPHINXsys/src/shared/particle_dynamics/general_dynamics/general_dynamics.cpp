@@ -9,12 +9,12 @@ namespace SPH
 {
 	//=================================================================================================//
 	TimeStepInitialization::TimeStepInitialization(SPHBody &sph_body)
-		: OldParticleDynamicsSimple(sph_body), GeneralDataDelegateSimple(sph_body),
+		: LocalParticleDynamics(sph_body), GeneralDataDelegateSimple(sph_body),
 		  pos_n_(particles_->pos_n_), dvel_dt_prior_(particles_->dvel_dt_prior_),
 		  gravity_(gravity_ptr_keeper_.createPtr<Gravity>(Vecd(0))) {}
 	//=================================================================================================//
 	TimeStepInitialization ::TimeStepInitialization(SPHBody &sph_body, Gravity &gravity)
-		: OldParticleDynamicsSimple(sph_body), GeneralDataDelegateSimple(sph_body),
+		: LocalParticleDynamics(sph_body), GeneralDataDelegateSimple(sph_body),
 		  pos_n_(particles_->pos_n_), dvel_dt_prior_(particles_->dvel_dt_prior_),
 		  gravity_(&gravity) {}
 	//=================================================================================================//
@@ -23,9 +23,12 @@ namespace SPH
 		particles_->total_ghost_particles_ = 0;
 	}
 	//=================================================================================================//
-	void TimeStepInitialization::Update(size_t index_i, Real dt)
+	void TimeStepInitialization::updateRange(const blocked_range<size_t> &particle_range, Real dt)
 	{
-		dvel_dt_prior_[index_i] = gravity_->InducedAcceleration(pos_n_[index_i]);
+        for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+        {
+            dvel_dt_prior_[index_i] = gravity_->InducedAcceleration(pos_n_[index_i]);
+        }
 	}
 	//=================================================================================================//
 	RandomizeParticlePosition::RandomizeParticlePosition(SPHBody &sph_body)

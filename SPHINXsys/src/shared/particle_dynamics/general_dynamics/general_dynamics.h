@@ -51,7 +51,7 @@ namespace SPH
 	 * set the number of ghost particles into zero.
 	 */
 	class TimeStepInitialization
-		: public OldParticleDynamicsSimple,
+		: public LocalParticleDynamics,
 		  public GeneralDataDelegateSimple
 	{
 	private:
@@ -61,12 +61,11 @@ namespace SPH
 		explicit TimeStepInitialization(SPHBody &sph_body);
 		TimeStepInitialization(SPHBody &sph_body, Gravity &gravity);
 		virtual ~TimeStepInitialization(){};
-
+		void updateRange(const blocked_range<size_t> &particle_range, Real dt = 0.0);
 	protected:
 		StdLargeVec<Vecd> &pos_n_, &dvel_dt_prior_;
 		Gravity *gravity_;
 		virtual void setupDynamics(Real dt = 0.0) override;
-		virtual void Update(size_t index_i, Real dt = 0.0) override;
 	};
 
 	/**

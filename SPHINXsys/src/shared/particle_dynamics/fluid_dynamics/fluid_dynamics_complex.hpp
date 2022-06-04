@@ -73,9 +73,9 @@ namespace SPH
 		}
 		//=================================================================================================//
 		template <class DensitySummationInnerType>
-		void DensitySummation<DensitySummationInnerType>::Interaction(size_t index_i, Real dt)
+		void DensitySummation<DensitySummationInnerType>::interaction(size_t index_i, Real dt)
 		{
-			DensitySummationInnerType::Interaction(index_i, dt);
+			DensitySummationInnerType::interaction(index_i, dt);
 
 			/** Contact interaction. */
 			Real sigma(0.0);
@@ -153,9 +153,9 @@ namespace SPH
 			: RelaxationWithWall<BasePressureRelaxationType>(base_body_relation, wall_contact_relation) {}
 		//=================================================================================================//
 		template <class BasePressureRelaxationType>
-		void PressureRelaxation<BasePressureRelaxationType>::Interaction(size_t index_i, Real dt)
+		void PressureRelaxation<BasePressureRelaxationType>::interaction(size_t index_i, Real dt)
 		{
-			BasePressureRelaxationType::Interaction(index_i, dt);
+			BasePressureRelaxationType::interaction(index_i, dt);
 
 			FluidState state_i(this->rho_n_[index_i], this->vel_n_[index_i], this->p_[index_i]);
 			Vecd dvel_dt_prior_i = computeNonConservativeAcceleration(index_i);
@@ -307,9 +307,9 @@ namespace SPH
 			: RelaxationWithWall<BaseDensityRelaxationType>(base_body_relation, wall_contact_relation) {}
 		//=================================================================================================//
 		template <class BaseDensityRelaxationType>
-		void DensityRelaxation<BaseDensityRelaxationType>::Interaction(size_t index_i, Real dt)
+		void DensityRelaxation<BaseDensityRelaxationType>::interaction(size_t index_i, Real dt)
 		{
-			BaseDensityRelaxationType::Interaction(index_i, dt);
+			BaseDensityRelaxationType::interaction(index_i, dt);
 
 			FluidState state_i(this->rho_n_[index_i], this->vel_n_[index_i], this->p_[index_i]);
 			Real density_change_rate = 0.0;

@@ -117,7 +117,7 @@ namespace SPH
 
 		protected:
 			StdLargeVec<int> &surface_indicator_;
-			virtual void Update(size_t index_i, Real dt = 0.0) override;
+			void updateRange(const blocked_range<size_t> particle_range, Real dt = 0.0);
 			bool isNearSurface(size_t index_i);
 		};
 

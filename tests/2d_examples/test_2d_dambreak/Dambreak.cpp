@@ -88,12 +88,12 @@ int main(int ac, char *av[])
 	//----------------------------------------------------------------------
 	Gravity gravity(Vecd(0.0, -gravity_g));
 	SimpleDynamics<NormalDirectionFromBodyShape> wall_boundary_normal_direction(wall_boundary);
-	TimeStepInitialization fluid_step_initialization(water_block, gravity);
-	fluid_dynamics::DensitySummationFreeSurfaceComplex fluid_density_by_summation(water_block_complex);
-	fluid_dynamics::AdvectionTimeStepSize fluid_advection_time_step(water_block, U_max);
-	fluid_dynamics::AcousticTimeStepSize fluid_acoustic_time_step(water_block);
-	fluid_dynamics::PressureRelaxationRiemannWithWall fluid_pressure_relaxation(water_block_complex);
-	fluid_dynamics::DensityRelaxationRiemannWithWall fluid_density_relaxation(water_block_complex);
+	SimpleDynamics<TimeStepInitialization> fluid_step_initialization(water_block, gravity);
+	InteractionDynamicsWithUpdate<fluid_dynamics::DensitySummationFreeSurfaceComplex> fluid_density_by_summation(water_block_complex);
+	SimpleDynamicsReduce<fluid_dynamics::AdvectionTimeStepSize> fluid_advection_time_step(water_block, U_max);
+	SimpleDynamicsReduce<fluid_dynamics::AcousticTimeStepSize> fluid_acoustic_time_step(water_block);
+	InteractionDynamics1Level<fluid_dynamics::PressureRelaxationRiemannWithWall> fluid_pressure_relaxation(water_block_complex);
+	InteractionDynamics1Level<fluid_dynamics::DensityRelaxationRiemannWithWall> fluid_density_relaxation(water_block_complex);
 	//----------------------------------------------------------------------
 	//	Define the methods for I/O operations, observations
 	//	and regression tests of the simulation.

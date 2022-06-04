@@ -52,18 +52,24 @@ namespace SPH
             surface_indicator_[index_i] = is_free_surface ? 1 : 0;
         }
         //=================================================================================================//
-        void DensitySummationFreeStreamInner::Update(size_t index_i, Real dt)
+        void DensitySummationFreeStreamInner::updateRange(const blocked_range<size_t> particle_range, Real dt)
         {
-            if (rho_sum_[index_i] < rho0_ && isNearSurface(index_i))
+            for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
             {
-                rho_n_[index_i] = ReinitializedDensity(rho_sum_[index_i], rho0_, rho_n_[index_i]);
-            }
-            else
-            {
-                rho_n_[index_i] = rho_sum_[index_i];
+                if (rho_sum_[index_i] < rho0_ && isNearSurface(index_i))
+                {
+                    rho_n_[index_i] = ReinitializedDensity(rho_sum_[index_i], rho0_, rho_n_[index_i]);
+                }
+                else
+                {
+                    rho_n_[index_i] = rho_sum_[index_i];
+                }
             }
 
-            Vol_[index_i] = mass_[index_i] / rho_n_[index_i];
+            for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+            {
+                Vol_[index_i] = mass_[index_i] / rho_n_[index_i];
+            }
         }
         //=================================================================================================//
         bool DensitySummationFreeStreamInner::isNearSurface(size_t index_i)

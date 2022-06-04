@@ -20,7 +20,7 @@ namespace SPH
 																				 riemann_solver_(*material_, *material_) {}
 		//=================================================================================================//
 		template <class RiemannSolverType>
-		void BasePressureRelaxationInner<RiemannSolverType>::Interaction(size_t index_i, Real dt)
+		void BasePressureRelaxationInner<RiemannSolverType>::interaction(size_t index_i, Real dt)
 		{
 			FluidState state_i(rho_n_[index_i], vel_n_[index_i], p_[index_i]);
 			Vecd acceleration = dvel_dt_prior_[index_i];
@@ -44,7 +44,7 @@ namespace SPH
 																				riemann_solver_(*material_, *material_) {}
 		//=================================================================================================//
 		template <class RiemannSolverType>
-		void BaseDensityRelaxationInner<RiemannSolverType>::Interaction(size_t index_i, Real dt)
+		void BaseDensityRelaxationInner<RiemannSolverType>::interaction(size_t index_i, Real dt)
 		{
 			FluidState state_i(rho_n_[index_i], vel_n_[index_i], p_[index_i]);
 			Real density_change_rate = 0.0;

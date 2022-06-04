@@ -1,31 +1,31 @@
 /* ---------------------------------------------------------------------------*
-*            SPHinXsys: 2D oscillation beam example-one body version           *
-* ----------------------------------------------------------------------------*
-* This is the one of the basic test cases, also the first case for            *
-* understanding SPH method for solid simulation.                              *
-* In this case, the constraint of the beam is implemented with                *
-* internal constrained subregion.                                             *
-* ----------------------------------------------------------------------------*/
+ *            SPHinXsys: 2D oscillation beam example-one body version           *
+ * ----------------------------------------------------------------------------*
+ * This is the one of the basic test cases, also the first case for            *
+ * understanding SPH method for solid simulation.                              *
+ * In this case, the constraint of the beam is implemented with                *
+ * internal constrained subregion.                                             *
+ * ----------------------------------------------------------------------------*/
 #include "sphinxsys.h"
 using namespace SPH;
 //------------------------------------------------------------------------------
-//global parameters for the case
+// global parameters for the case
 //------------------------------------------------------------------------------
-Real PL = 0.2;	//beam length
-Real PH = 0.02; //for thick plate; =0.01 for thin plate
-Real SL = 0.06; //depth of the insert
-//reference particle spacing
+Real PL = 0.2;	// beam length
+Real PH = 0.02; // for thick plate; =0.01 for thin plate
+Real SL = 0.06; // depth of the insert
+// reference particle spacing
 Real resolution_ref = PH / 10.0;
-Real BW = resolution_ref * 4; //boundary width, at least three particles
+Real BW = resolution_ref * 4; // boundary width, at least three particles
 /** Domain bounds of the system. */
 BoundingBox system_domain_bounds(Vec2d(-SL - BW, -PL / 2.0),
 								 Vec2d(PL + 3.0 * BW, PL / 2.0));
 //----------------------------------------------------------------------
 //	Material properties of the fluid.
 //----------------------------------------------------------------------
-Real rho0_s = 1.0e3;		 //reference density
-Real Youngs_modulus = 2.0e6; //reference Youngs modulus
-Real poisson = 0.3975;		 //Poisson ratio
+Real rho0_s = 1.0e3;		 // reference density
+Real Youngs_modulus = 2.0e6; // reference Youngs modulus
+Real poisson = 0.3975;		 // Poisson ratio
 //----------------------------------------------------------------------
 //	Parameters for initial condition on velocity
 //----------------------------------------------------------------------
@@ -45,7 +45,7 @@ std::vector<Vecd> beam_base_shape{
 // a beam shape
 std::vector<Vecd> beam_shape{
 	Vecd(-SL, -PH / 2), Vecd(-SL, PH / 2), Vecd(PL, PH / 2), Vecd(PL, -PH / 2), Vecd(-SL, -PH / 2)};
-//Beam observer location
+// Beam observer location
 StdVec<Vecd> observation_location = {Vecd(PL, 0.0)};
 //----------------------------------------------------------------------
 //	Define the beam body
@@ -60,7 +60,7 @@ public:
 	}
 };
 //----------------------------------------------------------------------
-//	application dependent initial condition 
+//	application dependent initial condition
 //----------------------------------------------------------------------
 class BeamInitialCondition
 	: public solid_dynamics::ElasticDynamicsInitialCondition
@@ -69,15 +69,17 @@ public:
 	explicit BeamInitialCondition(SolidBody &beam)
 		: solid_dynamics::ElasticDynamicsInitialCondition(beam){};
 
-protected:
-	void Update(size_t index_i, Real dt) override
+	void updateRange(const blocked_range<size_t> &particle_range, Real dt)
 	{
-		/** initial velocity profile */
-		Real x = pos_n_[index_i][0] / PL;
-		if (x > 0.0)
+		for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
 		{
-			vel_n_[index_i][1] = vf * material_->ReferenceSoundSpeed() *
-								 (M * (cos(kl * x) - cosh(kl * x)) - N * (sin(kl * x) - sinh(kl * x))) / Q;
+			/** initial velocity profile */
+			Real x = pos_n_[index_i][0] / PL;
+			if (x > 0.0)
+			{
+				vel_n_[index_i][1] = vf * material_->ReferenceSoundSpeed() *
+									 (M * (cos(kl * x) - cosh(kl * x)) - N * (sin(kl * x) - sinh(kl * x))) / Q;
+			}
 		}
 	};
 };
@@ -92,7 +94,7 @@ MultiPolygon createBeamConstrainShape()
 	return multi_polygon;
 };
 //------------------------------------------------------------------------------
-//the main program
+// the main program
 //------------------------------------------------------------------------------
 int main()
 {
@@ -118,22 +120,22 @@ int main()
 	BodyRelationInner beam_body_inner(beam_body);
 	BodyRelationContact beam_observer_contact(beam_observer, {&beam_body});
 	//-----------------------------------------------------------------------------
-	//this section define all numerical methods will be used in this case
+	// this section define all numerical methods will be used in this case
 	//-----------------------------------------------------------------------------
 	/** initial condition */
-	BeamInitialCondition beam_initial_velocity(beam_body);
-	//corrected strong configuration
-	solid_dynamics::CorrectConfiguration beam_corrected_configuration(beam_body_inner);
-	//time step size calculation
-	solid_dynamics::AcousticTimeStepSize computing_time_step_size(beam_body);
-	//stress relaxation for the beam
-	solid_dynamics::StressRelaxationFirstHalf stress_relaxation_first_half(beam_body_inner);
-	solid_dynamics::StressRelaxationSecondHalf stress_relaxation_second_half(beam_body_inner);
-	// clamping a solid body part. This is softer than a driect constraint
+	SimpleDynamics<BeamInitialCondition> beam_initial_velocity(beam_body);
+	// corrected strong configuration
+	InteractionDynamics<solid_dynamics::CorrectConfiguration> beam_corrected_configuration(beam_body_inner);
+	// time step size calculation
+	SimpleDynamicsReduce<solid_dynamics::AcousticTimeStepSize> computing_time_step_size(beam_body);
+	// stress relaxation for the beam
+	InteractionDynamics1Level<solid_dynamics::StressRelaxationFirstHalf> stress_relaxation_first_half(beam_body_inner);
+	InteractionDynamics1Level<solid_dynamics::StressRelaxationSecondHalf> stress_relaxation_second_half(beam_body_inner);
+	// clamping a solid body part. This is softer than a direct constraint
 	BodyRegionByParticle beam_base(beam_body, makeShared<MultiPolygonShape>(createBeamConstrainShape()));
-	solid_dynamics::ClampConstrainSolidBodyRegion clamp_constrain_beam_base(beam_body_inner, beam_base);
+	PartByParticleInteractionDynamics1Level<solid_dynamics::SoftConstrain> clamp_constrain_beam_base(beam_base, beam_body_inner);
 	//-----------------------------------------------------------------------------
-	//outputs
+	// outputs
 	//-----------------------------------------------------------------------------
 	InOutput in_output(system);
 	BodyStatesRecordingToVtp write_beam_states(in_output, system.real_bodies_);
@@ -152,25 +154,25 @@ int main()
 	int ite = 0;
 	Real T0 = 1.0;
 	Real End_Time = T0;
-	//time step size for output file
+	// time step size for output file
 	Real D_Time = 0.01 * T0;
 	Real Dt = 0.1 * D_Time; /**< Time period for data observing */
-	Real dt = 0.0;			//default acoustic time step sizes
+	Real dt = 0.0;			// default acoustic time step sizes
 
-	//statistics for computing time
+	// statistics for computing time
 	tick_count t1 = tick_count::now();
 	tick_count::interval_t interval;
 	//-----------------------------------------------------------------------------
-	//from here the time stepping begines
+	// from here the time stepping begines
 	//-----------------------------------------------------------------------------
 	write_beam_states.writeToFile(0);
 	write_beam_tip_displacement.writeToFile(0);
 
-	//computation loop starts
+	// computation loop starts
 	while (GlobalStaticVariables::physical_time_ < End_Time)
 	{
 		Real integration_time = 0.0;
-		//integrate time (loop) until the next output time
+		// integrate time (loop) until the next output time
 		while (integration_time < D_Time)
 		{
 

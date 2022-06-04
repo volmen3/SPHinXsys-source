@@ -84,6 +84,7 @@ namespace SPH
 			return body_part_bounds_;
 		}
 
+		IndexVector &BodyPartRange() { return body_part_particles_; };
 	protected:
 		BaseParticles *base_particles_;
 		BoundingBox body_part_bounds_;

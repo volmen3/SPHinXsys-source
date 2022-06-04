@@ -44,13 +44,12 @@ namespace SPH
 			: public StressRelaxationFirstHalf
 		{
 		public:
-			PlasticStressRelaxationFirstHalf(BaseBodyRelationInner &inner_relation);
+			explicit PlasticStressRelaxationFirstHalf(BaseBodyRelationInner &inner_relation);
 			virtual ~PlasticStressRelaxationFirstHalf(){};
+			void initializeRange(const blocked_range<size_t> particle_range, Real dt = 0.0);
 
 		protected:
 			PlasticSolid *plastic_solid_;
-
-			virtual void Initialization(size_t index_i, Real dt = 0.0) override;
 		};
 	}
 }

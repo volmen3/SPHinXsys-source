@@ -76,16 +76,17 @@ namespace SPH
 	 * @class InteractionDynamics
 	 * @brief  This is the class for particle interaction with other particles
 	 */
-	template <class LocalInteractionDynamics, typename LoopRange>
+	template <class LocalInteractionDynamics>
 	class InteractionDynamics : public LocalInteractionDynamics,
-								public BaseInteractionDynamics<LoopRange>
+								public BaseInteractionDynamics<size_t>
 	{
 	public:
 		template <typename... Args>
-		explicit InteractionDynamics(LoopRange &loop_range, Args &&...args)
+		explicit InteractionDynamics(Args &&...args)
 			: LocalInteractionDynamics(std::forward<Args>(args)...),
-			  BaseInteractionDynamics<LoopRange>(
-				  loop_range, std::bind(&LocalInteractionDynamics::interaction, this, _1, _2)){};
+			  BaseInteractionDynamics<size_t>(
+				  LocalInteractionDynamics::body_->BodyRange(), 
+				  std::bind(&LocalInteractionDynamics::interaction, this, _1, _2)){};
 		virtual ~InteractionDynamics(){};
 
 		virtual void runSetup(Real dt = 0.0) override

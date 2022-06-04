@@ -62,6 +62,7 @@ namespace SPH
 		TimeStepInitialization(SPHBody &sph_body, Gravity &gravity);
 		virtual ~TimeStepInitialization(){};
 		void updateRange(const blocked_range<size_t> &particle_range, Real dt = 0.0);
+
 	protected:
 		StdLargeVec<Vecd> &pos_n_, &dvel_dt_prior_;
 		Gravity *gravity_;
@@ -215,25 +216,28 @@ namespace SPH
 	 * @brief Compute the summation of  a particle variable in a body
 	 */
 	template <typename VariableType>
-	class BodySummation : public OldParticleDynamicsReduce<VariableType, ReduceSum<VariableType>>,
+	class BodySummation : public LocalParticleDynamicsReduce<VariableType, ReduceSum<VariableType>>,
 						  public GeneralDataDelegateSimple
 	{
 	public:
 		explicit BodySummation(SPHBody &sph_body, const std::string &variable_name)
-			: OldParticleDynamicsReduce<VariableType, ReduceSum<VariableType>>(sph_body),
+			: LocalParticleDynamicsReduce<VariableType, ReduceSum<VariableType>>(sph_body, VariableType(0)),
 			  GeneralDataDelegateSimple(sph_body),
-			  variable_(*particles_->getVariableByName<VariableType>(variable_name))
-		{
-			this->initial_reference_ = VariableType(0);
-		};
+			  variable_(*particles_->getVariableByName<VariableType>(variable_name)){};
 		virtual ~BodySummation(){};
+
+		VariableType reduceRange(const blocked_range<size_t> particle_range, Real dt = 0.0)
+		{
+			VariableType temp = this->initial_reference_;
+			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			{
+				temp = this->reduce_operation_(temp, variable_[index_i]);
+			}
+			return temp;
+		};
 
 	protected:
 		StdLargeVec<VariableType> &variable_;
-		VariableType ReduceFunction(size_t index_i, Real dt = 0.0) override
-		{
-			return variable_[index_i];
-		};
 	};
 
 	/**
@@ -241,20 +245,29 @@ namespace SPH
 	 * @brief Compute the moment of a body
 	 */
 	template <typename VariableType>
-	class BodyMoment : public BodySummation<VariableType>
+	class BodyMoment : public LocalParticleDynamicsReduce<VariableType, ReduceSum<VariableType>>,
+					   public GeneralDataDelegateSimple
 	{
 	public:
 		explicit BodyMoment(SPHBody &sph_body, const std::string &variable_name)
-			: BodySummation<VariableType>(sph_body, variable_name),
-			  mass_(this->particles_->mass_){};
+			: LocalParticleDynamicsReduce<VariableType, ReduceSum<VariableType>>(sph_body, VariableType(0)),
+			  GeneralDataDelegateSimple(sph_body), mass_(this->particles_->mass_),
+			  variable_(*particles_->getVariableByName<VariableType>(variable_name)){};
 		virtual ~BodyMoment(){};
+
+		VariableType reduceRange(const blocked_range<size_t> particle_range, Real dt = 0.0)
+		{
+			VariableType temp = this->initial_reference_;
+			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			{
+				temp = this->reduce_operation_(temp, mass_[index_i] * this->variable_[index_i]);
+			}
+			return temp;
+		};
 
 	protected:
 		StdLargeVec<Real> &mass_;
-		VariableType ReduceFunction(size_t index_i, Real dt = 0.0) override
-		{
-			return mass_[index_i] * this->variable_[index_i];
-		};
+		StdLargeVec<VariableType> &variable_;
 	};
 
 	/**

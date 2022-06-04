@@ -60,7 +60,7 @@ namespace SPH
 		 * @brief  set initial condition for a solid body with different material
 		 * This is a abstract class to be override for case specific initial conditions.
 		 */
-		class ElasticDynamicsInitialCondition : public OldParticleDynamicsSimple, public ElasticSolidDataSimple
+		class ElasticDynamicsInitialCondition : public LocalParticleDynamics, public ElasticSolidDataSimple
 		{
 		public:
 			explicit ElasticDynamicsInitialCondition(SolidBody &solid_body);
@@ -91,18 +91,19 @@ namespace SPH
 		* @brief Computing the acoustic time step size
 		* computing time step size
 		*/
-		class AcousticTimeStepSize : public OldParticleDynamicsReduce<Real, ReduceMin>,
+		class AcousticTimeStepSize : public LocalParticleDynamicsReduce<Real, ReduceMin>,
 									 public ElasticSolidDataSimple
 		{
 		public:
 			explicit AcousticTimeStepSize(SolidBody &solid_body, Real CFL = 0.6);
 			virtual ~AcousticTimeStepSize(){};
+			Real reduceRange(const blocked_range<size_t> particle_range, Real dt = 0.0);
+			Real outputResult(Real reduced_value) override;
 
 		protected:
 			Real CFL_;
 			StdLargeVec<Vecd> &vel_n_, &dvel_dt_;
 			Real smoothing_length_;
-			Real ReduceFunction(size_t index_i, Real dt = 0.0) override;
 		};
 
 		/**
@@ -127,7 +128,7 @@ namespace SPH
 		* @brief base class for elastic relaxation
 		*/
 		class BaseElasticRelaxation
-			: public OldParticleDynamics1Level,
+			: public LocalParticleDynamics,
 			  public ElasticSolidDataInner
 		{
 		public:
@@ -150,6 +151,9 @@ namespace SPH
 		public:
 			explicit StressRelaxationFirstHalf(BaseBodyRelationInner &inner_relation);
 			virtual ~StressRelaxationFirstHalf(){};
+			void initializeRange(const blocked_range<size_t> particle_range, Real dt = 0.0);
+			void interaction(size_t index_i, Real dt = 0.0);
+			void updateRange(const blocked_range<size_t> particle_range, Real dt = 0.0);
 
 		protected:
 			Real rho0_, inv_rho0_;
@@ -158,10 +162,6 @@ namespace SPH
 			Real numerical_dissipation_factor_;
 			Real smoothing_length_;
 			Real inv_W0_ = 1.0 / body_->sph_adaptation_->getKernel()->W0(Vecd(0));
-
-			virtual void Initialization(size_t index_i, Real dt = 0.0) override;
-			virtual void Interaction(size_t index_i, Real dt = 0.0) override;
-			virtual void Update(size_t index_i, Real dt = 0.0) override;
 		};
 
 		/**
@@ -172,11 +172,10 @@ namespace SPH
 		public:
 			explicit KirchhoffParticleStressRelaxationFirstHalf(BaseBodyRelationInner &inner_relation);
 			virtual ~KirchhoffParticleStressRelaxationFirstHalf(){};
+			void initializeRange(const blocked_range<size_t> particle_range, Real dt = 0.0);
 
 		protected:
 			const Real one_over_dimensions_ = 1.0 / (Real)Dimensions;
-
-			virtual void Initialization(size_t index_i, Real dt = 0.0) override;
 		};
 
 		/**
@@ -199,15 +198,14 @@ namespace SPH
 		public:
 			explicit KirchhoffStressRelaxationFirstHalf(BaseBodyRelationInner &inner_relation);
 			virtual ~KirchhoffStressRelaxationFirstHalf(){};
+			void initializeRange(const blocked_range<size_t> particle_range, Real dt = 0.0);
+			void interaction(size_t index_i, Real dt = 0.0);
 
 		protected:
 			StdLargeVec<Real> J_to_minus_2_over_dimension_;
-			StdLargeVec<Matd> stress_on_particle_, inverse_F_T_;
+			StdLargeVec<Matd> stress_on_particle_;
 			const Real one_over_dimensions_ = 1.0 / (Real)Dimensions;
 			const Real correction_factor_ = 1.07;
-
-			virtual void Initialization(size_t index_i, Real dt = 0.0) override;
-			virtual void Interaction(size_t index_i, Real dt = 0.0) override;
 		};
 
 		/**
@@ -221,11 +219,9 @@ namespace SPH
 			explicit StressRelaxationSecondHalf(BaseBodyRelationInner &inner_relation)
 				: BaseElasticRelaxation(inner_relation){};
 			virtual ~StressRelaxationSecondHalf(){};
-
-		protected:
-			virtual void Initialization(size_t index_i, Real dt = 0.0) override;
-			virtual void Interaction(size_t index_i, Real dt = 0.0) override;
-			virtual void Update(size_t index_i, Real dt = 0.0) override;
+			void initializeRange(const blocked_range<size_t> particle_range, Real dt = 0.0);
+			void interaction(size_t index_i, Real dt = 0.0);
+			void updateRange(const blocked_range<size_t> particle_range, Real dt = 0.0);
 		};
     }
 }

@@ -90,6 +90,18 @@ namespace SPH
 	ReturnType ReduceIterator_parallel(size_t total_real_particles, ReturnType temp,
 									   ReduceRangeFunctor<ReturnType> &reduce_functor, ReduceOperation &reduce_operation, Real dt = 0.0);
 
+	/** Functor for operation on particles. */
+	typedef std::function<void(const blocked_range<size_t> &, const IndexVector &, Real)> ParticleListFunctor;
+
+	/** Body part iterators by particle. sequential computing. */
+	void ParticleIterator(const IndexVector &body_part_particles, const ParticleListFunctor &particle_functor, Real dt = 0.0);
+	/** Body part iterators by particle. parallel computing. */
+	void ParticleIterator_parallel(const IndexVector &body_part_particles, const ParticleListFunctor &particle_functor, Real dt = 0.0);
+	/** Body part iterators by particle. sequential computing. */
+	void ParticleIterator(const IndexVector &body_part_particles, const ParticleFunctor &particle_functor, Real dt = 0.0);
+	/** Body part iterators by particle. parallel computing. */
+	void ParticleIterator_parallel(const IndexVector &body_part_particles, const ParticleFunctor &particle_functor, Real dt = 0.0);
+
 	/** A Functor for Summation */
 	template <class ReturnType>
 	struct ReduceSum

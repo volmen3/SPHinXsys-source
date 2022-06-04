@@ -21,7 +21,7 @@ namespace SPH
 		//=========================================================================================//
 		void UpdateElasticNormalDirection::Update(size_t index_i, Real dt)
 		{
-			Matd& F = F_[index_i];
+			Matd &F = F_[index_i];
 			Mat3d R;
 			Real Q[9], H[9], A[9];
 			for (int i = 0; i < 3; i++)
@@ -29,41 +29,86 @@ namespace SPH
 					A[i * 3 + j] = F(i, j);
 
 			polar::polar_decomposition(Q, H, A);
-			//this decomposition has the form A = Q*H, where Q is orthogonal and H is symmetric positive semidefinite. 
-			//Ref. "An algorithm to compute the polar decomposition of a 3*3 matrix, Nicholas J. Higham et al. Numer Algor(2016) "
+			// this decomposition has the form A = Q*H, where Q is orthogonal and H is symmetric positive semidefinite.
+			// Ref. "An algorithm to compute the polar decomposition of a 3*3 matrix, Nicholas J. Higham et al. Numer Algor(2016) "
 			for (int i = 0; i < 3; i++)
 				for (int j = 0; j < 3; j++)
 					R(i, j) = Q[i * 3 + j];
 			n_[index_i] = R * n_0_[index_i];
 		}
 		//=================================================================================================//
-		void ConstrainSolidBodyPartBySimBody::Update(size_t index_i, Real dt)
+		void ConstraintBySimBody::updateRange(const blocked_range<size_t> &particle_range, Real dt)
 		{
-			Vec3 rr, pos, vel, acc;
-			rr = pos_0_[index_i] - initial_mobod_origin_location_;
-			mobod_.findStationLocationVelocityAndAccelerationInGround(*simbody_state_, rr, pos, vel, acc);
-			/** this is how we calculate the particle position in after transform of MBbody.
-			 * const SimTK::Rotation&  R_GB = mobod_.getBodyRotation(simbody_state);
-			 * const SimTK::Vec3&      p_GB = mobod_.getBodyOriginLocation(simbody_state);
-			 * const SimTK::Vec3 r = R_GB * rr; // re-express station vector p_BS in G (15 flops)
-			 * base_particle_data_i.pos_n_ = (p_GB + r);
-			 */
-			pos_n_[index_i] = pos;
-			vel_n_[index_i] = vel;
-			dvel_dt_[index_i] = acc;
-			n_[index_i] = (mobod_.getBodyRotation(*simbody_state_) * n_0_[index_i]);
+			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			{
+				Vec3 rr, pos, vel, acc;
+				rr = pos_0_[index_i] - initial_mobod_origin_location_;
+				mobod_.findStationLocationVelocityAndAccelerationInGround(*simbody_state_, rr, pos, vel, acc);
+				/** this is how we calculate the particle position in after transform of MBbody.
+				 * const SimTK::Rotation&  R_GB = mobod_.getBodyRotation(simbody_state);
+				 * const SimTK::Vec3&      p_GB = mobod_.getBodyOriginLocation(simbody_state);
+				 * const SimTK::Vec3 r = R_GB * rr; // re-express station vector p_BS in G (15 flops)
+				 * base_particle_data_i.pos_n_ = (p_GB + r);
+				 */
+				pos_n_[index_i] = pos;
+				vel_n_[index_i] = vel;
+				dvel_dt_[index_i] = acc;
+				n_[index_i] = (mobod_.getBodyRotation(*simbody_state_) * n_0_[index_i]);
+			}
+		}
+		//=========================================================================================//
+		void ConstraintBySimBody::
+			updateList(const blocked_range<size_t> &entry_range, const IndexVector &particle_list, Real dt)
+		{
+			for (size_t i = entry_range.begin(); i < entry_range.end(); ++i)
+			{
+				size_t index_i = particle_list[i];
+				Vec3 rr, pos, vel, acc;
+				rr = pos_0_[index_i] - initial_mobod_origin_location_;
+				mobod_.findStationLocationVelocityAndAccelerationInGround(*simbody_state_, rr, pos, vel, acc);
+				/** this is how we calculate the particle position in after transform of MBbody.
+				 * const SimTK::Rotation&  R_GB = mobod_.getBodyRotation(simbody_state);
+				 * const SimTK::Vec3&      p_GB = mobod_.getBodyOriginLocation(simbody_state);
+				 * const SimTK::Vec3 r = R_GB * rr; // re-express station vector p_BS in G (15 flops)
+				 * base_particle_data_i.pos_n_ = (p_GB + r);
+				 */
+				pos_n_[index_i] = pos;
+				vel_n_[index_i] = vel;
+				dvel_dt_[index_i] = acc;
+				n_[index_i] = (mobod_.getBodyRotation(*simbody_state_) * n_0_[index_i]);
+			}
+		}
+		//=========================================================================================//
+		SimTK::SpatialVec TotalForceForSimBody::
+			reduceRange(const blocked_range<size_t> &particle_range, Real dt)
+		{
+			SimTK::SpatialVec temp = initial_reference_;
+			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			{
+				Vec3 force_from_particle = force_from_fluid_[index_i] + contact_force_[index_i];
+				Vec3 displacement(0);
+				displacement = pos_n_[index_i] - current_mobod_origin_location_;
+				Vec3 torque_from_particle = cross(displacement, force_from_particle);
+				temp = reduce_operation_(temp, SimTK::SpatialVec(torque_from_particle, force_from_particle));
+			}
+			return temp;
+		}
+		//=========================================================================================//
+		SimTK::SpatialVec TotalForceForSimBody::
+			reduceList(const blocked_range<size_t> &entry_range, const IndexVector &particle_list, Real dt)
+		{
+			SimTK::SpatialVec temp = initial_reference_;
+			for (size_t i = entry_range.begin(); i < entry_range.end(); ++i)
+			{
+				size_t index_i = particle_list[i];
+				Vec3 force_from_particle = force_from_fluid_[index_i] + contact_force_[index_i];
+				Vec3 displacement(0);
+				displacement = pos_n_[index_i] - current_mobod_origin_location_;
+				Vec3 torque_from_particle = cross(displacement, force_from_particle);
+				temp = reduce_operation_(temp, SimTK::SpatialVec(torque_from_particle, force_from_particle));
+			}
+			return temp;
 		}
 		//=================================================================================================//
-		SimTK::SpatialVec TotalForceOnSolidBodyPartForSimBody
-			::ReduceFunction(size_t index_i, Real dt)
-		{
-			Vec3 force_from_particle = force_from_fluid_[index_i] + contact_force_[index_i];
-			Vec3 displacement(0);
-			displacement = pos_n_[index_i] - current_mobod_origin_location_;
-			Vec3 torque_from_particle = cross(displacement, force_from_particle);
-
-			return SimTK::SpatialVec(torque_from_particle, force_from_particle);
-		}
-		//=================================================================================================//	
 	}
 }

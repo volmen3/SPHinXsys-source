@@ -48,6 +48,32 @@ namespace SPH
 	void PartIteratorByCell_parallel(const CellLists &body_part_cells, const ParticleFunctor &particle_functor, Real dt = 0.0);
 
 	/**
+	 * @class PartByParticleInteractionDynamics1Level
+	 * @brief This class includes an initialization, an interaction and a update steps
+	 */
+	template <class LocalInteractionDynamics>
+	class PartByParticleInteractionDynamics1Level : public LocalInteractionDynamics,
+													public BaseInteractionDynamics1Level<IndexVector, ParticleListFunctor>
+	{
+	public:
+		template <typename... Args>
+		explicit PartByParticleInteractionDynamics1Level(BodyPartByParticle &body_part,Args &&...args)
+			: LocalInteractionDynamics(std::forward<Args>(args)...),
+			  BaseInteractionDynamics1Level<IndexVector, ParticleListFunctor>(
+				  body_part.BodyPartRange(),
+				  std::bind(&LocalInteractionDynamics::initializeList, this, _1, _2, _3),
+				  std::bind(&LocalInteractionDynamics::interaction, this, _1, _2),
+				  std::bind(&LocalInteractionDynamics::updateList, this, _1, _2, _3)){};
+		virtual ~PartByParticleInteractionDynamics1Level(){};
+
+		virtual void runSetup(Real dt = 0.0) override
+		{
+			LocalInteractionDynamics::setBodyUpdated();
+			LocalInteractionDynamics::setupDynamics(dt);
+		};
+	};
+
+	/**
 	 * @class PartDynamicsByParticle
 	 * @brief Abstract class for imposing body part dynamics by particles.
 	 * That is the constrained particles will be the same

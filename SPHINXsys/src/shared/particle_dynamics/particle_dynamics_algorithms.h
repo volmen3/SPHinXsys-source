@@ -1,25 +1,25 @@
-/* -------------------------------------------------------------------------*
- *								SPHinXsys									*
- * --------------------------------------------------------------------------*
- * SPHinXsys (pronunciation: s'finksis) is an acronym from Smoothed Particle	*
- * Hydrodynamics for industrial compleX systems. It provides C++ APIs for	*
- * physical accurate simulation and aims to model coupled industrial dynamic *
- * systems including fluid, solid, multi-body dynamics and beyond with SPH	*
- * (smoothed particle hydrodynamics), a meshless computational method using	*
- * particle discretization.													*
- *																			*
- * SPHinXsys is partially funded by German Research Foundation				*
- * (Deutsche Forschungsgemeinschaft) DFG HU1527/6-1, HU1527/10-1				*
- * and HU1527/12-1.															*
- *                                                                           *
- * Portions copyright (c) 2017-2020 Technical University of Munich and		*
- * the authors' affiliations.												*
- *                                                                           *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
- * not use this file except in compliance with the License. You may obtain a *
- * copy of the License at http://www.apache.org/licenses/LICENSE-2.0.        *
- *                                                                           *
- * --------------------------------------------------------------------------*/
+/* -----------------------------------------------------------------------------*
+ *                               SPHinXsys                                      *
+ * -----------------------------------------------------------------------------*
+ * SPHinXsys (pronunciation: s'finksis) is an acronym from Smoothed Particle    *
+ * Hydrodynamics for industrial compleX systems. It provides C++ APIs for       *
+ * physical accurate simulation and aims to model coupled industrial dynamic    *
+ * systems including fluid, solid, multi-body dynamics and beyond with SPH      *
+ * (smoothed particle hydrodynamics), a meshless computational method using     *
+ * particle discretization.                                                     *
+ *                                                                              *
+ * SPHinXsys is partially funded by German Research Foundation                  *
+ * (Deutsche Forschungsgemeinschaft) DFG HU1527/6-1, HU1527/10-1                *
+ * and HU1527/12-1.                                                             *
+ *                                                                              *
+ * Portions copyright (c) 2017-2022 Technical University of Munich and          *
+ * the authors' affiliations.                                                   *
+ *                                                                              *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may      *
+ * not use this file except in compliance with the License. You may obtain a    *
+ * copy of the License at http://www.apache.org/licenses/LICENSE-2.0.           *
+ *                                                                              *
+ * -----------------------------------------------------------------------------*/
 /**
 * @file 	particle_dynamics_algorithms.h
 * @brief 	This is the classes for algorithms particle dynamics.
@@ -46,13 +46,13 @@ namespace SPH
 	 */
 	template <class LocalDynamicsSimple>
 	class SimpleDynamics : public LocalDynamicsSimple,
-						   public ParticleDynamics<size_t, ParticleRangeFunctor>
+						   public ParticleDynamics<size_t, RangeFunctor>
 	{
 	public:
 		template <typename... Args>
 		explicit SimpleDynamics(Args &&...args)
 			: LocalDynamicsSimple(std::forward<Args>(args)...),
-			  ParticleDynamics<size_t, ParticleRangeFunctor>(
+			  ParticleDynamics<size_t, RangeFunctor>(
 				  LocalDynamicsSimple::body_->BodyRange(),
 				  std::bind(&LocalDynamicsSimple::updateRange, this, _1, _2)){};
 		virtual ~SimpleDynamics(){};
@@ -61,14 +61,14 @@ namespace SPH
 		{
 			LocalDynamicsSimple::setBodyUpdated();
 			LocalDynamicsSimple::setupDynamics(dt);
-			ParticleDynamics<size_t, ParticleRangeFunctor>::exec(dt);
+			ParticleDynamics<size_t, RangeFunctor>::exec(dt);
 		};
 
 		virtual void parallel_exec(Real dt = 0.0) override
 		{
 			LocalDynamicsSimple::setBodyUpdated();
 			LocalDynamicsSimple::setupDynamics(dt);
-			ParticleDynamics<size_t, ParticleRangeFunctor>::parallel_exec(dt);
+			ParticleDynamics<size_t, RangeFunctor>::parallel_exec(dt);
 		};
 	};
 
@@ -102,13 +102,13 @@ namespace SPH
 	 */
 	template <class LocalInteractionDynamics>
 	class InteractionDynamicsWithUpdate : public LocalInteractionDynamics,
-										  public BaseInteractionDynamicsWithUpdate<size_t, ParticleRangeFunctor>
+										  public BaseInteractionDynamicsWithUpdate<size_t, RangeFunctor>
 	{
 	public:
 		template <typename... Args>
 		explicit InteractionDynamicsWithUpdate(Args &&...args)
 			: LocalInteractionDynamics(std::forward<Args>(args)...),
-			  BaseInteractionDynamicsWithUpdate<size_t, ParticleRangeFunctor>(
+			  BaseInteractionDynamicsWithUpdate<size_t, RangeFunctor>(
 				  LocalInteractionDynamics::body_->BodyRange(), 
 				  std::bind(&LocalInteractionDynamics::interaction, this, _1, _2),
 				  std::bind(&LocalInteractionDynamics::updateRange, this, _1, _2)){};
@@ -127,13 +127,13 @@ namespace SPH
 	 */
 	template <class LocalInteractionDynamics>
 	class InteractionDynamics1Level : public LocalInteractionDynamics,
-									  public BaseInteractionDynamics1Level<size_t, ParticleRangeFunctor>
+									  public BaseInteractionDynamics1Level<size_t, RangeFunctor>
 	{
 	public:
 		template <typename... Args>
 		explicit InteractionDynamics1Level(Args &&...args)
 			: LocalInteractionDynamics(std::forward<Args>(args)...),
-			  BaseInteractionDynamics1Level<size_t, ParticleRangeFunctor>(
+			  BaseInteractionDynamics1Level<size_t, RangeFunctor>(
 				  LocalInteractionDynamics::body_->BodyRange(), 
 				  std::bind(&LocalInteractionDynamics::initializeRange, this, _1, _2),
 				  std::bind(&LocalInteractionDynamics::interaction, this, _1, _2),
@@ -154,11 +154,11 @@ namespace SPH
 	 */
 	class MultipleInteractionDynamics1Level : public BaseParticleDynamics<void>
 	{
-		StdVec<BaseInteractionDynamics1Level<size_t, ParticleRangeFunctor> *> bodies_dynamics_1level_;
+		StdVec<BaseInteractionDynamics1Level<size_t, RangeFunctor> *> bodies_dynamics_1level_;
 
 	public:
 		explicit MultipleInteractionDynamics1Level(
-			StdVec<BaseInteractionDynamics1Level<size_t, ParticleRangeFunctor> *> bodies_dynamics_1level)
+			StdVec<BaseInteractionDynamics1Level<size_t, RangeFunctor> *> bodies_dynamics_1level)
 			: BaseParticleDynamics<void>(), bodies_dynamics_1level_(bodies_dynamics_1level){};
 		virtual ~MultipleInteractionDynamics1Level(){};
 
@@ -250,19 +250,19 @@ namespace SPH
 
 		virtual ReturnType exec(Real dt = 0.0) override
 		{
-			size_t total_real_particles = this->base_particles_->total_real_particles_;
+			size_t all_real_particles = this->base_particles_->all_real_particles_;
 			this->setBodyUpdated();
 			SetupReduce();
-			ReturnType temp = ReduceIterator(total_real_particles,
+			ReturnType temp = particle_reduce(all_real_particles,
 											 initial_reference_, functor_reduce_function_, reduce_operation_, dt);
 			return OutputResult(temp);
 		};
 		virtual ReturnType parallel_exec(Real dt = 0.0) override
 		{
-			size_t total_real_particles = this->base_particles_->total_real_particles_;
+			size_t all_real_particles = this->base_particles_->all_real_particles_;
 			this->setBodyUpdated();
 			SetupReduce();
-			ReturnType temp = ReduceIterator_parallel(total_real_particles,
+			ReturnType temp = particle_parallel_reduce(all_real_particles,
 													  initial_reference_, functor_reduce_function_, reduce_operation_, dt);
 			return this->OutputResult(temp);
 		};

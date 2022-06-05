@@ -39,7 +39,7 @@ namespace SPH
 	//=================================================================================================//
 	size_t &SPHBody::BodyRange() 
 	{
-		return base_particles_->total_real_particles_;
+		return base_particles_->all_real_particles_;
 	};
 	//=================================================================================================//
 	void SPHBody::assignBaseParticles(BaseParticles *base_particles)
@@ -135,7 +135,7 @@ namespace SPH
 	void RealBody::sortParticleWithCellLinkedList()
 	{
 		StdLargeVec<size_t> &sequence = base_particles_->sequence_;
-		size_t size = base_particles_->total_real_particles_;
+		size_t size = base_particles_->all_real_particles_;
 		cell_linked_list_->computingSequence(sequence);
 		particle_sorting_.sortingParticleData(sequence.data(), size);
 	}

@@ -123,8 +123,8 @@ namespace SPH
 				out_file << " <PolyData>\n";
 
 				BaseParticles *base_particles = body->base_particles_;
-				size_t total_real_particles = base_particles->total_real_particles_;
-				out_file << "  <Piece Name =\"" << body->getBodyName() << "\" NumberOfPoints=\"" << total_real_particles << "\" NumberOfVerts=\"" << total_real_particles << "\">\n";
+				size_t all_real_particles = base_particles->all_real_particles_;
+				out_file << "  <Piece Name =\"" << body->getBodyName() << "\" NumberOfPoints=\"" << all_real_particles << "\" NumberOfVerts=\"" << all_real_particles << "\">\n";
 
 				body->writeParticlesToVtpFile(out_file);
 
@@ -134,7 +134,7 @@ namespace SPH
 				out_file << "   <Verts>\n";
 				out_file << "    <DataArray type=\"Int32\"  Name=\"connectivity\"  Format=\"ascii\">\n";
 				out_file << "    ";
-				for (size_t i = 0; i != total_real_particles; ++i)
+				for (size_t i = 0; i != all_real_particles; ++i)
 				{
 					out_file << i << " ";
 				}
@@ -142,7 +142,7 @@ namespace SPH
 				out_file << "    </DataArray>\n";
 				out_file << "    <DataArray type=\"Int32\"  Name=\"offsets\"  Format=\"ascii\">\n";
 				out_file << "    ";
-				for (size_t i = 0; i != total_real_particles; ++i)
+				for (size_t i = 0; i != all_real_particles; ++i)
 				{
 					out_file << i + 1 << " ";
 				}
@@ -184,8 +184,8 @@ namespace SPH
 		stream << " <UnstructuredGrid>\n";
 
 		BaseParticles* base_particles = body->base_particles_;
-		size_t total_real_particles = base_particles->total_real_particles_;
-		stream << "  <Piece Name =\"" << body->getBodyName() << "\" NumberOfPoints=\"" << total_real_particles << "\" NumberOfCells=\"0\">\n";
+		size_t all_real_particles = base_particles->all_real_particles_;
+		stream << "  <Piece Name =\"" << body->getBodyName() << "\" NumberOfPoints=\"" << all_real_particles << "\" NumberOfCells=\"0\">\n";
 
 		body->writeParticlesToVtuFile(stream);
 

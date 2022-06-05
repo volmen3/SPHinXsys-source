@@ -33,7 +33,7 @@ namespace SPH
 	void BaseBodyRelationInner::resetNeighborhoodCurrentSize()
 	{
 		parallel_for(
-			blocked_range<size_t>(0, base_particles_->total_real_particles_),
+			blocked_range<size_t>(0, base_particles_->all_real_particles_),
 			[&](const blocked_range<size_t> &r)
 			{
 				for (size_t num = r.begin(); num != r.end(); ++num)
@@ -52,7 +52,7 @@ namespace SPH
 	{
 		resetNeighborhoodCurrentSize();
 		cell_linked_list_
-			->searchNeighborsByParticles(base_particles_->total_real_particles_,
+			->searchNeighborsByParticles(base_particles_->all_real_particles_,
 										 *base_particles_, inner_configuration_,
 										 get_particle_index_, get_single_search_depth_,
 										 get_inner_neighbor_);
@@ -81,7 +81,7 @@ namespace SPH
 		for (size_t l = 0; l != total_levels_; ++l)
 		{
 			cell_linked_list_levels_[l]
-				->searchNeighborsByParticles(base_particles_->total_real_particles_,
+				->searchNeighborsByParticles(base_particles_->all_real_particles_,
 											 *base_particles_, inner_configuration_, get_particle_index_,
 											 *get_multi_level_search_depth_[l],
 											 get_inner_neighbor_variable_smoothing_length_);
@@ -115,9 +115,9 @@ namespace SPH
 	void SolidBodyRelationSelfContact::updateConfiguration()
 	{
 		resetNeighborhoodCurrentSize();
-		size_t total_real_particles = body_part_particles_.size();
+		size_t all_real_particles = body_part_particles_.size();
 		cell_linked_list_
-			->searchNeighborsByParticles(total_real_particles,
+			->searchNeighborsByParticles(all_real_particles,
 										 *base_particles_, inner_configuration_,
 										 get_body_part_particle_index_, get_single_search_depth_,
 										 get_self_contact_neighbor_);
@@ -156,7 +156,7 @@ namespace SPH
 		for (size_t k = 0; k != contact_bodies_.size(); ++k)
 		{
 			parallel_for(
-				blocked_range<size_t>(0, base_particles_->total_real_particles_),
+				blocked_range<size_t>(0, base_particles_->all_real_particles_),
 				[&](const blocked_range<size_t> &r)
 				{
 					for (size_t num = r.begin(); num != r.end(); ++num)
@@ -197,11 +197,11 @@ namespace SPH
 	void BodyRelationContact::updateConfiguration()
 	{
 		resetNeighborhoodCurrentSize();
-		size_t total_real_particles = base_particles_->total_real_particles_;
+		size_t all_real_particles = base_particles_->all_real_particles_;
 		for (size_t k = 0; k != contact_bodies_.size(); ++k)
 		{
 			target_cell_linked_lists_[k]
-				->searchNeighborsByParticles(total_real_particles,
+				->searchNeighborsByParticles(all_real_particles,
 											 *base_particles_, contact_configuration_[k],
 											 get_particle_index_, *get_search_depths_[k],
 											 *get_contact_neighbors_[k]);
@@ -263,11 +263,11 @@ namespace SPH
 	void SolidBodyRelationContact::updateConfiguration()
 	{
 		resetNeighborhoodCurrentSize();
-		size_t total_real_particles = body_part_particles_.size();
+		size_t all_real_particles = body_part_particles_.size();
 		for (size_t k = 0; k != contact_bodies_.size(); ++k)
 		{
 			target_cell_linked_lists_[k]
-				->searchNeighborsByParticles(total_real_particles,
+				->searchNeighborsByParticles(all_real_particles,
 											 *base_particles_, contact_configuration_[k],
 											 get_body_part_particle_index_, *get_search_depths_[k],
 											 *get_contact_neighbors_[k]);
@@ -312,7 +312,7 @@ namespace SPH
 	//=================================================================================================//
 	void BodyRelationContactToBodyPart::updateConfiguration()
 	{
-		size_t number_of_particles = base_particles_->total_real_particles_;
+		size_t number_of_particles = base_particles_->all_real_particles_;
 		for (size_t k = 0; k != contact_body_parts_.size(); ++k)
 		{
 			target_cell_linked_lists_[k]

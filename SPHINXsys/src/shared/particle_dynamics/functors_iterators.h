@@ -1,25 +1,25 @@
-/* -------------------------------------------------------------------------*
- *								SPHinXsys									*
- * --------------------------------------------------------------------------*
- * SPHinXsys (pronunciation: s'finksis) is an acronym from Smoothed Particle	*
- * Hydrodynamics for industrial compleX systems. It provides C++ APIs for	*
- * physical accurate simulation and aims to model coupled industrial dynamic *
- * systems including fluid, solid, multi-body dynamics and beyond with SPH	*
- * (smoothed particle hydrodynamics), a meshless computational method using	*
- * particle discretization.													*
- *																			*
- * SPHinXsys is partially funded by German Research Foundation				*
- * (Deutsche Forschungsgemeinschaft) DFG HU1527/6-1, HU1527/10-1				*
- * and HU1527/12-1.															*
- *                                                                           *
- * Portions copyright (c) 2017-2022 Technical University of Munich and		*
- * the authors' affiliations.												*
- *                                                                           *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
- * not use this file except in compliance with the License. You may obtain a *
- * copy of the License at http://www.apache.org/licenses/LICENSE-2.0.        *
- *                                                                           *
- * --------------------------------------------------------------------------*/
+/* -----------------------------------------------------------------------------*
+ *                               SPHinXsys                                      *
+ * -----------------------------------------------------------------------------*
+ * SPHinXsys (pronunciation: s'finksis) is an acronym from Smoothed Particle    *
+ * Hydrodynamics for industrial compleX systems. It provides C++ APIs for       *
+ * physical accurate simulation and aims to model coupled industrial dynamic    *
+ * systems including fluid, solid, multi-body dynamics and beyond with SPH      *
+ * (smoothed particle hydrodynamics), a meshless computational method using     *
+ * particle discretization.                                                     *
+ *                                                                              *
+ * SPHinXsys is partially funded by German Research Foundation                  *
+ * (Deutsche Forschungsgemeinschaft) DFG HU1527/6-1, HU1527/10-1,               *
+ * HU1527/12-1 and HU1527/12-4.                                                 *
+ *                                                                              *
+ * Portions copyright (c) 2017-2022 Technical University of Munich and          *
+ * the authors' affiliations.                                                   *
+ *                                                                              *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may      *
+ * not use this file except in compliance with the License. You may obtain a    *
+ * copy of the License at http://www.apache.org/licenses/LICENSE-2.0.           *
+ *                                                                              *
+ * -----------------------------------------------------------------------------*/
 /**
  * @file functors_iterators.h
  * @brief Definition of functors and iterators used for particle dynamics classes.
@@ -47,51 +47,51 @@ namespace SPH
 	//----------------------------------------------------------------------
 	//	Particle-range-wise operation and reduce functors 
 	//----------------------------------------------------------------------
-	typedef std::function<void(const blocked_range<size_t> &, Real)> ParticleRangeFunctor;
+	typedef std::function<void(const blocked_range<size_t> &, Real)> RangeFunctor;
 
 	template <class ReturnType>
 	using ReduceRangeFunctor = std::function<ReturnType(const blocked_range<size_t> &, Real)>;
 	//----------------------------------------------------------------------
 	//	Particle-list-wise operation and reduce functors 
 	//----------------------------------------------------------------------
-	typedef std::function<void(const blocked_range<size_t> &, const IndexVector &, Real)> ParticleListFunctor;
+	typedef std::function<void(const blocked_range<size_t> &, const IndexVector &, Real)> ListFunctor;
 
 	//----------------------------------------------------------------------
 	//	Body-wise iterators (for sequential and parallel computing).
 	//----------------------------------------------------------------------
-	void ParticleIterator(size_t total_real_particles, const ParticleFunctor &particle_functor, Real dt = 0.0);
-	void ParticleIterator_parallel(size_t total_real_particles, const ParticleFunctor &particle_functor, Real dt = 0.0);
+	void particle_for(size_t all_real_particles, const ParticleFunctor &functor, Real dt = 0.0);
+	void particle_parallel_for(size_t all_real_particles, const ParticleFunctor &functor, Real dt = 0.0);
 
-	void ParticleIterator(size_t total_real_particles, const ParticleRangeFunctor &particle_functor, Real dt = 0.0);
-	void ParticleIterator_parallel(size_t total_real_particles, const ParticleRangeFunctor &particle_functor, Real dt = 0.0);
-
-	template <class ReturnType, typename ReduceOperation>
-	ReturnType ReduceIterator(size_t total_real_particles, ReturnType temp,
-							  ReduceFunctor<ReturnType> &reduce_functor, ReduceOperation &reduce_operation, Real dt = 0.0);
+	void particle_for(size_t all_real_particles, const RangeFunctor &functor, Real dt = 0.0);
+	void particle_parallel_for(size_t all_real_particles, const RangeFunctor &functor, Real dt = 0.0);
 
 	template <class ReturnType, typename ReduceOperation>
-	ReturnType ReduceIterator_parallel(size_t total_real_particles, ReturnType temp,
-									   ReduceFunctor<ReturnType> &reduce_functor, ReduceOperation &reduce_operation, Real dt = 0.0);
+	ReturnType particle_reduce(size_t all_real_particles, ReturnType temp,
+							  ReduceFunctor<ReturnType> &functor, ReduceOperation &operation, Real dt = 0.0);
 
 	template <class ReturnType, typename ReduceOperation>
-	ReturnType ReduceIterator(size_t total_real_particles, ReturnType temp,
-							  ReduceRangeFunctor<ReturnType> &reduce_functor, ReduceOperation &reduce_operation, Real dt = 0.0);
+	ReturnType particle_parallel_reduce(size_t all_real_particles, ReturnType temp,
+									   ReduceFunctor<ReturnType> &functor, ReduceOperation &operation, Real dt = 0.0);
 
 	template <class ReturnType, typename ReduceOperation>
-	ReturnType ReduceIterator_parallel(size_t total_real_particles, ReturnType temp,
-									   ReduceRangeFunctor<ReturnType> &reduce_functor, ReduceOperation &reduce_operation, Real dt = 0.0);
+	ReturnType particle_reduce(size_t all_real_particles, ReturnType temp,
+							  ReduceRangeFunctor<ReturnType> &functor, ReduceOperation &operation, Real dt = 0.0);
 
-	void ParticleIteratorSplittingSweep(SplitCellLists &split_cell_lists, const ParticleFunctor &particle_functor, Real dt = 0.0);
-	void ParticleIteratorSplittingSweep_parallel(SplitCellLists &split_cell_lists, const ParticleFunctor &particle_functor, Real dt = 0.0);
+	template <class ReturnType, typename ReduceOperation>
+	ReturnType particle_parallel_reduce(size_t all_real_particles, ReturnType temp,
+									   ReduceRangeFunctor<ReturnType> &functor, ReduceOperation &operation, Real dt = 0.0);
+
+	void particle_for(SplitCellLists &split_cell_lists, const ParticleFunctor &functor, Real dt = 0.0);
+	void particle_parallel_for(SplitCellLists &split_cell_lists, const ParticleFunctor &functor, Real dt = 0.0);
 
 	//----------------------------------------------------------------------
 	//	BodyPartByParticle-wise iterators (for sequential and parallel computing).
 	//----------------------------------------------------------------------
-	void ParticleIterator(const IndexVector &body_part_particles, const ParticleFunctor &particle_functor, Real dt = 0.0);
-	void ParticleIterator_parallel(const IndexVector &body_part_particles, const ParticleFunctor &particle_functor, Real dt = 0.0);
+	void particle_for(IndexVector &body_part_particles, const ParticleFunctor &functor, Real dt = 0.0);
+	void particle_parallel_for(IndexVector &body_part_particles, const ParticleFunctor &functor, Real dt = 0.0);
 
-	void ParticleIterator(const IndexVector &body_part_particles, const ParticleListFunctor &particle_functor, Real dt = 0.0);
-	void ParticleIterator_parallel(const IndexVector &body_part_particles, const ParticleListFunctor &particle_functor, Real dt = 0.0);
+	void particle_for(IndexVector &body_part_particles, const ListFunctor &functor, Real dt = 0.0);
+	void particle_parallel_for(IndexVector &body_part_particles, const ListFunctor &functor, Real dt = 0.0);
 
 	//----------------------------------------------------------------------
 	//	Reduce (binary) operation functors.

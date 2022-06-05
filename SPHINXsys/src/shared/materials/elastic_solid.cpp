@@ -300,8 +300,8 @@ namespace SPH
 	void LocallyOrthotropicMuscle::readFromXmlForLocalParameters(const std::string &filefullpath)
 	{
 		BaseMaterial::readFromXmlForLocalParameters(filefullpath);
-		size_t total_real_particles = base_particles_->total_real_particles_;
-		for (size_t i = 0; i != total_real_particles; i++)
+		size_t all_real_particles = base_particles_->all_real_particles_;
+		for (size_t i = 0; i != all_real_particles; i++)
 		{
 			local_f0f0_.push_back(SimTK::outer(local_f0_[i], local_f0_[i]));
 			local_s0s0_.push_back(SimTK::outer(local_s0_[i], local_s0_[i]));

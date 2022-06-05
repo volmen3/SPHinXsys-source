@@ -91,7 +91,7 @@ namespace SPH
 			size_t sorted_index_i = sorted_id_[unsorted_index_i];
 			if (aligned_box_.checkUpperBound(axis_, pos_n_[sorted_index_i]))
 			{
-				if (particles_->total_real_particles_ >= particles_->real_particles_bound_)
+				if (particles_->all_real_particles_ >= particles_->real_particles_bound_)
 				{
 					std::cout << "EmitterInflowBoundaryCondition::ConstraintAParticle: \n"
 							  << "Not enough body buffer particles! Exit the code."
@@ -99,9 +99,9 @@ namespace SPH
 					exit(0);
 				}
 				/** Buffer Particle state copied from real particle. */
-				particles_->copyFromAnotherParticle(particles_->total_real_particles_, sorted_index_i);
+				particles_->copyFromAnotherParticle(particles_->all_real_particles_, sorted_index_i);
 				/** Realize the buffer particle by increasing the number of real particle in the body.  */
-				particles_->total_real_particles_ += 1;
+				particles_->all_real_particles_ += 1;
 				/** Periodic bounding. */
 				pos_n_[sorted_index_i] = aligned_box_.getUpperPeriodic(axis_, pos_n_[sorted_index_i]);
 				rho_n_[sorted_index_i] = material_->ReferenceDensity();
@@ -114,7 +114,7 @@ namespace SPH
 			size_t sorted_index_i = sorted_id_[unsorted_index_i];
 			if (aligned_box_.checkLowerBound(axis_, pos_n_[sorted_index_i]))
 			{
-				if (particles_->total_real_particles_ >= particles_->real_particles_bound_)
+				if (particles_->all_real_particles_ >= particles_->real_particles_bound_)
 				{
 					std::cout << "EmitterInflowBoundaryCondition::ConstraintAParticle: \n"
 							  << "Not enough body buffer particles! Exit the code."
@@ -122,9 +122,9 @@ namespace SPH
 					exit(0);
 				}
 				/** Buffer Particle state copied from real particle. */
-				particles_->copyFromAnotherParticle(particles_->total_real_particles_, sorted_index_i);
+				particles_->copyFromAnotherParticle(particles_->all_real_particles_, sorted_index_i);
 				/** Realize the buffer particle by increasing the number of real particle in the body.  */
-				particles_->total_real_particles_ += 1;
+				particles_->all_real_particles_ += 1;
 				pos_n_[sorted_index_i] = aligned_box_.getUpperPeriodic(axis_, pos_n_[sorted_index_i]);
 			}
 		}

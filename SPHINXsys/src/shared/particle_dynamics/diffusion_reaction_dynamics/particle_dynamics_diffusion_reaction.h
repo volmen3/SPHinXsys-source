@@ -343,7 +343,7 @@ namespace SPH
 		size_t phi_;
 		Real ReduceFunction(size_t index_i, Real dt = 0.0) override
 		{
-			return species_n_[phi_][index_i] / this->base_particles_->total_real_particles_;
+			return species_n_[phi_][index_i] / this->base_particles_->all_real_particles_;
 		}
 	};
 

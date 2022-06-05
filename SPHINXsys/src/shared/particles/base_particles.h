@@ -12,7 +12,7 @@
  * (Deutsche Forschungsgemeinschaft) DFG HU1527/6-1, HU1527/10-1				*
  * and HU1527/12-1.															*
  *                                                                           *
- * Portions copyright (c) 2017-2020 Technical University of Munich and		*
+ * Portions copyright (c) 2017-2022 Technical University of Munich and		*
  * the authors' affiliations.												*
  *                                                                           *
  * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
@@ -55,13 +55,13 @@ namespace SPH
 	 * The first type is real particles whose states are updated by particle dynamics.
 	 * One is buffer particles whose state are not updated by particle dynamics.
 	 * Buffer particles are saved behind real particles.
-	 * The global value of total_real_particles_ separate the real and buffer particles.
+	 * The global value of all_real_particles_ separate the real and buffer particles.
 	 * They may be switched from real particles or switch to real particles.
 	 * As the memory for both particles are continuous, such switch is achieved at the memory boundary sequentially.
 	 * The basic idea is swap the data of the last real particle with the one will be switched particle,
-	 * and then switch this swapped last particle as buffer particle by decrease the total_real_particles_ by one.
+	 * and then switch this swapped last particle as buffer particle by decrease the all_real_particles_ by one.
 	 * Switch from buffer particle to real particle is easy. One just need to assign expect state to
-	 * the first buffer particle and increase total_real_particles_ by one.
+	 * the first buffer particle and increase all_real_particles_ by one.
 	 * The other is ghost particles whose states are updated according to
 	 * boundary condition if their indices are included in the neighbor particle list.
 	 * The ghost particles are saved behind the buffer particles.
@@ -105,7 +105,7 @@ namespace SPH
 		//----------------------------------------------------------------------
 		// Global information for defining particle groups
 		//----------------------------------------------------------------------
-		size_t total_real_particles_;
+		size_t all_real_particles_;
 		size_t real_particles_bound_; /**< Maximum possible number of real particles. Also the start index of ghost particles. */
 		size_t total_ghost_particles_;
 		//----------------------------------------------------------------------
@@ -239,9 +239,9 @@ namespace SPH
 	struct WriteAParticleVariableToXml
 	{
 		XmlEngine &xml_engine_;
-		size_t &total_real_particles_;
-		WriteAParticleVariableToXml(XmlEngine &xml_engine, size_t &total_real_particles)
-			: xml_engine_(xml_engine), total_real_particles_(total_real_particles){};
+		size_t &all_real_particles_;
+		WriteAParticleVariableToXml(XmlEngine &xml_engine, size_t &all_real_particles)
+			: xml_engine_(xml_engine), all_real_particles_(all_real_particles){};
 
 		template <typename VariableType>
 		void operator()(std::string &variable_name, StdLargeVec<VariableType> &variable) const;
@@ -250,9 +250,9 @@ namespace SPH
 	struct ReadAParticleVariableFromXml
 	{
 		XmlEngine &xml_engine_;
-		size_t &total_real_particles_;
-		ReadAParticleVariableFromXml(XmlEngine &xml_engine, size_t &total_real_particles)
-			: xml_engine_(xml_engine), total_real_particles_(total_real_particles){};
+		size_t &all_real_particles_;
+		ReadAParticleVariableFromXml(XmlEngine &xml_engine, size_t &all_real_particles)
+			: xml_engine_(xml_engine), all_real_particles_(all_real_particles){};
 
 		template <typename VariableType>
 		void operator()(std::string &variable_name, StdLargeVec<VariableType> &variable) const;

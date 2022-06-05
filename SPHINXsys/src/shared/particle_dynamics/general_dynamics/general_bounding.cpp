@@ -170,7 +170,7 @@ namespace SPH
 	void OpenBoundaryConditionInAxisDirection ::
 		ParticleTypeTransfer::checkLowerBound(size_t index_i, Real dt)
 	{
-		while (index_i < particles_->total_real_particles_ && pos_n_[index_i][axis_] < body_domain_bounds_.first[axis_])
+		while (index_i < particles_->all_real_particles_ && pos_n_[index_i][axis_] < body_domain_bounds_.first[axis_])
 		{
 			particles_->switchToBufferParticle(index_i);
 		}
@@ -179,7 +179,7 @@ namespace SPH
 	void OpenBoundaryConditionInAxisDirection ::
 		ParticleTypeTransfer::checkUpperBound(size_t index_i, Real dt)
 	{
-		while (index_i < particles_->total_real_particles_ && pos_n_[index_i][axis_] > body_domain_bounds_.second[axis_])
+		while (index_i < particles_->all_real_particles_ && pos_n_[index_i][axis_] > body_domain_bounds_.second[axis_])
 		{
 			particles_->switchToBufferParticle(index_i);
 		}

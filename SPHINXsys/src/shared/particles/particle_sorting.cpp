@@ -44,9 +44,9 @@ namespace SPH
 	{
 		const StdLargeVec<size_t> &unsorted_id = base_particles_->unsorted_id_;
 		StdLargeVec<size_t> &sorted_id = base_particles_->sorted_id_;
-		size_t total_real_particles = base_particles_->total_real_particles_;
+		size_t all_real_particles = base_particles_->all_real_particles_;
 		parallel_for(
-			blocked_range<size_t>(0, total_real_particles),
+			blocked_range<size_t>(0, all_real_particles),
 			[&](const blocked_range<size_t> &r)
 			{
 				for (size_t i = r.begin(); i != r.end(); ++i)

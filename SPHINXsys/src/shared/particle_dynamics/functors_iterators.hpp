@@ -13,53 +13,53 @@ namespace SPH
 {
 	//=================================================================================================//
 	template <class ReturnType, typename ReduceOperation>
-	ReturnType ReduceIterator(size_t total_real_particles, ReturnType temp,
-							  ReduceFunctor<ReturnType> &reduce_functor, ReduceOperation &reduce_operation, Real dt)
+	ReturnType particle_reduce(size_t all_real_particles, ReturnType temp,
+							  ReduceFunctor<ReturnType> &functor, ReduceOperation &operation, Real dt)
 	{
-		for (size_t i = 0; i < total_real_particles; ++i)
+		for (size_t i = 0; i < all_real_particles; ++i)
 		{
-			temp = reduce_operation(temp, reduce_functor(i, dt));
+			temp = operation(temp, functor(i, dt));
 		}
 		return temp;
 	}
 	//=================================================================================================//
 	template <class ReturnType, typename ReduceOperation>
-	ReturnType ReduceIterator_parallel(size_t total_real_particles, ReturnType temp,
-									   ReduceFunctor<ReturnType> &reduce_functor, ReduceOperation &reduce_operation, Real dt)
+	ReturnType particle_parallel_reduce(size_t all_real_particles, ReturnType temp,
+									   ReduceFunctor<ReturnType> &functor, ReduceOperation &operation, Real dt)
 	{
 		return parallel_reduce(
-			blocked_range<size_t>(0, total_real_particles),
+			blocked_range<size_t>(0, all_real_particles),
 			temp, [&](const blocked_range<size_t> &r, ReturnType temp0) -> ReturnType
 			{
 				for (size_t i = r.begin(); i != r.end(); ++i)
 				{
-					temp0 = reduce_operation(temp0, reduce_functor(i, dt));
+					temp0 = operation(temp0, functor(i, dt));
 				}
 				return temp0; },
 			[&](ReturnType x, ReturnType y) -> ReturnType
 			{
-				return reduce_operation(x, y);
+				return operation(x, y);
 			});
 	}
 	//=================================================================================================//
 	template <class ReturnType, typename ReduceOperation>
-	ReturnType ReduceIterator(size_t total_real_particles, ReturnType temp,
-							  ReduceRangeFunctor<ReturnType> &reduce_functor, ReduceOperation &reduce_operation, Real dt)
+	ReturnType particle_reduce(size_t all_real_particles, ReturnType temp,
+							  ReduceRangeFunctor<ReturnType> &functor, ReduceOperation &operation, Real dt)
 	{
-		return reduce_operation(temp, reduce_functor(blocked_range<size_t>(0, total_real_particles), dt));
+		return operation(temp, functor(blocked_range<size_t>(0, all_real_particles), dt));
 	}
 	//=================================================================================================//
 	template <class ReturnType, typename ReduceOperation>
-	ReturnType ReduceIterator_parallel(size_t total_real_particles, ReturnType temp,
-									   ReduceRangeFunctor<ReturnType> &reduce_functor, ReduceOperation &reduce_operation, Real dt)
+	ReturnType particle_parallel_reduce(size_t all_real_particles, ReturnType temp,
+									   ReduceRangeFunctor<ReturnType> &functor, ReduceOperation &operation, Real dt)
 	{
 		return parallel_reduce(
-			blocked_range<size_t>(0, total_real_particles),
+			blocked_range<size_t>(0, all_real_particles),
 			temp, [&](const blocked_range<size_t> &r, ReturnType temp0) -> ReturnType
-			{ return reduce_operation(temp0, reduce_functor(r, dt)); },
+			{ return operation(temp0, functor(r, dt)); },
 			[&](ReturnType x, ReturnType y) -> ReturnType
 			{
-				return reduce_operation(x, y);
+				return operation(x, y);
 			});
 	}
 	//=================================================================================================//

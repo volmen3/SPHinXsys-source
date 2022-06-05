@@ -18,11 +18,11 @@ namespace SPH
 	void BaseMaterial::writeToXmlForReloadLocalParameters(const std::string &filefullpath)
 	{
 		std::cout << "\n Material properties writing. " << std::endl;
-		size_t total_real_particles = base_particles_->total_real_particles_;
+		size_t all_real_particles = base_particles_->all_real_particles_;
 		ParticleData &all_particle_data = base_particles_->all_particle_data_;
 		base_particles_->resizeXmlDocForParticles(reload_material_xml_engine_);
 		WriteAParticleVariableToXml
-			write_variable_to_xml(reload_material_xml_engine_, total_real_particles);
+			write_variable_to_xml(reload_material_xml_engine_, all_real_particles);
 		ParticleDataOperation<loopVariableNameList> loop_variable_namelist;
 		loop_variable_namelist(all_particle_data, reload_local_parameters_, write_variable_to_xml);
 		reload_material_xml_engine_.writeToXmlFile(filefullpath);
@@ -32,14 +32,14 @@ namespace SPH
 	void BaseMaterial::readFromXmlForLocalParameters(const std::string &filefullpath)
 	{
 		reload_material_xml_engine_.loadXmlFile(filefullpath);
-		size_t total_real_particles = base_particles_->total_real_particles_;
+		size_t all_real_particles = base_particles_->all_real_particles_;
 		ParticleData &all_particle_data = base_particles_->all_particle_data_;
 		ReadAParticleVariableFromXml
-			read_variable_from_xml(reload_material_xml_engine_, total_real_particles);
+			read_variable_from_xml(reload_material_xml_engine_, all_real_particles);
 		ParticleDataOperation<loopVariableNameList> loop_variable_namelist;
 		loop_variable_namelist(all_particle_data, reload_local_parameters_, read_variable_from_xml);
 
-		if (total_real_particles != reload_material_xml_engine_.SizeOfXmlDoc())
+		if (all_real_particles != reload_material_xml_engine_.SizeOfXmlDoc())
 		{
 			std::cout << "\n Error: reload material properties does not match!" << std::endl;
 			std::cout << __FILE__ << ':' << __LINE__ << std::endl;

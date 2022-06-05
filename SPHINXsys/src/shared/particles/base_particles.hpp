@@ -211,13 +211,13 @@ namespace SPH
     template <typename StreamType>
     void BaseParticles::writeParticlesToVtk(StreamType &output_stream)
     {
-        size_t total_real_particles = total_real_particles_;
+        size_t all_real_particles = all_real_particles_;
 
         // write current/final particle positions first
         output_stream << "   <Points>\n";
         output_stream << "    <DataArray Name=\"Position\" type=\"Float32\"  NumberOfComponents=\"3\" Format=\"ascii\">\n";
         output_stream << "    ";
-        for (size_t i = 0; i != total_real_particles; ++i)
+        for (size_t i = 0; i != all_real_particles; ++i)
         {
             Vec3d particle_position = upgradeToVector3D(pos_n_[i]);
             output_stream << particle_position[0] << " " << particle_position[1] << " " << particle_position[2] << " ";
@@ -232,7 +232,7 @@ namespace SPH
         // write sorted particles ID
         output_stream << "    <DataArray Name=\"SortedParticle_ID\" type=\"Int32\" Format=\"ascii\">\n";
         output_stream << "    ";
-        for (size_t i = 0; i != total_real_particles; ++i)
+        for (size_t i = 0; i != all_real_particles; ++i)
         {
             output_stream << i << " ";
         }
@@ -242,7 +242,7 @@ namespace SPH
         // write unsorted particles ID
         output_stream << "    <DataArray Name=\"UnsortedParticle_ID\" type=\"Int32\" Format=\"ascii\">\n";
         output_stream << "    ";
-        for (size_t i = 0; i != total_real_particles; ++i)
+        for (size_t i = 0; i != all_real_particles; ++i)
         {
             output_stream << unsorted_id_[i] << " ";
         }
@@ -262,7 +262,7 @@ namespace SPH
             StdLargeVec<Matd> &variable = *(std::get<2>(all_particle_data_)[name_index.second]);
             output_stream << "    <DataArray Name=\"" << variable_name << "\" type=\"Float32\"  NumberOfComponents=\"9\" Format=\"ascii\">\n";
             output_stream << "    ";
-            for (size_t i = 0; i != total_real_particles; ++i)
+            for (size_t i = 0; i != all_real_particles; ++i)
             {
                 Mat3d matrix_value = upgradeToMatrix3D(variable[i]);
                 for (int k = 0; k != 3; ++k)
@@ -282,7 +282,7 @@ namespace SPH
             StdLargeVec<Vecd> &variable = *(std::get<1>(all_particle_data_)[name_index.second]);
             output_stream << "    <DataArray Name=\"" << variable_name << "\" type=\"Float32\"  NumberOfComponents=\"3\" Format=\"ascii\">\n";
             output_stream << "    ";
-            for (size_t i = 0; i != total_real_particles; ++i)
+            for (size_t i = 0; i != all_real_particles; ++i)
             {
                 Vec3d vector_value = upgradeToVector3D(variable[i]);
                 output_stream << std::fixed << std::setprecision(9) << vector_value[0] << " " << vector_value[1] << " " << vector_value[2] << " ";
@@ -298,7 +298,7 @@ namespace SPH
             StdLargeVec<Real> &variable = *(std::get<0>(all_particle_data_)[name_index.second]);
             output_stream << "    <DataArray Name=\"" << variable_name << "\" type=\"Float32\" Format=\"ascii\">\n";
             output_stream << "    ";
-            for (size_t i = 0; i != total_real_particles; ++i)
+            for (size_t i = 0; i != all_real_particles; ++i)
             {
                 output_stream << std::fixed << std::setprecision(9) << variable[i] << " ";
             }
@@ -313,7 +313,7 @@ namespace SPH
             StdLargeVec<int> &variable = *(std::get<3>(all_particle_data_)[name_index.second]);
             output_stream << "    <DataArray Name=\"" << variable_name << "\" type=\"Int32\" Format=\"ascii\">\n";
             output_stream << "    ";
-            for (size_t i = 0; i != total_real_particles; ++i)
+            for (size_t i = 0; i != all_real_particles; ++i)
             {
                 output_stream << std::fixed << std::setprecision(9) << variable[i] << " ";
             }
@@ -327,7 +327,7 @@ namespace SPH
     operator()(std::string &variable_name, StdLargeVec<VariableType> &variable) const
     {
         SimTK::Xml::element_iterator ele_ite = xml_engine_.root_element_.element_begin();
-        for (size_t i = 0; i != total_real_particles_; ++i)
+        for (size_t i = 0; i != all_real_particles_; ++i)
         {
             xml_engine_.setAttributeToElement(ele_ite, variable_name, variable[i]);
             ele_ite++;
@@ -339,7 +339,7 @@ namespace SPH
     operator()(std::string &variable_name, StdLargeVec<VariableType> &variable) const
     {
         SimTK::Xml::element_iterator ele_ite = xml_engine_.root_element_.element_begin();
-        for (size_t i = 0; i != total_real_particles_; ++i)
+        for (size_t i = 0; i != all_real_particles_; ++i)
         {
             xml_engine_.getRequiredAttributeValue(ele_ite, variable_name, variable[i]);
             ele_ite++;

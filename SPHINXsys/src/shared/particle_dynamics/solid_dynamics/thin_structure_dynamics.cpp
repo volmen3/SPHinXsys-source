@@ -524,7 +524,7 @@ namespace SPH
 			for (int i = 0; i < point_forces_.size(); ++i)
 			{
 				sum_of_weight_[i] = 0.0;
-				for (size_t index = 0; index < particles_->total_real_particles_; ++index)
+				for (size_t index = 0; index < particles_->all_real_particles_; ++index)
 				{
 					weight_[i][index] = 0.0;
 					Vecd displacement = reference_positions_[i] - pos_0_[index];

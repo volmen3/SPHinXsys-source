@@ -18,7 +18,7 @@ namespace SPH
 		: rho0_(base_material->ReferenceDensity()),
 		  sigma0_(sph_body.sph_adaptation_->ReferenceNumberDensity()),
 		  speed_max_(0.0), signal_speed_max_(0.0),
-		  total_real_particles_(0), real_particles_bound_(0), total_ghost_particles_(0),
+		  all_real_particles_(0), real_particles_bound_(0), total_ghost_particles_(0),
 		  sph_body_(&sph_body), body_name_(sph_body.getBodyName()),
 		  restart_xml_engine_("xml_restart", "particles"),
 		  reload_xml_engine_("xml_particle_reload", "particles")
@@ -38,7 +38,7 @@ namespace SPH
 	//=================================================================================================//
 	void BaseParticles::initializeOtherVariables()
 	{
-		real_particles_bound_ = total_real_particles_;
+		real_particles_bound_ = all_real_particles_;
 		//----------------------------------------------------------------------
 		//		register non-geometric data
 		//----------------------------------------------------------------------
@@ -120,7 +120,7 @@ namespace SPH
 	//=================================================================================================//
 	void BaseParticles::switchToBufferParticle(size_t index_i)
 	{
-		size_t last_real_particle_index = total_real_particles_ - 1;
+		size_t last_real_particle_index = all_real_particles_ - 1;
 		if (index_i < last_real_particle_index)
 		{
 			updateFromAnotherParticle(index_i, last_real_particle_index);
@@ -128,7 +128,7 @@ namespace SPH
 			std::swap(unsorted_id_[index_i], unsorted_id_[last_real_particle_index]);
 			sorted_id_[unsorted_id_[index_i]] = index_i;
 		}
-		total_real_particles_ -= 1;
+		all_real_particles_ -= 1;
 	}
 	//=================================================================================================//
 	void BaseParticles::writePltFileHeader(std::ofstream &output_file)
@@ -196,8 +196,8 @@ namespace SPH
 			derived_variable->parallel_exec();
 		}
 
-		size_t total_real_particles = total_real_particles_;
-		for (size_t i = 0; i != total_real_particles; ++i)
+		size_t all_real_particles = all_real_particles_;
+		for (size_t i = 0; i != all_real_particles; ++i)
 		{
 			writePltFileParticleData(output_file, i);
 			output_file << "\n";
@@ -322,9 +322,9 @@ namespace SPH
 	{
 		size_t total_elements = xml_engine.SizeOfXmlDoc();
 
-		if (total_elements <= total_real_particles_)
+		if (total_elements <= all_real_particles_)
 		{
-			for (size_t i = total_elements; i != total_real_particles_; ++i)
+			for (size_t i = total_elements; i != all_real_particles_; ++i)
 				xml_engine.addElementToXmlDoc("particle");
 		}
 	}
@@ -332,7 +332,7 @@ namespace SPH
 	void BaseParticles::writeParticlesToXmlForRestart(std::string &filefullpath)
 	{
 		resizeXmlDocForParticles(restart_xml_engine_);
-		WriteAParticleVariableToXml write_variable_to_xml(restart_xml_engine_, total_real_particles_);
+		WriteAParticleVariableToXml write_variable_to_xml(restart_xml_engine_, all_real_particles_);
 		ParticleDataOperation<loopVariableNameList> loop_variable_namelist;
 		loop_variable_namelist(all_particle_data_, variables_to_restart_, write_variable_to_xml);
 		restart_xml_engine_.writeToXmlFile(filefullpath);
@@ -341,7 +341,7 @@ namespace SPH
 	void BaseParticles::readParticleFromXmlForRestart(std::string &filefullpath)
 	{
 		restart_xml_engine_.loadXmlFile(filefullpath);
-		ReadAParticleVariableFromXml read_variable_from_xml(restart_xml_engine_, total_real_particles_);
+		ReadAParticleVariableFromXml read_variable_from_xml(restart_xml_engine_, all_real_particles_);
 		ParticleDataOperation<loopVariableNameList> loop_variable_namelist;
 		loop_variable_namelist(all_particle_data_, variables_to_restart_, read_variable_from_xml);
 	}
@@ -349,7 +349,7 @@ namespace SPH
 	void BaseParticles::writeToXmlForReloadParticle(std::string &filefullpath)
 	{
 		resizeXmlDocForParticles(reload_xml_engine_);
-		WriteAParticleVariableToXml write_variable_to_xml(reload_xml_engine_, total_real_particles_);
+		WriteAParticleVariableToXml write_variable_to_xml(reload_xml_engine_, all_real_particles_);
 		ParticleDataOperation<loopVariableNameList> loop_variable_namelist;
 		loop_variable_namelist(all_particle_data_, variables_to_reload_, write_variable_to_xml);
 		reload_xml_engine_.writeToXmlFile(filefullpath);
@@ -358,13 +358,13 @@ namespace SPH
 	void BaseParticles::readFromXmlForReloadParticle(std::string &filefullpath)
 	{
 		reload_xml_engine_.loadXmlFile(filefullpath);
-		total_real_particles_ = reload_xml_engine_.SizeOfXmlDoc();
-		for (size_t i = 0; i != total_real_particles_; ++i)
+		all_real_particles_ = reload_xml_engine_.SizeOfXmlDoc();
+		for (size_t i = 0; i != all_real_particles_; ++i)
 		{
 			unsorted_id_.push_back(i);
 		};
-		resize_particle_data_(all_particle_data_, total_real_particles_);
-		ReadAParticleVariableFromXml read_variable_from_xml(reload_xml_engine_, total_real_particles_);
+		resize_particle_data_(all_particle_data_, all_real_particles_);
+		ReadAParticleVariableFromXml read_variable_from_xml(reload_xml_engine_, all_real_particles_);
 		ParticleDataOperation<loopVariableNameList> loop_variable_namelist;
 		loop_variable_namelist(all_particle_data_, variables_to_reload_, read_variable_from_xml);
 	}

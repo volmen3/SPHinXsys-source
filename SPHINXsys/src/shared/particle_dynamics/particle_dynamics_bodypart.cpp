@@ -9,15 +9,15 @@
 namespace SPH
 {
 	//=================================================================================================//
-	void PartIteratorByParticle(const IndexVector &body_part_particles, const ParticleFunctor &particle_functor, Real dt)
+	void PartIteratorByParticle(const IndexVector &body_part_particles, const ParticleFunctor &functor, Real dt)
 	{
 		for (size_t i = 0; i < body_part_particles.size(); ++i)
 		{
-			particle_functor(body_part_particles[i], dt);
+			functor( body_part_particles[i], dt);
 		}
 	}
 	//=================================================================================================//
-	void PartIteratorByParticle_parallel(const IndexVector &body_part_particles, const ParticleFunctor &particle_functor, Real dt)
+	void PartIteratorByParticle_parallel(const IndexVector &body_part_particles, const ParticleFunctor &functor, Real dt)
 	{
 		parallel_for(
 			blocked_range<size_t>(0, body_part_particles.size()),
@@ -25,23 +25,23 @@ namespace SPH
 			{
 				for (size_t i = r.begin(); i < r.end(); ++i)
 				{
-					particle_functor(body_part_particles[i], dt);
+					functor( body_part_particles[i], dt);
 				}
 			},
 			ap);
 	}
 	//=================================================================================================//
-	void PartIteratorByCell(const CellLists &body_part_cells, const ParticleFunctor &particle_functor, Real dt)
+	void PartIteratorByCell(const CellLists &body_part_cells, const ParticleFunctor &functor, Real dt)
 	{
 		for (size_t i = 0; i != body_part_cells.size(); ++i)
 		{
 			ListDataVector &list_data = body_part_cells[i]->cell_list_data_;
 			for (size_t num = 0; num < list_data.size(); ++num)
-				particle_functor(list_data[num].first, dt);
+				functor( list_data[num].first, dt);
 		}
 	}
 	//=================================================================================================//
-	void PartIteratorByCell_parallel(const CellLists &body_part_cells, const ParticleFunctor &particle_functor, Real dt)
+	void PartIteratorByCell_parallel(const CellLists &body_part_cells, const ParticleFunctor &functor, Real dt)
 	{
 		parallel_for(
 			blocked_range<size_t>(0, body_part_cells.size()),
@@ -51,7 +51,7 @@ namespace SPH
 				{
 					ListDataVector &list_data = body_part_cells[i]->cell_list_data_;
 					for (size_t num = 0; num < list_data.size(); ++num)
-						particle_functor(list_data[num].first, dt);
+						functor( list_data[num].first, dt);
 				}
 			},
 			ap);

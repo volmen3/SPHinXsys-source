@@ -12,7 +12,7 @@ namespace SPH
 
     void BodyRegionByParticleWithFace::tagParticles()
     {
-        for (size_t i = 0; i < base_particles_->total_real_particles_; ++i)
+        for (size_t i = 0; i < base_particles_->all_real_particles_; ++i)
         {
             const auto &pos = base_particles_->pos_n_[i];
             auto d = getSignedDistance(pos);
@@ -72,7 +72,7 @@ namespace SPH
         size_t sorted_index_i = sorted_id_[unsorted_index_i];
         if (body_part_.getSignedDistance(pos_n_[sorted_index_i]) > periodic_translation_)
         {
-            if (particles_->total_real_particles_ >= particles_->real_particles_bound_)
+            if (particles_->all_real_particles_ >= particles_->real_particles_bound_)
             {
                 std::cout << "InflowInjectingWithFace::checking_bound_: \n"
                           << "Not enough body buffer particles! Exit the code."
@@ -80,9 +80,9 @@ namespace SPH
                 exit(0);
             }
             /** Buffer Particle state copied from real particle. */
-            particles_->copyFromAnotherParticle(particles_->total_real_particles_, sorted_index_i);
+            particles_->copyFromAnotherParticle(particles_->all_real_particles_, sorted_index_i);
             /** Realize the buffer particle by increasing the number of real particle in the body.  */
-            particles_->total_real_particles_ += 1;
+            particles_->all_real_particles_ += 1;
             /** Periodic bounding. */
             pos_n_[sorted_index_i] -= periodic_translation_ * body_part_.getDirectionToFluid();
         }

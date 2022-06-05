@@ -15,11 +15,11 @@ namespace SPH
 {
 	//=================================================================================================//
 	template<typename GetParticleIndex, typename GetSearchDepth, typename GetNeighborRelation>
-	void CellLinkedList::searchNeighborsByParticles(size_t total_real_particles, BaseParticles& source_particles,
+	void CellLinkedList::searchNeighborsByParticles(size_t all_real_particles, BaseParticles& source_particles,
 			ParticleConfiguration& particle_configuration, GetParticleIndex& get_particle_index,
 			GetSearchDepth& get_search_depth, GetNeighborRelation& get_neighbor_relation)
 	{
-		parallel_for(blocked_range<size_t>(0, total_real_particles),
+		parallel_for(blocked_range<size_t>(0, all_real_particles),
 			[&](const blocked_range<size_t>& r) {
 				StdLargeVec<Vecd>& pos_n = source_particles.pos_n_;
 				for (size_t num = r.begin(); num != r.end(); ++num) {

@@ -379,7 +379,7 @@ namespace SPH
 			  n_(*particles_->getVariableByName<Vecd>("NormalDirection"))
 		{
 			particles_->registerAVariable(updated_indicator_, "UpdatedIndicator", 0);
-			updated_indicator_[particles_->total_real_particles_ / 3] = 1;
+			updated_indicator_[particles_->all_real_particles_ / 3] = 1;
 		}
 		//=================================================================================================//
 		void ShellNormalDirectionPrediction::

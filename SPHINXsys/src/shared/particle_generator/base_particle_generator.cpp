@@ -27,8 +27,8 @@ namespace SPH
 	void BaseParticleGenerator::initializePosition(const Vecd &position)
 	{
 		pos_n_.push_back(position);
-		unsorted_id_.push_back(base_particles_->total_real_particles_);
-		base_particles_->total_real_particles_ ++;
+		unsorted_id_.push_back(base_particles_->all_real_particles_);
+		base_particles_->all_real_particles_ ++;
 	}
 	//=================================================================================================//
 	ParticleGenerator::ParticleGenerator(SPHBody &sph_body)

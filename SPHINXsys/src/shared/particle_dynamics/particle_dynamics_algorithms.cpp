@@ -16,16 +16,16 @@ namespace SPH
 	{
 		setBodyUpdated();
 		setupDynamics(dt);
-		size_t total_real_particles = base_particles_->total_real_particles_;
-		ParticleIterator(total_real_particles, functor_update_, dt);
+		size_t all_real_particles = base_particles_->all_real_particles_;
+		particle_for(all_real_particles, functor_update_, dt);
 	}
 	//=================================================================================================//
 	void OldParticleDynamicsSimple::parallel_exec(Real dt)
 	{
 		setBodyUpdated();
 		setupDynamics(dt);
-		size_t total_real_particles = base_particles_->total_real_particles_;
-		ParticleIterator_parallel(total_real_particles, functor_update_, dt);
+		size_t all_real_particles = base_particles_->all_real_particles_;
+		particle_parallel_for(all_real_particles, functor_update_, dt);
 	}
 	//=================================================================================================//
 	void OldInteractionDynamics::exec(Real dt)
@@ -34,8 +34,8 @@ namespace SPH
 		setupDynamics(dt);
 		for (size_t k = 0; k < pre_processes_.size(); ++k)
 			pre_processes_[k]->exec(dt);
-		size_t total_real_particles = base_particles_->total_real_particles_;
-		ParticleIterator(total_real_particles, functor_interaction_, dt);
+		size_t all_real_particles = base_particles_->all_real_particles_;
+		particle_for(all_real_particles, functor_interaction_, dt);
 		for (size_t k = 0; k < post_processes_.size(); ++k)
 			post_processes_[k]->exec(dt);
 	}
@@ -46,8 +46,8 @@ namespace SPH
 		setupDynamics(dt);
 		for (size_t k = 0; k < pre_processes_.size(); ++k)
 			pre_processes_[k]->parallel_exec(dt);
-		size_t total_real_particles = base_particles_->total_real_particles_;
-		ParticleIterator_parallel(total_real_particles, functor_interaction_, dt);
+		size_t all_real_particles = base_particles_->all_real_particles_;
+		particle_parallel_for(all_real_particles, functor_interaction_, dt);
 		for (size_t k = 0; k < post_processes_.size(); ++k)
 			post_processes_[k]->parallel_exec(dt);
 	}
@@ -93,11 +93,11 @@ namespace SPH
 		setupDynamics(dt);
 		for (size_t k = 0; k < pre_processes_.size(); ++k)
 			pre_processes_[k]->exec(dt);
-		size_t total_real_particles = base_particles_->total_real_particles_;
-		ParticleIterator(total_real_particles, functor_interaction_, dt);
+		size_t all_real_particles = base_particles_->all_real_particles_;
+		particle_for(all_real_particles, functor_interaction_, dt);
 		for (size_t k = 0; k < post_processes_.size(); ++k)
 			post_processes_[k]->exec(dt);
-		ParticleIterator(total_real_particles, functor_update_, dt);
+		particle_for(all_real_particles, functor_update_, dt);
 	}
 	//=================================================================================================//
 	void OldInteractionDynamicsWithUpdate::parallel_exec(Real dt)
@@ -106,39 +106,39 @@ namespace SPH
 		setupDynamics(dt);
 		for (size_t k = 0; k < pre_processes_.size(); ++k)
 			pre_processes_[k]->parallel_exec(dt);
-		size_t total_real_particles = base_particles_->total_real_particles_;
-		ParticleIterator_parallel(total_real_particles, functor_interaction_, dt);
+		size_t all_real_particles = base_particles_->all_real_particles_;
+		particle_parallel_for(all_real_particles, functor_interaction_, dt);
 		for (size_t k = 0; k < post_processes_.size(); ++k)
 			post_processes_[k]->parallel_exec(dt);
-		ParticleIterator_parallel(total_real_particles, functor_update_, dt);
+		particle_parallel_for(all_real_particles, functor_update_, dt);
 	}
 	//=================================================================================================//
 	void OldParticleDynamics1Level::exec(Real dt)
 	{
 		setBodyUpdated();
 		setupDynamics(dt);
-		size_t total_real_particles = base_particles_->total_real_particles_;
-		ParticleIterator(total_real_particles, functor_initialization_, dt);
+		size_t all_real_particles = base_particles_->all_real_particles_;
+		particle_for(all_real_particles, functor_initialization_, dt);
 		for (size_t k = 0; k < pre_processes_.size(); ++k)
 			pre_processes_[k]->exec(dt);
-		ParticleIterator(total_real_particles, functor_interaction_, dt);
+		particle_for(all_real_particles, functor_interaction_, dt);
 		for (size_t k = 0; k < post_processes_.size(); ++k)
 			post_processes_[k]->exec(dt);
-		ParticleIterator(total_real_particles, functor_update_, dt);
+		particle_for(all_real_particles, functor_update_, dt);
 	}
 	//=================================================================================================//
 	void OldParticleDynamics1Level::parallel_exec(Real dt)
 	{
 		setBodyUpdated();
 		setupDynamics(dt);
-		size_t total_real_particles = base_particles_->total_real_particles_;
-		ParticleIterator_parallel(total_real_particles, functor_initialization_, dt);
+		size_t all_real_particles = base_particles_->all_real_particles_;
+		particle_parallel_for(all_real_particles, functor_initialization_, dt);
 		for (size_t k = 0; k < pre_processes_.size(); ++k)
 			pre_processes_[k]->parallel_exec(dt);
-		ParticleIterator_parallel(total_real_particles, functor_interaction_, dt);
+		particle_parallel_for(all_real_particles, functor_interaction_, dt);
 		for (size_t k = 0; k < post_processes_.size(); ++k)
 			post_processes_[k]->parallel_exec(dt);
-		ParticleIterator_parallel(total_real_particles, functor_update_, dt);
+		particle_parallel_for(all_real_particles, functor_update_, dt);
 	}
 	//=================================================================================================//
 	InteractionDynamicsSplitting::InteractionDynamicsSplitting(SPHBody &sph_body)
@@ -151,7 +151,7 @@ namespace SPH
 		setupDynamics(dt);
 		for (size_t k = 0; k < pre_processes_.size(); ++k)
 			pre_processes_[k]->exec(dt);
-		ParticleIteratorSplittingSweep(split_cell_lists_, functor_interaction_, dt);
+		particle_for(split_cell_lists_, functor_interaction_, dt);
 		for (size_t k = 0; k < post_processes_.size(); ++k)
 			post_processes_[k]->exec(dt);
 	}
@@ -162,7 +162,7 @@ namespace SPH
 		setupDynamics(dt);
 		for (size_t k = 0; k < pre_processes_.size(); ++k)
 			pre_processes_[k]->parallel_exec(dt);
-		ParticleIteratorSplittingSweep_parallel(split_cell_lists_, functor_interaction_, dt);
+		particle_parallel_for(split_cell_lists_, functor_interaction_, dt);
 		for (size_t k = 0; k < post_processes_.size(); ++k)
 			post_processes_[k]->parallel_exec(dt);
 	}

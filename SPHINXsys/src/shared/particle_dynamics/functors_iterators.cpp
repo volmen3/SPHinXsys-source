@@ -9,44 +9,43 @@
 namespace SPH
 {
     //=============================================================================================//
-    void ParticleIterator(size_t total_real_particles, const ParticleFunctor &particle_functor, Real dt)
+    void particle_for(size_t all_real_particles, const ParticleFunctor &functor, Real dt)
     {
-        for (size_t i = 0; i < total_real_particles; ++i)
-            particle_functor(i, dt);
+        for (size_t i = 0; i < all_real_particles; ++i)
+            functor(i, dt);
     }
     //=============================================================================================//
-    void ParticleIterator_parallel(size_t total_real_particles, const ParticleFunctor &particle_functor, Real dt)
+    void particle_parallel_for(size_t all_real_particles, const ParticleFunctor &functor, Real dt)
     {
         parallel_for(
-            blocked_range<size_t>(0, total_real_particles),
+            blocked_range<size_t>(0, all_real_particles),
             [&](const blocked_range<size_t> &r)
             {
                 for (size_t i = r.begin(); i < r.end(); ++i)
                 {
-                    particle_functor(i, dt);
+                    functor(i, dt);
                 }
             },
             ap);
     }
     //=============================================================================================//
-    void ParticleIterator(size_t total_real_particles, const ParticleRangeFunctor &particle_functor, Real dt)
+    void particle_for(size_t all_real_particles, const RangeFunctor &functor, Real dt)
     {
-        particle_functor(blocked_range<size_t>(0, total_real_particles), dt);
+        functor(blocked_range<size_t>(0, all_real_particles), dt);
     }
     //=============================================================================================//
-    void ParticleIterator_parallel(size_t total_real_particles, const ParticleRangeFunctor &particle_functor, Real dt)
+    void particle_parallel_for(size_t all_real_particles, const RangeFunctor &functor, Real dt)
     {
         parallel_for(
-            blocked_range<size_t>(0, total_real_particles),
+            blocked_range<size_t>(0, all_real_particles),
             [&](const blocked_range<size_t> &r)
             {
-                particle_functor(r, dt);
+                functor(r, dt);
             },
             ap);
     }
     //=================================================================================================//
-    void ParticleIteratorSplittingSweep(SplitCellLists &split_cell_lists,
-                                        const ParticleFunctor &particle_functor, Real dt)
+    void particle_for(SplitCellLists &split_cell_lists, const ParticleFunctor &functor, Real dt)
     {
         Real dt2 = dt * 0.5;
         // forward sweeping
@@ -58,7 +57,7 @@ namespace SPH
                 IndexVector &particle_indexes = cell_lists[l]->real_particle_indexes_;
                 for (size_t i = 0; i != particle_indexes.size(); ++i)
                 {
-                    particle_functor(particle_indexes[i], dt2);
+                    functor(particle_indexes[i], dt2);
                 }
             }
         }
@@ -72,14 +71,13 @@ namespace SPH
                 IndexVector &particle_indexes = cell_lists[l]->real_particle_indexes_;
                 for (size_t i = particle_indexes.size(); i != 0; --i)
                 {
-                    particle_functor(particle_indexes[i - 1], dt2);
+                    functor(particle_indexes[i - 1], dt2);
                 }
             }
         }
     }
     //=================================================================================================//
-    void ParticleIteratorSplittingSweep_parallel(SplitCellLists &split_cell_lists,
-                                                 const ParticleFunctor &particle_functor, Real dt)
+    void particle_parallel_for(SplitCellLists &split_cell_lists, const ParticleFunctor &functor, Real dt)
     {
         Real dt2 = dt * 0.5;
         // forward sweeping
@@ -95,7 +93,7 @@ namespace SPH
                         IndexVector &particle_indexes = cell_lists[l]->real_particle_indexes_;
                         for (size_t i = 0; i < particle_indexes.size(); ++i)
                         {
-                            particle_functor(particle_indexes[i], dt2);
+                            functor(particle_indexes[i], dt2);
                         }
                     }
                 },
@@ -115,7 +113,7 @@ namespace SPH
                         IndexVector &particle_indexes = cell_lists[l]->real_particle_indexes_;
                         for (size_t i = particle_indexes.size(); i != 0; --i)
                         {
-                            particle_functor(particle_indexes[i - 1], dt2);
+                            functor(particle_indexes[i - 1], dt2);
                         }
                     }
                 },
@@ -123,15 +121,15 @@ namespace SPH
         }
     }
     //=================================================================================================//
-    void ParticleIterator(const IndexVector &body_part_particles, const ParticleFunctor &particle_functor, Real dt)
+    void particle_for(IndexVector &body_part_particles, const ParticleFunctor &functor, Real dt)
     {
         for (size_t i = 0; i < body_part_particles.size(); ++i)
         {
-            particle_functor(body_part_particles[i], dt);
+            functor(body_part_particles[i], dt);
         }
     }
     //=================================================================================================//
-    void ParticleIterator_parallel(const IndexVector &body_part_particles, const ParticleFunctor &particle_functor, Real dt)
+    void particle_parallel_for(IndexVector &body_part_particles, const ParticleFunctor &functor, Real dt)
     {
         parallel_for(
             blocked_range<size_t>(0, body_part_particles.size()),
@@ -139,24 +137,24 @@ namespace SPH
             {
                 for (size_t i = r.begin(); i < r.end(); ++i)
                 {
-                    particle_functor(body_part_particles[i], dt);
+                    functor(body_part_particles[i], dt);
                 }
             },
             ap);
     }
     //=================================================================================================//
-    void ParticleIterator(const IndexVector &body_part_particles, const ParticleListFunctor &particle_functor, Real dt)
+    void particle_for(IndexVector &body_part_particles, const ListFunctor &functor, Real dt)
     {
-        particle_functor(blocked_range<size_t>(0, body_part_particles.size()), body_part_particles, dt);
+        functor(blocked_range<size_t>(0, body_part_particles.size()), body_part_particles, dt);
     }
     //=================================================================================================//
-    void ParticleIterator_parallel(const IndexVector &body_part_particles, const ParticleListFunctor &particle_functor, Real dt)
+    void particle_parallel_for(IndexVector &body_part_particles, const ListFunctor &functor, Real dt)
     {
         parallel_for(
             blocked_range<size_t>(0, body_part_particles.size()),
             [&](const blocked_range<size_t> &r)
             {
-                particle_functor(r, body_part_particles, dt);
+                functor(r, body_part_particles, dt);
             },
             ap);
     }

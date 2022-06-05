@@ -1,25 +1,25 @@
-/* -------------------------------------------------------------------------*
- *								SPHinXsys									*
- * --------------------------------------------------------------------------*
- * SPHinXsys (pronunciation: s'finksis) is an acronym from Smoothed Particle	*
- * Hydrodynamics for industrial compleX systems. It provides C++ APIs for	*
- * physical accurate simulation and aims to model coupled industrial dynamic *
- * systems including fluid, solid, multi-body dynamics and beyond with SPH	*
- * (smoothed particle hydrodynamics), a meshless computational method using	*
- * particle discretization.													*
- *																			*
- * SPHinXsys is partially funded by German Research Foundation				*
- * (Deutsche Forschungsgemeinschaft) DFG HU1527/6-1, HU1527/10-1				*
- * and HU1527/12-1.															*
- *                                                                           *
- * Portions copyright (c) 2017-2020 Technical University of Munich and		*
- * the authors' affiliations.												*
- *                                                                           *
- * Licensed under the Apache License, Version 2.0 (the "License"); you may   *
- * not use this file except in compliance with the License. You may obtain a *
- * copy of the License at http://www.apache.org/licenses/LICENSE-2.0.        *
- *                                                                           *
- * --------------------------------------------------------------------------*/
+/* -----------------------------------------------------------------------------*
+ *                               SPHinXsys                                      *
+ * -----------------------------------------------------------------------------*
+ * SPHinXsys (pronunciation: s'finksis) is an acronym from Smoothed Particle    *
+ * Hydrodynamics for industrial compleX systems. It provides C++ APIs for       *
+ * physical accurate simulation and aims to model coupled industrial dynamic    *
+ * systems including fluid, solid, multi-body dynamics and beyond with SPH      *
+ * (smoothed particle hydrodynamics), a meshless computational method using     *
+ * particle discretization.                                                     *
+ *                                                                              *
+ * SPHinXsys is partially funded by German Research Foundation                  *
+ * (Deutsche Forschungsgemeinschaft) DFG HU1527/6-1, HU1527/10-1                *
+ * and HU1527/12-1.                                                             *
+ *                                                                              *
+ * Portions copyright (c) 2017-2022 Technical University of Munich and          *
+ * the authors' affiliations.                                                   *
+ *                                                                              *
+ * Licensed under the Apache License, Version 2.0 (the "License"); you may      *
+ * not use this file except in compliance with the License. You may obtain a    *
+ * copy of the License at http://www.apache.org/licenses/LICENSE-2.0.           *
+ *                                                                              *
+ * -----------------------------------------------------------------------------*/
 /**
  * @file 	particle_dynamics_bodypart.h
  * @brief 	Dynamics for bodypart.
@@ -39,13 +39,13 @@
 namespace SPH
 {
 	/** Body part iterators by particle. sequential computing. */
-	void PartIteratorByParticle(const IndexVector &body_part_particles, const ParticleFunctor &particle_functor, Real dt = 0.0);
+	void PartIteratorByParticle(const IndexVector &body_part_particles, const ParticleFunctor &functor, Real dt = 0.0);
 	/** Body part iterators by particle. parallel computing. */
-	void PartIteratorByParticle_parallel(const IndexVector &body_part_particles, const ParticleFunctor &particle_functor, Real dt = 0.0);
+	void PartIteratorByParticle_parallel(const IndexVector &body_part_particles, const ParticleFunctor &functor, Real dt = 0.0);
 	/** Body part iterators by cell. sequential computing. */
-	void PartIteratorByCell(const CellLists &body_part_cells, const ParticleFunctor &particle_functor, Real dt = 0.0);
+	void PartIteratorByCell(const CellLists &body_part_cells, const ParticleFunctor &functor, Real dt = 0.0);
 	/** Body part iterators by cell. parallel computing. */
-	void PartIteratorByCell_parallel(const CellLists &body_part_cells, const ParticleFunctor &particle_functor, Real dt = 0.0);
+	void PartIteratorByCell_parallel(const CellLists &body_part_cells, const ParticleFunctor &functor, Real dt = 0.0);
 
 	/**
 	 * @class PartByParticleInteractionDynamics1Level
@@ -53,13 +53,13 @@ namespace SPH
 	 */
 	template <class LocalInteractionDynamics>
 	class PartByParticleInteractionDynamics1Level : public LocalInteractionDynamics,
-													public BaseInteractionDynamics1Level<IndexVector, ParticleListFunctor>
+													public BaseInteractionDynamics1Level<IndexVector, ListFunctor>
 	{
 	public:
 		template <typename... Args>
 		explicit PartByParticleInteractionDynamics1Level(BodyPartByParticle &body_part,Args &&...args)
 			: LocalInteractionDynamics(std::forward<Args>(args)...),
-			  BaseInteractionDynamics1Level<IndexVector, ParticleListFunctor>(
+			  BaseInteractionDynamics1Level<IndexVector, ListFunctor>(
 				  body_part.BodyPartRange(),
 				  std::bind(&LocalInteractionDynamics::initializeList, this, _1, _2, _3),
 				  std::bind(&LocalInteractionDynamics::interaction, this, _1, _2),

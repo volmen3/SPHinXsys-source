@@ -325,7 +325,7 @@ namespace SPH
 			std::ofstream out_file(filefullpath_output_.c_str(), std::ios::app);
 			out_file << "run_time"
 					 << "   ";
-			for (size_t i = 0; i != base_particles_->total_real_particles_; ++i)
+			for (size_t i = 0; i != base_particles_->all_real_particles_; ++i)
 			{
 				std::string quantity_name_i = quantity_name + "[" + std::to_string(i) + "]";
 				plt_engine_.writeAQuantityHeader(out_file, (*this->interpolated_quantities_)[i], quantity_name_i);
@@ -340,7 +340,7 @@ namespace SPH
 			this->parallel_exec();
 			std::ofstream out_file(filefullpath_output_.c_str(), std::ios::app);
 			out_file << GlobalStaticVariables::physical_time_ << "   ";
-			for (size_t i = 0; i != base_particles_->total_real_particles_; ++i)
+			for (size_t i = 0; i != base_particles_->all_real_particles_; ++i)
 			{
 				plt_engine_.writeAQuantity(out_file, (*this->interpolated_quantities_)[i]);
 			}

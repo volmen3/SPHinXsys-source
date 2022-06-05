@@ -34,8 +34,8 @@ namespace SPH
 	void LocalDirectionalDiffusion::readFromXmlForLocalParameters(const std::string &filefullpath)
 	{
 		BaseMaterial::readFromXmlForLocalParameters(filefullpath);
-		size_t total_real_particles = base_particles_->total_real_particles_;
-		for (size_t i = 0; i != total_real_particles; i++)
+		size_t all_real_particles = base_particles_->all_real_particles_;
+		for (size_t i = 0; i != all_real_particles; i++)
 		{
 			Matd diff_i = diff_cf_ * Matd(1.0) + bias_diff_cf_ * SimTK::outer(local_bias_direction_[i], local_bias_direction_[i]);
 			local_transformed_diffusivity_.push_back(inverseCholeskyDecomposition(diff_i));

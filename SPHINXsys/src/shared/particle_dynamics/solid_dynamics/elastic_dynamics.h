@@ -97,7 +97,7 @@ namespace SPH
 		public:
 			explicit AcousticTimeStepSize(SolidBody &solid_body, Real CFL = 0.6);
 			virtual ~AcousticTimeStepSize(){};
-			Real reduceRange(const blocked_range<size_t> particle_range, Real dt = 0.0);
+			Real reduceRange(const IndexRange &particle_range, Real dt = 0.0);
 			Real outputResult(Real reduced_value) override;
 
 		protected:
@@ -151,9 +151,9 @@ namespace SPH
 		public:
 			explicit StressRelaxationFirstHalf(BaseBodyRelationInner &inner_relation);
 			virtual ~StressRelaxationFirstHalf(){};
-			void initializeRange(const blocked_range<size_t> particle_range, Real dt = 0.0);
+			void initializeRange(const IndexRange &particle_range, Real dt = 0.0);
 			void interaction(size_t index_i, Real dt = 0.0);
-			void updateRange(const blocked_range<size_t> particle_range, Real dt = 0.0);
+			void updateRange(const IndexRange &particle_range, Real dt = 0.0);
 
 		protected:
 			Real rho0_, inv_rho0_;
@@ -172,7 +172,7 @@ namespace SPH
 		public:
 			explicit KirchhoffParticleStressRelaxationFirstHalf(BaseBodyRelationInner &inner_relation);
 			virtual ~KirchhoffParticleStressRelaxationFirstHalf(){};
-			void initializeRange(const blocked_range<size_t> particle_range, Real dt = 0.0);
+			void initializeRange(const IndexRange &particle_range, Real dt = 0.0);
 
 		protected:
 			const Real one_over_dimensions_ = 1.0 / (Real)Dimensions;
@@ -198,7 +198,7 @@ namespace SPH
 		public:
 			explicit KirchhoffStressRelaxationFirstHalf(BaseBodyRelationInner &inner_relation);
 			virtual ~KirchhoffStressRelaxationFirstHalf(){};
-			void initializeRange(const blocked_range<size_t> particle_range, Real dt = 0.0);
+			void initializeRange(const IndexRange &particle_range, Real dt = 0.0);
 			void interaction(size_t index_i, Real dt = 0.0);
 
 		protected:
@@ -219,9 +219,9 @@ namespace SPH
 			explicit StressRelaxationSecondHalf(BaseBodyRelationInner &inner_relation)
 				: BaseElasticRelaxation(inner_relation){};
 			virtual ~StressRelaxationSecondHalf(){};
-			void initializeRange(const blocked_range<size_t> particle_range, Real dt = 0.0);
+			void initializeRange(const IndexRange &particle_range, Real dt = 0.0);
 			void interaction(size_t index_i, Real dt = 0.0);
-			void updateRange(const blocked_range<size_t> particle_range, Real dt = 0.0);
+			void updateRange(const IndexRange &particle_range, Real dt = 0.0);
 		};
     }
 }

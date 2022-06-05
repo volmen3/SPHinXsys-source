@@ -72,7 +72,7 @@ namespace SPH
 			virtual ~DensitySummationInner(){};
 
 			void interaction(size_t index_i, Real dt = 0.0);
-			void updateRange(const blocked_range<size_t> particle_range, Real dt = 0.0);
+			void updateRange(const IndexRange &particle_range, Real dt = 0.0);
 
 		protected:
 			Real W0_, rho0_, inv_sigma0_;
@@ -146,7 +146,7 @@ namespace SPH
 			explicit AcousticTimeStepSize(FluidBody &fluid_body);
 			virtual ~AcousticTimeStepSize(){};
 			Real outputResult(Real reduced_value) override;
-			Real reduceRange(const blocked_range<size_t> particle_range, Real dt = 0.0);
+			Real reduceRange(const IndexRange &particle_range, Real dt = 0.0);
 
 		protected:
 			StdLargeVec<Real> &rho_n_, &p_;
@@ -163,7 +163,7 @@ namespace SPH
 		public:
 			explicit AdvectionTimeStepSize(FluidBody &fluid_body, Real U_max);
 			virtual ~AdvectionTimeStepSize(){};
-			Real reduceRange(const blocked_range<size_t> particle_range, Real dt = 0.0);
+			Real reduceRange(const IndexRange &particle_range, Real dt = 0.0);
 			Real outputResult(Real reduced_value) override;
 
 		protected:
@@ -224,8 +224,8 @@ namespace SPH
 		public:
 			explicit BasePressureRelaxation(BaseBodyRelationInner &inner_relation);
 			virtual ~BasePressureRelaxation(){};
-			void initializeRange(const blocked_range<size_t> particle_range, Real dt = 0.0);
-			void updateRange(const blocked_range<size_t> particle_range, Real dt = 0.0);
+			void initializeRange(const IndexRange &particle_range, Real dt = 0.0);
+			void updateRange(const IndexRange &particle_range, Real dt = 0.0);
 
 		protected:
 			virtual Vecd computeNonConservativeAcceleration(size_t index_i);
@@ -260,8 +260,8 @@ namespace SPH
 		public:
 			explicit BaseDensityRelaxation(BaseBodyRelationInner &inner_relation);
 			virtual ~BaseDensityRelaxation(){};
-			void initializeRange(const blocked_range<size_t> particle_range, Real dt = 0.0);
-			void updateRange(const blocked_range<size_t> particle_range, Real dt = 0.0);
+			void initializeRange(const IndexRange &particle_range, Real dt = 0.0);
+			void updateRange(const IndexRange &particle_range, Real dt = 0.0);
 		};
 
 		/**
@@ -304,7 +304,7 @@ namespace SPH
 		public:
 			explicit PressureRelaxationInnerOldroyd_B(BaseBodyRelationInner &inner_relation);
 			virtual ~PressureRelaxationInnerOldroyd_B(){};
-			void initializeRange(const blocked_range<size_t> particle_range, Real dt = 0.0);
+			void initializeRange(const IndexRange &particle_range, Real dt = 0.0);
 			void interaction(size_t index_i, Real dt = 0.0);
 
 		protected:
@@ -321,7 +321,7 @@ namespace SPH
 			explicit DensityRelaxationInnerOldroyd_B(BaseBodyRelationInner &inner_relation);
 			virtual ~DensityRelaxationInnerOldroyd_B(){};
 			void interaction(size_t index_i, Real dt = 0.0);
-			void updateRange(const blocked_range<size_t> particle_range, Real dt = 0.0);
+			void updateRange(const IndexRange &particle_range, Real dt = 0.0);
 
 		protected:
 			StdLargeVec<Matd> &tau_, &dtau_dt_;

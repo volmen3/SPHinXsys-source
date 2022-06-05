@@ -20,7 +20,7 @@ namespace SPH
 			  vel_n_(particles_->vel_n_), dvel_dt_(particles_->dvel_dt_),
 			  vel_ave_(particles_->vel_ave_), dvel_dt_ave_(particles_->dvel_dt_ave_) {}
 		//=================================================================================================//
-		void VelocityConstraint::updateRange(const blocked_range<size_t> &particle_range, Real dt)
+		void VelocityConstraint::updateRange(const IndexRange &particle_range, Real dt)
 		{
 			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
 			{
@@ -35,7 +35,7 @@ namespace SPH
 			}
 		}
 		//=================================================================================================//
-		void VelocityConstraint::updateList(const blocked_range<size_t> &entry_range, const IndexVector &particle_list, Real dt)
+		void VelocityConstraint::updateList(const IndexRange &entry_range, const IndexVector &particle_list, Real dt)
 		{
 			for (size_t i = entry_range.begin(); i < entry_range.end(); ++i)
 			{
@@ -55,7 +55,7 @@ namespace SPH
 			: LocalParticleDynamics(body), SolidDataSimple(body),
 			  pos_n_(particles_->pos_n_), pos_0_(particles_->pos_0_) {}
 		//=================================================================================================//
-		void DisplacementConstraint::updateRange(const blocked_range<size_t> &particle_range, Real dt)
+		void DisplacementConstraint::updateRange(const IndexRange &particle_range, Real dt)
 		{
 			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
 			{
@@ -63,7 +63,7 @@ namespace SPH
 			}
 		}
 		//=================================================================================================//
-		void DisplacementConstraint::updateList(const blocked_range<size_t> &entry_range, const IndexVector &particle_list, Real dt)
+		void DisplacementConstraint::updateList(const IndexRange &entry_range, const IndexVector &particle_list, Real dt)
 		{
 			for (size_t i = entry_range.begin(); i < entry_range.end(); ++i)
 			{
@@ -81,12 +81,12 @@ namespace SPH
 			particles_->registerAVariable(dvel_dt_temp_, "TemporaryAcceleration");
 		}
 		//=================================================================================================//
-		void SoftConstrain::initializeRange(const blocked_range<size_t> &particle_range, Real dt)
+		void SoftConstrain::initializeRange(const IndexRange &particle_range, Real dt)
 		{
 			VelocityConstraint::updateRange(particle_range, dt);
 		}
 		//=================================================================================================//
-		void SoftConstrain::initializeList(const blocked_range<size_t> &entry_range, const IndexVector &particle_list, Real dt)
+		void SoftConstrain::initializeList(const IndexRange &entry_range, const IndexVector &particle_list, Real dt)
 		{
 			VelocityConstraint::updateList(entry_range, particle_list, dt);
 		}
@@ -112,7 +112,7 @@ namespace SPH
 			dvel_dt_temp_[index_i] = dvel_dt_i / ttl_weight;
 		}
 		//=================================================================================================//
-		void SoftConstrain::updateRange(const blocked_range<size_t> &particle_range, Real dt)
+		void SoftConstrain::updateRange(const IndexRange &particle_range, Real dt)
 		{
 			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
 			{
@@ -126,7 +126,7 @@ namespace SPH
 			}
 		}
 		//=================================================================================================//
-		void SoftConstrain::updateList(const blocked_range<size_t> &entry_range, const IndexVector &particle_list, Real dt)
+		void SoftConstrain::updateList(const IndexRange &entry_range, const IndexVector &particle_list, Real dt)
 		{
 			for (size_t i = entry_range.begin(); i < entry_range.end(); ++i)
 			{
@@ -155,7 +155,7 @@ namespace SPH
 			velocity_correction_ = correction_matrix_ * compute_total_momentum_.parallel_exec(dt) / total_mass_;
 		}
 		//=================================================================================================//
-		void ConstrainBodyMassCenter::updateRange(const blocked_range<size_t> &particle_range, Real dt)
+		void ConstrainBodyMassCenter::updateRange(const IndexRange &particle_range, Real dt)
 		{
 			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
 			{

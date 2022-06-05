@@ -25,13 +25,17 @@ namespace SPH
 	class BaseParticles;
 
 	/** Generalized particle data type */
-	typedef std::tuple<StdVec<StdLargeVec<Real> *>, StdVec<StdLargeVec<Vecd> *>, StdVec<StdLargeVec<Matd> *>,
+	typedef std::tuple<StdVec<StdLargeVec<Real> *>,
+					   StdVec<StdLargeVec<Vecd> *>,
+					   StdVec<StdLargeVec<Matd> *>,
 					   StdVec<StdLargeVec<int> *>>
 		ParticleData;
 	/** Generalized particle variable to index map */
 	typedef std::array<std::map<std::string, size_t>, 4> ParticleDataMap;
 	/** Generalized particle variable list */
 	typedef std::array<StdVec<std::pair<std::string, size_t>>, 4> ParticleVariableList;
+
+	typedef blocked_range<size_t> IndexRange;
 	/** Vector of Material. Note that vector of references are not allowed in c++.*/
 	using MaterialVector = StdVec<BaseMaterial *>;
 	/** Vector of bodies */
@@ -87,7 +91,7 @@ namespace SPH
 	{
 		void operator()(ParticleData &particle_data, size_t index_a, size_t index_b) const
 		{
-       		constexpr int type_index = ParticleDataTypeIndex<VariableType>::value;
+			constexpr int type_index = ParticleDataTypeIndex<VariableType>::value;
 
 			StdVec<StdLargeVec<VariableType> *> variables = std::get<type_index>(particle_data);
 			for (size_t i = 0; i != variables.size(); ++i)
@@ -97,16 +101,17 @@ namespace SPH
 			}
 		};
 	};
-	
+
 	/** operation by looping or going through a particle data map */
 	template <typename VariableType>
 	struct loopParticleDataMap
 	{
 		template <typename VariableOperation>
 		void operator()(ParticleData &particle_data,
-						ParticleDataMap &particle_data_map, VariableOperation &variable_operation) const
+						ParticleDataMap &particle_data_map,
+						VariableOperation &variable_operation) const
 		{
-      		constexpr int type_index = ParticleDataTypeIndex<VariableType>::value;
+			constexpr int type_index = ParticleDataTypeIndex<VariableType>::value;
 			for (auto const &name_index : particle_data_map[type_index])
 			{
 				std::string variable_name = name_index.first;
@@ -122,9 +127,10 @@ namespace SPH
 	{
 		template <typename VariableOperation>
 		void operator()(ParticleData &particle_data,
-						ParticleVariableList &variable_name_list, VariableOperation &variable_operation) const
+						ParticleVariableList &variable_name_list,
+						VariableOperation &variable_operation) const
 		{
-      		constexpr int type_index = ParticleDataTypeIndex<VariableType>::value;
+			constexpr int type_index = ParticleDataTypeIndex<VariableType>::value;
 			for (std::pair<std::string, size_t> &name_index : variable_name_list[type_index])
 			{
 				std::string variable_name = name_index.first;
@@ -134,4 +140,4 @@ namespace SPH
 		};
 	};
 }
-#endif //SPH_DATA_CONTAINERS_H
+#endif // SPH_DATA_CONTAINERS_H

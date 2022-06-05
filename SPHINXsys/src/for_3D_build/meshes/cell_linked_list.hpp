@@ -14,38 +14,43 @@
 namespace SPH
 {
 	//=================================================================================================//
-	template<typename GetParticleIndex, typename GetSearchDepth, typename GetNeighborRelation>
-	void CellLinkedList::searchNeighborsByParticles(size_t all_real_particles, BaseParticles& source_particles,
-			ParticleConfiguration& particle_configuration, GetParticleIndex& get_particle_index,
-			GetSearchDepth& get_search_depth, GetNeighborRelation& get_neighbor_relation)
+	template <typename GetParticleIndex, typename GetSearchDepth, typename GetNeighborRelation>
+	void CellLinkedList::
+		searchNeighborsByParticles(size_t all_real_particles, BaseParticles &source_particles,
+								   ParticleConfiguration &particle_configuration, GetParticleIndex &get_particle_index,
+								   GetSearchDepth &get_search_depth, GetNeighborRelation &get_neighbor_relation)
 	{
-		parallel_for(blocked_range<size_t>(0, all_real_particles),
-			[&](const blocked_range<size_t>& r) {
-				StdLargeVec<Vecd>& pos_n = source_particles.pos_n_;
-				for (size_t num = r.begin(); num != r.end(); ++num) {
+		parallel_for(
+			IndexRange(0, all_real_particles),
+			[&](const IndexRange &r)
+			{
+				StdLargeVec<Vecd> &pos_n = source_particles.pos_n_;
+				for (size_t num = r.begin(); num != r.end(); ++num)
+				{
 					size_t index_i = get_particle_index(num);
-					Vecd& particle_position = pos_n[index_i];
+					Vecd &particle_position = pos_n[index_i];
 					int search_depth = get_search_depth(index_i);
 					Vecu target_cell_index = CellIndexFromPosition(particle_position);
 					int i = (int)target_cell_index[0];
 					int j = (int)target_cell_index[1];
 					int k = (int)target_cell_index[2];
 
-					Neighborhood& neighborhood = particle_configuration[index_i];
+					Neighborhood &neighborhood = particle_configuration[index_i];
 					for (int l = SMAX(i - search_depth, 0); l <= SMIN(i + search_depth, int(number_of_cells_[0]) - 1); ++l)
 						for (int m = SMAX(j - search_depth, 0); m <= SMIN(j + search_depth, int(number_of_cells_[1]) - 1); ++m)
 							for (int q = SMAX(k - search_depth, 0); q <= SMIN(k + search_depth, int(number_of_cells_[2]) - 1); ++q)
 							{
-								ListDataVector& target_particles = cell_linked_lists_[l][m][q].cell_list_data_;
-								for (const ListData& list_data : target_particles)
+								ListDataVector &target_particles = cell_linked_lists_[l][m][q].cell_list_data_;
+								for (const ListData &list_data : target_particles)
 								{
-									//displacement pointing from neighboring particle to origin particle
+									// displacement pointing from neighboring particle to origin particle
 									Vecd displacement = particle_position - list_data.second;
 									get_neighbor_relation(neighborhood, displacement, index_i, list_data.first);
 								}
 							}
 				}
-			}, ap);
+			},
+			ap);
 	}
 	//=================================================================================================//
 }

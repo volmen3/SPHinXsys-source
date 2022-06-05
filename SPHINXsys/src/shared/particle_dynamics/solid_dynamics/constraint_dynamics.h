@@ -68,8 +68,8 @@ namespace SPH
 			StdLargeVec<Vecd> &vel_n_, &dvel_dt_, &vel_ave_, &dvel_dt_ave_;
 			virtual Vecd getVelocity(size_t index_i) { return Vecd(0); };
 			virtual Vecd getAcceleration(size_t index_i) { return Vecd(0); };
-			void updateRange(const blocked_range<size_t> &particle_range, Real dt = 0.0);
-			void updateList(const blocked_range<size_t> &entry_range, const IndexVector &particle_list, Real dt = 0.0);
+			void updateRange(const IndexRange &particle_range, Real dt = 0.0);
+			void updateList(const IndexRange &entry_range, const IndexVector &particle_list, Real dt = 0.0);
 		};
 
 		/**
@@ -86,8 +86,8 @@ namespace SPH
 		protected:
 			StdLargeVec<Vecd> &pos_n_, &pos_0_;
 			virtual Vecd getDisplacement(size_t index_i) = 0;
-			void updateRange(const blocked_range<size_t> &particle_range, Real dt = 0.0);
-			void updateList(const blocked_range<size_t> &entry_range, const IndexVector &particle_list, Real dt = 0.0);
+			void updateRange(const IndexRange &particle_range, Real dt = 0.0);
+			void updateList(const IndexRange &entry_range, const IndexVector &particle_list, Real dt = 0.0);
 		};
 
 		/**
@@ -100,11 +100,11 @@ namespace SPH
 		public:
 			explicit SoftConstrain(BaseBodyRelationInner &inner_relation);
 			virtual ~SoftConstrain(){};
-			void initializeRange(const blocked_range<size_t> &particle_range, Real dt = 0.0);
-			void initializeList(const blocked_range<size_t> &entry_range, const IndexVector &particle_list, Real dt = 0.0);
+			void initializeRange(const IndexRange &particle_range, Real dt = 0.0);
+			void initializeList(const IndexRange &entry_range, const IndexVector &particle_list, Real dt = 0.0);
 			void interaction(size_t index_i, Real dt = 0.0);
-			void updateRange(const blocked_range<size_t> &particle_range, Real dt = 0.0);
-			void updateList(const blocked_range<size_t> &entry_range, const IndexVector &particle_list, Real dt = 0.0);
+			void updateRange(const IndexRange &particle_range, Real dt = 0.0);
+			void updateList(const IndexRange &entry_range, const IndexVector &particle_list, Real dt = 0.0);
 
 		protected:
 			StdLargeVec<Real> &Vol_;
@@ -121,7 +121,7 @@ namespace SPH
 			explicit ConstrainBodyMassCenter(SPHBody &sph_body, Vecd constrain_direction);
 			virtual ~ConstrainBodyMassCenter(){};
 			virtual void setupDynamics(Real dt = 0.0) override;
-			void updateRange(const blocked_range<size_t> &particle_range, Real dt = 0.0);
+			void updateRange(const IndexRange &particle_range, Real dt = 0.0);
 
 		private:
 			Real total_mass_;
@@ -148,8 +148,8 @@ namespace SPH
 			virtual ~ConstraintBySimBody(){};
 
 			virtual void setupDynamics(Real dt = 0.0) override;
-			void updateRange(const blocked_range<size_t> &particle_range, Real dt = 0.0);
-			void updateList(const blocked_range<size_t> &entry_range, const IndexVector &particle_list, Real dt = 0.0);
+			void updateRange(const IndexRange &particle_range, Real dt = 0.0);
+			void updateList(const IndexRange &entry_range, const IndexVector &particle_list, Real dt = 0.0);
 
 		protected:
 			StdLargeVec<Vecd> &pos_n_, &pos_0_, &n_, &n_0_;
@@ -180,8 +180,8 @@ namespace SPH
 			virtual ~TotalForceForSimBody(){};
 
 			virtual void setupDynamics(Real dt = 0.0) override;
-			SimTK::SpatialVec reduceRange(const blocked_range<size_t> &particle_range, Real dt = 0.0);
-			SimTK::SpatialVec reduceList(const blocked_range<size_t> &entry_range, const IndexVector &particle_list, Real dt = 0.0);
+			SimTK::SpatialVec reduceRange(const IndexRange &particle_range, Real dt = 0.0);
+			SimTK::SpatialVec reduceList(const IndexRange &entry_range, const IndexVector &particle_list, Real dt = 0.0);
 
 		protected:
 			StdLargeVec<Vecd> &force_from_fluid_, &contact_force_, &pos_n_;

@@ -36,7 +36,7 @@ namespace SPH
 			rho_sum_[index_i] = sigma * rho0_ * inv_sigma0_;
 		}
 		//=================================================================================================//
-		void DensitySummationInner::updateRange(const blocked_range<size_t> particle_range, Real dt)
+		void DensitySummationInner::updateRange(const IndexRange &particle_range, Real dt)
 		{
 			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
 			{
@@ -140,7 +140,7 @@ namespace SPH
 			  p_(particles_->p_), vel_n_(particles_->vel_n_),
 			  smoothing_length_(fluid_body.sph_adaptation_->ReferenceSmoothingLength()) {}
 		//=================================================================================================//
-		Real AcousticTimeStepSize::reduceRange(const blocked_range<size_t> particle_range, Real dt)
+		Real AcousticTimeStepSize::reduceRange(const IndexRange &particle_range, Real dt)
 		{
 			Real temp = initial_reference_;
 			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
@@ -164,7 +164,7 @@ namespace SPH
 			  smoothing_length_(fluid_body.sph_adaptation_->ReferenceSmoothingLength()),
 			  viscous_speed_(material_->ReferenceViscosity() / material_->ReferenceDensity() / smoothing_length_) {}
 		//=================================================================================================//
-		Real AdvectionTimeStepSize::reduceRange(const blocked_range<size_t> particle_range, Real dt)
+		Real AdvectionTimeStepSize::reduceRange(const IndexRange &particle_range, Real dt)
 		{
 			Real temp = initial_reference_;
 			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
@@ -228,7 +228,7 @@ namespace SPH
 		BasePressureRelaxation::
 			BasePressureRelaxation(BaseBodyRelationInner &inner_relation) : BaseRelaxation(inner_relation) {}
 		//=================================================================================================//
-		void BasePressureRelaxation::initializeRange(const blocked_range<size_t> particle_range, Real dt)
+		void BasePressureRelaxation::initializeRange(const IndexRange &particle_range, Real dt)
 		{
 			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
 			{
@@ -251,7 +251,7 @@ namespace SPH
 			}
 		}
 		//=================================================================================================//
-		void BasePressureRelaxation::updateRange(const blocked_range<size_t> particle_range, Real dt)
+		void BasePressureRelaxation::updateRange(const IndexRange &particle_range, Real dt)
 		{
 			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
 			{
@@ -283,7 +283,7 @@ namespace SPH
 		BaseDensityRelaxation::
 			BaseDensityRelaxation(BaseBodyRelationInner &inner_relation) : BaseRelaxation(inner_relation) {}
 		//=================================================================================================//
-		void BaseDensityRelaxation::initializeRange(const blocked_range<size_t> particle_range, Real dt)
+		void BaseDensityRelaxation::initializeRange(const IndexRange &particle_range, Real dt)
 		{
 			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
 			{
@@ -291,7 +291,7 @@ namespace SPH
 			}
 		}
 		//=================================================================================================//
-		void BaseDensityRelaxation::updateRange(const blocked_range<size_t> particle_range, Real dt)
+		void BaseDensityRelaxation::updateRange(const IndexRange &particle_range, Real dt)
 		{
 			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
 			{
@@ -306,7 +306,7 @@ namespace SPH
 			  dtau_dt_(DynamicCast<ViscoelasticFluidParticles>(this, body_->base_particles_)->dtau_dt_) {}
 		//=================================================================================================//
 		void PressureRelaxationInnerOldroyd_B::
-			initializeRange(const blocked_range<size_t> particle_range, Real dt)
+			initializeRange(const IndexRange &particle_range, Real dt)
 		{
 			PressureRelaxationDissipativeRiemannInner::initializeRange(particle_range, dt);
 
@@ -370,7 +370,7 @@ namespace SPH
 			dtau_dt_[index_i] = stress_rate;
 		}
 		//=================================================================================================//
-		void DensityRelaxationInnerOldroyd_B::updateRange(const blocked_range<size_t> particle_range, Real dt)
+		void DensityRelaxationInnerOldroyd_B::updateRange(const IndexRange &particle_range, Real dt)
 		{
 			DensityRelaxationDissipativeRiemannInner::updateRange(particle_range, dt);
 

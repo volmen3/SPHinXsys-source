@@ -18,8 +18,8 @@ namespace SPH
     void particle_parallel_for(size_t all_real_particles, const ParticleFunctor &functor, Real dt)
     {
         parallel_for(
-            blocked_range<size_t>(0, all_real_particles),
-            [&](const blocked_range<size_t> &r)
+            IndexRange(0, all_real_particles),
+            [&](const IndexRange &r)
             {
                 for (size_t i = r.begin(); i < r.end(); ++i)
                 {
@@ -31,14 +31,14 @@ namespace SPH
     //=============================================================================================//
     void particle_for(size_t all_real_particles, const RangeFunctor &functor, Real dt)
     {
-        functor(blocked_range<size_t>(0, all_real_particles), dt);
+        functor(IndexRange(0, all_real_particles), dt);
     }
     //=============================================================================================//
     void particle_parallel_for(size_t all_real_particles, const RangeFunctor &functor, Real dt)
     {
         parallel_for(
-            blocked_range<size_t>(0, all_real_particles),
-            [&](const blocked_range<size_t> &r)
+            IndexRange(0, all_real_particles),
+            [&](const IndexRange &r)
             {
                 functor(r, dt);
             },
@@ -85,8 +85,8 @@ namespace SPH
         {
             ConcurrentCellLists &cell_lists = split_cell_lists[k];
             parallel_for(
-                blocked_range<size_t>(0, cell_lists.size()),
-                [&](const blocked_range<size_t> &r)
+                IndexRange(0, cell_lists.size()),
+                [&](const IndexRange &r)
                 {
                     for (size_t l = r.begin(); l < r.end(); ++l)
                     {
@@ -105,8 +105,8 @@ namespace SPH
         {
             ConcurrentCellLists &cell_lists = split_cell_lists[k - 1];
             parallel_for(
-                blocked_range<size_t>(0, cell_lists.size()),
-                [&](const blocked_range<size_t> &r)
+                IndexRange(0, cell_lists.size()),
+                [&](const IndexRange &r)
                 {
                     for (size_t l = r.begin(); l < r.end(); ++l)
                     {
@@ -132,8 +132,8 @@ namespace SPH
     void particle_parallel_for(IndexVector &body_part_particles, const ParticleFunctor &functor, Real dt)
     {
         parallel_for(
-            blocked_range<size_t>(0, body_part_particles.size()),
-            [&](const blocked_range<size_t> &r)
+            IndexRange(0, body_part_particles.size()),
+            [&](const IndexRange &r)
             {
                 for (size_t i = r.begin(); i < r.end(); ++i)
                 {
@@ -145,14 +145,14 @@ namespace SPH
     //=================================================================================================//
     void particle_for(IndexVector &body_part_particles, const ListFunctor &functor, Real dt)
     {
-        functor(blocked_range<size_t>(0, body_part_particles.size()), body_part_particles, dt);
+        functor(IndexRange(0, body_part_particles.size()), body_part_particles, dt);
     }
     //=================================================================================================//
     void particle_parallel_for(IndexVector &body_part_particles, const ListFunctor &functor, Real dt)
     {
         parallel_for(
-            blocked_range<size_t>(0, body_part_particles.size()),
-            [&](const blocked_range<size_t> &r)
+            IndexRange(0, body_part_particles.size()),
+            [&](const IndexRange &r)
             {
                 functor(r, body_part_particles, dt);
             },

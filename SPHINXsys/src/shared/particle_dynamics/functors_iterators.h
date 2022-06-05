@@ -47,14 +47,14 @@ namespace SPH
 	//----------------------------------------------------------------------
 	//	Particle-range-wise operation and reduce functors 
 	//----------------------------------------------------------------------
-	typedef std::function<void(const blocked_range<size_t> &, Real)> RangeFunctor;
+	typedef std::function<void(const IndexRange &, Real)> RangeFunctor;
 
 	template <class ReturnType>
-	using ReduceRangeFunctor = std::function<ReturnType(const blocked_range<size_t> &, Real)>;
+	using ReduceRangeFunctor = std::function<ReturnType(const IndexRange &, Real)>;
 	//----------------------------------------------------------------------
 	//	Particle-list-wise operation and reduce functors 
 	//----------------------------------------------------------------------
-	typedef std::function<void(const blocked_range<size_t> &, const IndexVector &, Real)> ListFunctor;
+	typedef std::function<void(const IndexRange &, const IndexVector &, Real)> ListFunctor;
 
 	//----------------------------------------------------------------------
 	//	Body-wise iterators (for sequential and parallel computing).

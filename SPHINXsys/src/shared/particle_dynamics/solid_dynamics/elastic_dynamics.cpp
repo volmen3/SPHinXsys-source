@@ -21,7 +21,7 @@ namespace SPH
 			  vel_n_(particles_->vel_n_), dvel_dt_(particles_->dvel_dt_),
 			  smoothing_length_(body_->sph_adaptation_->ReferenceSmoothingLength()) {}
 		//=================================================================================================//
-		Real AcousticTimeStepSize::reduceRange(const blocked_range<size_t> particle_range, Real dt)
+		Real AcousticTimeStepSize::reduceRange(const IndexRange &particle_range, Real dt)
 		{
 			Real temp = initial_reference_;
 			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
@@ -99,7 +99,7 @@ namespace SPH
 			  smoothing_length_(body_->sph_adaptation_->ReferenceSmoothingLength()),
 			  numerical_dissipation_factor_(0.25) {}
 		//=================================================================================================//
-		void StressRelaxationFirstHalf::initializeRange(const blocked_range<size_t> particle_range, Real dt)
+		void StressRelaxationFirstHalf::initializeRange(const IndexRange &particle_range, Real dt)
 		{
 			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
 			{
@@ -149,7 +149,7 @@ namespace SPH
 			dvel_dt_[index_i] = acceleration;
 		}
 		//=================================================================================================//
-		void StressRelaxationFirstHalf::updateRange(const blocked_range<size_t> particle_range, Real dt)
+		void StressRelaxationFirstHalf::updateRange(const IndexRange &particle_range, Real dt)
 		{
 			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
 			{
@@ -162,7 +162,7 @@ namespace SPH
 			: StressRelaxationFirstHalf(inner_relation){};
 		//=================================================================================================//
 		void KirchhoffParticleStressRelaxationFirstHalf::
-			initializeRange(const blocked_range<size_t> particle_range, Real dt)
+			initializeRange(const IndexRange &particle_range, Real dt)
 		{
 			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
 			{
@@ -200,7 +200,7 @@ namespace SPH
 			particles_->registerAVariable(stress_on_particle_, "StressOnParticle");
 		};
 		//=================================================================================================//
-		void KirchhoffStressRelaxationFirstHalf::initializeRange(const blocked_range<size_t> particle_range, Real dt)
+		void KirchhoffStressRelaxationFirstHalf::initializeRange(const IndexRange &particle_range, Real dt)
 		{
 			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
 			{
@@ -249,7 +249,7 @@ namespace SPH
 			dvel_dt_[index_i] = acceleration;
 		}
 		//=================================================================================================//
-		void StressRelaxationSecondHalf::initializeRange(const blocked_range<size_t> particle_range, Real dt)
+		void StressRelaxationSecondHalf::initializeRange(const IndexRange &particle_range, Real dt)
 		{
 			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
 			{
@@ -275,7 +275,7 @@ namespace SPH
 			dF_dt_[index_i] = deformation_gradient_change_rate * B_[index_i];
 		}
 		//=================================================================================================//
-		void StressRelaxationSecondHalf::updateRange(const blocked_range<size_t> particle_range, Real dt)
+		void StressRelaxationSecondHalf::updateRange(const IndexRange &particle_range, Real dt)
 		{
 			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
 			{

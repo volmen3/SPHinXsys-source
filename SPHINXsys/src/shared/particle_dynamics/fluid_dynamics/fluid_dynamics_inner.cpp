@@ -142,10 +142,10 @@ namespace SPH
 		//=================================================================================================//
 		Real AcousticTimeStepSize::reduceRange(const IndexRange &particle_range, Real dt)
 		{
-			Real temp = initial_reference_;
+			Real temp = reference_;
 			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
 			{
-				temp = reduce_operation_(temp, material_->getSoundSpeed(p_[index_i], rho_n_[index_i]) + vel_n_[index_i].norm());
+				temp = operation_(temp, material_->getSoundSpeed(p_[index_i], rho_n_[index_i]) + vel_n_[index_i].norm());
 			}
 			return temp;
 		}
@@ -166,10 +166,10 @@ namespace SPH
 		//=================================================================================================//
 		Real AdvectionTimeStepSize::reduceRange(const IndexRange &particle_range, Real dt)
 		{
-			Real temp = initial_reference_;
+			Real temp = reference_;
 			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
 			{
-				temp = reduce_operation_(temp, vel_n_[index_i].normSqr());
+				temp = operation_(temp, vel_n_[index_i].normSqr());
 			}
 			return temp;
 		}
@@ -183,9 +183,13 @@ namespace SPH
 		//=================================================================================================//
 		AdvectionTimeStepSizeForImplicitViscosity::
 			AdvectionTimeStepSizeForImplicitViscosity(FluidBody &fluid_body, Real U_max)
-			: AdvectionTimeStepSize(fluid_body, U_max)
+			: AdvectionTimeStepSize(fluid_body, U_max) {}
+		//=================================================================================================//
+		Real AdvectionTimeStepSizeForImplicitViscosity::outputResult(Real reduced_value)
 		{
-			initial_reference_ = U_max * U_max;
+			Real speed_max = sqrt(reduced_value);
+			particles_->speed_max_ = speed_max;
+			return 0.25 * smoothing_length_ / (speed_max + TinyReal);
 		}
 		//=================================================================================================//
 		VorticityInner::

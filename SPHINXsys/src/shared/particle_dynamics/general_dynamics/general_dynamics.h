@@ -228,10 +228,10 @@ namespace SPH
 
 		VariableType reduceRange(const blocked_range<size_t> particle_range, Real dt = 0.0)
 		{
-			VariableType temp = this->initial_reference_;
+			VariableType temp = this->reference_;
 			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
 			{
-				temp = this->reduce_operation_(temp, variable_[index_i]);
+				temp = this->operation_(temp, variable_[index_i]);
 			}
 			return temp;
 		};
@@ -257,10 +257,10 @@ namespace SPH
 
 		VariableType reduceRange(const blocked_range<size_t> particle_range, Real dt = 0.0)
 		{
-			VariableType temp = this->initial_reference_;
+			VariableType temp = this->reference_;
 			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
 			{
-				temp = this->reduce_operation_(temp, mass_[index_i] * this->variable_[index_i]);
+				temp = this->operation_(temp, mass_[index_i] * this->variable_[index_i]);
 			}
 			return temp;
 		};

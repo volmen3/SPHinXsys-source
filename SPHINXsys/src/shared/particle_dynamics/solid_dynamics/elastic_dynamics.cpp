@@ -23,13 +23,12 @@ namespace SPH
 		//=================================================================================================//
 		Real AcousticTimeStepSize::reduceRange(const IndexRange &particle_range, Real dt)
 		{
-			Real temp = initial_reference_;
+			Real temp = reference_;
 			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
 			{
 				Real sound_speed = material_->ReferenceSoundSpeed();
-				temp = reduce_operation_(
-					temp, SMIN(sqrt(smoothing_length_ / (dvel_dt_[index_i].norm() + TinyReal)),
-							   smoothing_length_ / (sound_speed + vel_n_[index_i].norm())));
+				temp = operation_(temp, SMIN(sqrt(smoothing_length_ / (dvel_dt_[index_i].norm() + TinyReal)),
+											 smoothing_length_ / (sound_speed + vel_n_[index_i].norm())));
 			}
 			return temp;
 		}

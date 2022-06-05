@@ -82,29 +82,21 @@ namespace SPH
 	 * @class ParticleDynamics
 	 * @brief The basic particle dynamics in which a range of particles are looped.
 	 */
-	template <typename LoopRange, typename ParticleFunctorType = ParticleFunctor>
+	template <typename LoopRange, typename FunctorType = ParticleFunctor>
 	class ParticleDynamics : public BaseParticleDynamics<void>
 	{
 	public:
-		ParticleDynamics(LoopRange &loop_range, ParticleFunctorType particle_functor)
+		ParticleDynamics(LoopRange &loop_range, FunctorType functor)
 			: BaseParticleDynamics<void>(),
-			  loop_range_(loop_range), particle_functor_(particle_functor){};
-
+			  loop_range_(loop_range), functor_(functor){};
 		virtual ~ParticleDynamics(){};
 
-		virtual void exec(Real dt = 0.0) override
-		{
-			particle_for(loop_range_, particle_functor_, dt);
-		};
-
-		virtual void parallel_exec(Real dt = 0.0) override
-		{
-			particle_parallel_for(loop_range_, particle_functor_, dt);
-		};
+		virtual void exec(Real dt = 0.0) override;
+		virtual void parallel_exec(Real dt = 0.0) override;
 
 	protected:
 		LoopRange &loop_range_;
-		ParticleFunctorType particle_functor_;
+		FunctorType functor_;
 	};
 
 	/**
@@ -116,27 +108,21 @@ namespace SPH
 	class ParticleDynamicsReduce : public BaseParticleDynamics<ReturnType>
 	{
 		LoopRange &loop_range_;
-		ReturnType &initial_reference_;
-		ReduceOperation &reduce_operation_;
-		ReduceFunctorType<ReturnType> functor_reduce_;
+		ReturnType &reference_;
+		ReduceOperation &operation_;
+		ReduceFunctorType<ReturnType> functor_;
 
 	public:
-		explicit ParticleDynamicsReduce(LoopRange &loop_range, ReturnType &initial_reference,
+		explicit ParticleDynamicsReduce(LoopRange &loop_range, ReturnType &reference,
 										ReduceOperation &reduce_operation,
-										ReduceFunctorType<ReturnType> functor_reduce)
+										ReduceFunctorType<ReturnType> functor)
 			: BaseParticleDynamics<ReturnType>(), loop_range_(loop_range),
-			  initial_reference_(initial_reference), reduce_operation_(reduce_operation),
-			  functor_reduce_(functor_reduce){};
+			  reference_(reference), operation_(reduce_operation),
+			  functor_(functor){};
 		virtual ~ParticleDynamicsReduce(){};
 
-		virtual ReturnType exec(Real dt = 0.0) override
-		{
-			return particle_reduce(loop_range_, initial_reference_, functor_reduce_, reduce_operation_, dt);
-		};
-		virtual ReturnType parallel_exec(Real dt = 0.0) override
-		{
-			return particle_parallel_reduce(loop_range_, initial_reference_, functor_reduce_, reduce_operation_, dt);
-		};
+		virtual ReturnType exec(Real dt = 0.0) override;
+		virtual ReturnType parallel_exec(Real dt = 0.0) override;
 	};
 	/**
 	 * @class BaseInteractionDynamics
@@ -153,128 +139,67 @@ namespace SPH
 
 	public:
 		BaseInteractionDynamics(LoopRange &loop_range, ParticleFunctor functor_interaction)
-			: BaseParticleDynamics<void>(), interaction_dynamics_(loop_range, functor_interaction){};
+			: BaseParticleDynamics<void>(),
+			  interaction_dynamics_(loop_range, functor_interaction){};
 
 		virtual ~BaseInteractionDynamics(){};
 
 		void addPreProcess(BaseParticleDynamics<void> *pre_process) { pre_processes_.push_back(pre_process); };
 		void addPostProcess(BaseParticleDynamics<void> *post_process) { post_processes_.push_back(post_process); };
 
-		virtual void exec(Real dt = 0.0) override
-		{
-			runSetup(dt);
-			runInteraction(dt);
-		};
-
-		virtual void parallel_exec(Real dt = 0.0) override
-		{
-			runSetup(dt);
-			runInteraction_parallel(dt);
-		};
+		virtual void exec(Real dt = 0.0) override;
+		virtual void parallel_exec(Real dt = 0.0) override;
 
 		virtual void runSetup(Real dt = 0.0) = 0;
-
-		void runInteraction(Real dt = 0.0)
-		{
-			for (size_t k = 0; k < pre_processes_.size(); ++k)
-				pre_processes_[k]->exec(dt);
-			interaction_dynamics_.exec(dt);
-			for (size_t k = 0; k < post_processes_.size(); ++k)
-				post_processes_[k]->exec(dt);
-		};
-
-		void runInteraction_parallel(Real dt = 0.0)
-		{
-			for (size_t k = 0; k < pre_processes_.size(); ++k)
-				pre_processes_[k]->parallel_exec(dt);
-			interaction_dynamics_.parallel_exec(dt);
-			for (size_t k = 0; k < post_processes_.size(); ++k)
-				post_processes_[k]->parallel_exec(dt);
-		};
+		void runInteraction(Real dt = 0.0);
+		void runInteraction_parallel(Real dt = 0.0);
 	};
 
 	/**
-	 * @class BaseInteractionDynamicsWithUpdate
+	 * @class BaseInteractionDynamicsAndUpdate
 	 * @brief This class includes an interaction and a update steps
 	 */
-	template <typename LoopRange, typename ParticleFunctorType>
-	class BaseInteractionDynamicsWithUpdate : public BaseInteractionDynamics<LoopRange>
+	template <typename LoopRange, typename FunctorType>
+	class BaseInteractionDynamicsAndUpdate : public BaseInteractionDynamics<LoopRange>
 	{
-		ParticleDynamics<LoopRange, ParticleFunctorType> update_dynamics_;
+		ParticleDynamics<LoopRange, FunctorType> update_dynamics_;
 
 	public:
-		BaseInteractionDynamicsWithUpdate(LoopRange &loop_range, ParticleFunctor functor_interaction,
-										  ParticleFunctorType functor_update)
+		BaseInteractionDynamicsAndUpdate(
+			LoopRange &loop_range, ParticleFunctor functor_interaction,
+			FunctorType functor_update)
 			: BaseInteractionDynamics<LoopRange>(loop_range, functor_interaction),
 			  update_dynamics_(loop_range, functor_update){};
-		virtual ~BaseInteractionDynamicsWithUpdate(){};
+		virtual ~BaseInteractionDynamicsAndUpdate(){};
 
-		virtual void exec(Real dt = 0.0) override
-		{
-			this->runSetup(dt);
-			BaseInteractionDynamics<LoopRange>::runInteraction(dt);
-			runUpdate(dt);
-		};
+		virtual void exec(Real dt = 0.0) override;
+		virtual void parallel_exec(Real dt = 0.0) override;
 
-		virtual void parallel_exec(Real dt = 0.0) override
-		{
-			this->runSetup(dt);
-			BaseInteractionDynamics<LoopRange>::runInteraction_parallel(dt);
-			runUpdate_parallel(dt);
-		};
-
-		void runUpdate(Real dt = 0.0)
-		{
-			update_dynamics_.exec(dt);
-		};
-
-		void runUpdate_parallel(Real dt = 0.0)
-		{
-			update_dynamics_.parallel_exec(dt);
-		};
+		void runUpdate(Real dt = 0.0);
+		void runUpdate_parallel(Real dt = 0.0);
 	};
 
 	/**
 	 * @class BaseInteractionDynamics1Level
 	 * @brief This class includes an initialization, an interaction and a update steps
 	 */
-	template <typename LoopRange, typename ParticleFunctorType>
-	class BaseInteractionDynamics1Level : public BaseInteractionDynamicsWithUpdate<LoopRange, ParticleFunctorType>
+	template <typename LoopRange, typename FunctorType>
+	class BaseInteractionDynamics1Level : public BaseInteractionDynamicsAndUpdate<LoopRange, FunctorType>
 	{
-		ParticleDynamics<LoopRange, ParticleFunctorType> initialize_dynamics_;
+		ParticleDynamics<LoopRange, FunctorType> initialize_dynamics_;
 
 	public:
-		BaseInteractionDynamics1Level(LoopRange &loop_range, ParticleFunctorType functor_initialization,
-									  ParticleFunctor functor_interaction, ParticleFunctorType functor_update)
-			: BaseInteractionDynamicsWithUpdate<LoopRange, ParticleFunctorType>(loop_range, functor_interaction, functor_update),
+		BaseInteractionDynamics1Level(LoopRange &loop_range, FunctorType functor_initialization,
+									  ParticleFunctor functor_interaction, FunctorType functor_update)
+			: BaseInteractionDynamicsAndUpdate<LoopRange, FunctorType>(loop_range, functor_interaction, functor_update),
 			  initialize_dynamics_(loop_range, functor_initialization){};
 		virtual ~BaseInteractionDynamics1Level(){};
 
-		virtual void exec(Real dt = 0.0) override
-		{
-			this->runSetup(dt);
-			runInitialization(dt);
-			BaseInteractionDynamics<LoopRange>::runInteraction(dt);
-			BaseInteractionDynamicsWithUpdate<LoopRange, ParticleFunctorType>::runUpdate(dt);
-		};
+		virtual void exec(Real dt = 0.0) override;
+		virtual void parallel_exec(Real dt = 0.0) override;
 
-		virtual void parallel_exec(Real dt = 0.0) override
-		{
-			this->runSetup(dt);
-			runInitialization_parallel(dt);
-			BaseInteractionDynamics<LoopRange>::runInteraction_parallel(dt);
-			BaseInteractionDynamicsWithUpdate<LoopRange, ParticleFunctorType>::runUpdate_parallel(dt);
-		};
-
-		void runInitialization(Real dt = 0.0)
-		{
-			initialize_dynamics_.exec(dt);
-		};
-
-		void runInitialization_parallel(Real dt = 0.0)
-		{
-			initialize_dynamics_.parallel_exec(dt);
-		};
+		void runInitialization(Real dt = 0.0);
+		void runInitialization_parallel(Real dt = 0.0);
 	};
 
 	/**
@@ -302,12 +227,12 @@ namespace SPH
 	class LocalParticleDynamicsReduce : public LocalParticleDynamics
 	{
 	public:
-		explicit LocalParticleDynamicsReduce(SPHBody &sph_body, ReturnType initial_reference)
-			: LocalParticleDynamics(sph_body), initial_reference_(initial_reference){};
+		explicit LocalParticleDynamicsReduce(SPHBody &sph_body, ReturnType reference)
+			: LocalParticleDynamics(sph_body), reference_(reference){};
 		virtual ~LocalParticleDynamicsReduce(){};
 
-		ReturnType initial_reference_;
-		ReduceOperation reduce_operation_;
+		ReturnType reference_;
+		ReduceOperation operation_;
 		virtual ReturnType outputResult(ReturnType reduced_value) { return reduced_value; }
 	};
 

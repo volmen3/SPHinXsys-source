@@ -37,7 +37,7 @@ namespace SPH
 			n_[index_i] = R * n_0_[index_i];
 		}
 		//=================================================================================================//
-		void ConstraintBySimBody::updateRange(const blocked_range<size_t> &particle_range, Real dt)
+		void ConstraintBySimBody::updateRange(const IndexRange &particle_range, Real dt)
 		{
 			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
 			{
@@ -58,7 +58,7 @@ namespace SPH
 		}
 		//=========================================================================================//
 		void ConstraintBySimBody::
-			updateList(const blocked_range<size_t> &entry_range, const IndexVector &particle_list, Real dt)
+			updateList(const IndexRange &entry_range, const IndexVector &particle_list, Real dt)
 		{
 			for (size_t i = entry_range.begin(); i < entry_range.end(); ++i)
 			{
@@ -80,24 +80,24 @@ namespace SPH
 		}
 		//=========================================================================================//
 		SimTK::SpatialVec TotalForceForSimBody::
-			reduceRange(const blocked_range<size_t> &particle_range, Real dt)
+			reduceRange(const IndexRange &particle_range, Real dt)
 		{
-			SimTK::SpatialVec temp = initial_reference_;
+			SimTK::SpatialVec temp = reference_;
 			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
 			{
 				Vec3 force_from_particle = force_from_fluid_[index_i] + contact_force_[index_i];
 				Vec3 displacement(0);
 				displacement = pos_n_[index_i] - current_mobod_origin_location_;
 				Vec3 torque_from_particle = cross(displacement, force_from_particle);
-				temp = reduce_operation_(temp, SimTK::SpatialVec(torque_from_particle, force_from_particle));
+				temp = operation_(temp, SimTK::SpatialVec(torque_from_particle, force_from_particle));
 			}
 			return temp;
 		}
 		//=========================================================================================//
 		SimTK::SpatialVec TotalForceForSimBody::
-			reduceList(const blocked_range<size_t> &entry_range, const IndexVector &particle_list, Real dt)
+			reduceList(const IndexRange &entry_range, const IndexVector &particle_list, Real dt)
 		{
-			SimTK::SpatialVec temp = initial_reference_;
+			SimTK::SpatialVec temp = reference_;
 			for (size_t i = entry_range.begin(); i < entry_range.end(); ++i)
 			{
 				size_t index_i = particle_list[i];
@@ -105,7 +105,7 @@ namespace SPH
 				Vec3 displacement(0);
 				displacement = pos_n_[index_i] - current_mobod_origin_location_;
 				Vec3 torque_from_particle = cross(displacement, force_from_particle);
-				temp = reduce_operation_(temp, SimTK::SpatialVec(torque_from_particle, force_from_particle));
+				temp = operation_(temp, SimTK::SpatialVec(torque_from_particle, force_from_particle));
 			}
 			return temp;
 		}

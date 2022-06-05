@@ -181,6 +181,7 @@ namespace SPH
 		public:
 			explicit AdvectionTimeStepSizeForImplicitViscosity(FluidBody &fluid_body, Real U_max);
 			virtual ~AdvectionTimeStepSizeForImplicitViscosity(){};
+			Real outputResult(Real reduced_value) override;
 		};
 
 		/**

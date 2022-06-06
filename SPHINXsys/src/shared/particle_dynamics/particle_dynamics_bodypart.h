@@ -38,15 +38,6 @@
 #include "base_body_part.h"
 namespace SPH
 {
-	/** Body part iterators by particle. sequential computing. */
-	void PartIteratorByParticle(const IndexVector &body_part_particles, const ParticleFunctor &functor, Real dt = 0.0);
-	/** Body part iterators by particle. parallel computing. */
-	void PartIteratorByParticle_parallel(const IndexVector &body_part_particles, const ParticleFunctor &functor, Real dt = 0.0);
-	/** Body part iterators by cell. sequential computing. */
-	void PartIteratorByCell(const CellLists &body_part_cells, const ParticleFunctor &functor, Real dt = 0.0);
-	/** Body part iterators by cell. parallel computing. */
-	void PartIteratorByCell_parallel(const CellLists &body_part_cells, const ParticleFunctor &functor, Real dt = 0.0);
-
 	/**
 	 * @class PartByParticleInteractionDynamics1Level
 	 * @brief This class includes an initialization, an interaction and a update steps

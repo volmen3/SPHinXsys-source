@@ -121,7 +121,7 @@ namespace SPH
         }
     }
     //=================================================================================================//
-    void particle_for(IndexVector &body_part_particles, const ParticleFunctor &functor, Real dt)
+    void particle_for(const IndexVector &body_part_particles, const ParticleFunctor &functor, Real dt)
     {
         for (size_t i = 0; i < body_part_particles.size(); ++i)
         {
@@ -129,7 +129,7 @@ namespace SPH
         }
     }
     //=================================================================================================//
-    void particle_parallel_for(IndexVector &body_part_particles, const ParticleFunctor &functor, Real dt)
+    void particle_parallel_for(const IndexVector &body_part_particles, const ParticleFunctor &functor, Real dt)
     {
         parallel_for(
             IndexRange(0, body_part_particles.size()),
@@ -143,12 +143,12 @@ namespace SPH
             ap);
     }
     //=================================================================================================//
-    void particle_for(IndexVector &body_part_particles, const ListFunctor &functor, Real dt)
+    void particle_for(const IndexVector &body_part_particles, const ListFunctor &functor, Real dt)
     {
         functor(IndexRange(0, body_part_particles.size()), body_part_particles, dt);
     }
     //=================================================================================================//
-    void particle_parallel_for(IndexVector &body_part_particles, const ListFunctor &functor, Real dt)
+    void particle_parallel_for(const IndexVector &body_part_particles, const ListFunctor &functor, Real dt)
     {
         parallel_for(
             IndexRange(0, body_part_particles.size()),
@@ -158,6 +158,32 @@ namespace SPH
             },
             ap);
     }
+	//=================================================================================================//
+	void particle_for(const CellLists &body_part_cells, const ParticleFunctor &functor, Real dt)
+	{
+		for (size_t i = 0; i != body_part_cells.size(); ++i)
+		{
+			ListDataVector &list_data = body_part_cells[i]->cell_list_data_;
+			for (size_t num = 0; num < list_data.size(); ++num)
+				functor( list_data[num].first, dt);
+		}
+	}
+	//=================================================================================================//
+	void particle_parallel_for(const CellLists &body_part_cells, const ParticleFunctor &functor, Real dt)
+	{
+		parallel_for(
+			blocked_range<size_t>(0, body_part_cells.size()),
+			[&](const blocked_range<size_t> &r)
+			{
+				for (size_t i = r.begin(); i < r.end(); ++i)
+				{
+					ListDataVector &list_data = body_part_cells[i]->cell_list_data_;
+					for (size_t num = 0; num < list_data.size(); ++num)
+						functor( list_data[num].first, dt);
+				}
+			},
+			ap);
+	}
     //=============================================================================================//
 }
 //=============================================================================================//

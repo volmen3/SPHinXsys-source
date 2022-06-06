@@ -87,12 +87,18 @@ namespace SPH
 	//----------------------------------------------------------------------
 	//	BodyPartByParticle-wise iterators (for sequential and parallel computing).
 	//----------------------------------------------------------------------
-	void particle_for(IndexVector &body_part_particles, const ParticleFunctor &functor, Real dt = 0.0);
-	void particle_parallel_for(IndexVector &body_part_particles, const ParticleFunctor &functor, Real dt = 0.0);
+	void particle_for(const IndexVector &body_part_particles, const ParticleFunctor &functor, Real dt = 0.0);
+	void particle_parallel_for(const IndexVector &body_part_particles, const ParticleFunctor &functor, Real dt = 0.0);
 
-	void particle_for(IndexVector &body_part_particles, const ListFunctor &functor, Real dt = 0.0);
-	void particle_parallel_for(IndexVector &body_part_particles, const ListFunctor &functor, Real dt = 0.0);
+	void particle_for(const IndexVector &body_part_particles, const ListFunctor &functor, Real dt = 0.0);
+	void particle_parallel_for(const IndexVector &body_part_particles, const ListFunctor &functor, Real dt = 0.0);
 
+	//----------------------------------------------------------------------
+	//	BodyPartByParticle-wise iterators (for sequential and parallel computing).
+	//  //TODO: I need to clarify to use cell_list_data_ or real_particle_indexes.
+	//----------------------------------------------------------------------
+	void particle_for(const CellLists &body_part_cells, const ParticleFunctor &functor, Real dt = 0.0);
+	void particle_parallel_for(const CellLists &body_part_cells, const ParticleFunctor &functor, Real dt = 0.0);
 	//----------------------------------------------------------------------
 	//	Reduce (binary) operation functors.
 	//----------------------------------------------------------------------

@@ -9,54 +9,6 @@
 namespace SPH
 {
 	//=================================================================================================//
-	void PartIteratorByParticle(const IndexVector &body_part_particles, const ParticleFunctor &functor, Real dt)
-	{
-		for (size_t i = 0; i < body_part_particles.size(); ++i)
-		{
-			functor( body_part_particles[i], dt);
-		}
-	}
-	//=================================================================================================//
-	void PartIteratorByParticle_parallel(const IndexVector &body_part_particles, const ParticleFunctor &functor, Real dt)
-	{
-		parallel_for(
-			blocked_range<size_t>(0, body_part_particles.size()),
-			[&](const blocked_range<size_t> &r)
-			{
-				for (size_t i = r.begin(); i < r.end(); ++i)
-				{
-					functor( body_part_particles[i], dt);
-				}
-			},
-			ap);
-	}
-	//=================================================================================================//
-	void PartIteratorByCell(const CellLists &body_part_cells, const ParticleFunctor &functor, Real dt)
-	{
-		for (size_t i = 0; i != body_part_cells.size(); ++i)
-		{
-			ListDataVector &list_data = body_part_cells[i]->cell_list_data_;
-			for (size_t num = 0; num < list_data.size(); ++num)
-				functor( list_data[num].first, dt);
-		}
-	}
-	//=================================================================================================//
-	void PartIteratorByCell_parallel(const CellLists &body_part_cells, const ParticleFunctor &functor, Real dt)
-	{
-		parallel_for(
-			blocked_range<size_t>(0, body_part_cells.size()),
-			[&](const blocked_range<size_t> &r)
-			{
-				for (size_t i = r.begin(); i < r.end(); ++i)
-				{
-					ListDataVector &list_data = body_part_cells[i]->cell_list_data_;
-					for (size_t num = 0; num < list_data.size(); ++num)
-						functor( list_data[num].first, dt);
-				}
-			},
-			ap);
-	}
-	//=================================================================================================//
 	PartDynamicsByParticle::PartDynamicsByParticle(SPHBody &sph_body, BodyPartByParticle &body_part)
 		: OldParticleDynamics<void>(sph_body),
 		  body_part_particles_(body_part.body_part_particles_) {}
@@ -70,14 +22,14 @@ namespace SPH
 	{
 		setBodyUpdated();
 		setupDynamics(dt);
-		PartIteratorByParticle(body_part_particles_, functor_update_, dt);
+		particle_for(body_part_particles_, functor_update_, dt);
 	}
 	//=================================================================================================//
 	void PartSimpleDynamicsByParticle::parallel_exec(Real dt)
 	{
 		setBodyUpdated();
 		setupDynamics(dt);
-		PartIteratorByParticle_parallel(body_part_particles_, functor_update_, dt);
+		particle_parallel_for(body_part_particles_, functor_update_, dt);
 	}
 	//=================================================================================================//
 	PartInteractionDynamicsByParticle::
@@ -89,14 +41,14 @@ namespace SPH
 	{
 		setBodyUpdated();
 		setupDynamics(dt);
-		PartIteratorByParticle(body_part_particles_, functor_interaction_, dt);
+		particle_for(body_part_particles_, functor_interaction_, dt);
 	}
 	//=================================================================================================//
 	void PartInteractionDynamicsByParticle::parallel_exec(Real dt)
 	{
 		setBodyUpdated();
 		setupDynamics(dt);
-		PartIteratorByParticle_parallel(body_part_particles_, functor_interaction_, dt);
+		particle_parallel_for(body_part_particles_, functor_interaction_, dt);
 	}
 	//=================================================================================================//
 	PartInteractionDynamicsByParticleWithUpdate::
@@ -108,16 +60,16 @@ namespace SPH
 	{
 		setBodyUpdated();
 		setupDynamics(dt);
-		PartIteratorByParticle(body_part_particles_, functor_interaction_, dt);
-		PartIteratorByParticle(body_part_particles_, functor_update_, dt);
+		particle_for(body_part_particles_, functor_interaction_, dt);
+		particle_for(body_part_particles_, functor_update_, dt);
 	}
 	//=================================================================================================//
 	void PartInteractionDynamicsByParticleWithUpdate::parallel_exec(Real dt)
 	{
 		setBodyUpdated();
 		setupDynamics(dt);
-		PartIteratorByParticle_parallel(body_part_particles_, functor_interaction_, dt);
-		PartIteratorByParticle_parallel(body_part_particles_, functor_update_, dt);
+		particle_parallel_for(body_part_particles_, functor_interaction_, dt);
+		particle_parallel_for(body_part_particles_, functor_update_, dt);
 	}
 	//=================================================================================================//
 	PartInteractionDynamicsByParticle1Level::
@@ -130,18 +82,18 @@ namespace SPH
 	{
 		setBodyUpdated();
 		setupDynamics(dt);
-		PartIteratorByParticle(body_part_particles_, functor_initialization_, dt);
-		PartIteratorByParticle(body_part_particles_, functor_interaction_, dt);
-		PartIteratorByParticle(body_part_particles_, functor_update_, dt);
+		particle_for(body_part_particles_, functor_initialization_, dt);
+		particle_for(body_part_particles_, functor_interaction_, dt);
+		particle_for(body_part_particles_, functor_update_, dt);
 	}
 	//=================================================================================================//
 	void PartInteractionDynamicsByParticle1Level::parallel_exec(Real dt)
 	{
 		setBodyUpdated();
 		setupDynamics(dt);
-		PartIteratorByParticle_parallel(body_part_particles_, functor_initialization_, dt);
-		PartIteratorByParticle_parallel(body_part_particles_, functor_interaction_, dt);
-		PartIteratorByParticle_parallel(body_part_particles_, functor_update_, dt);
+		particle_parallel_for(body_part_particles_, functor_initialization_, dt);
+		particle_parallel_for(body_part_particles_, functor_interaction_, dt);
+		particle_parallel_for(body_part_particles_, functor_update_, dt);
 	}
 	//=================================================================================================//
 	PartDynamicsByCell::PartDynamicsByCell(SPHBody &sph_body, BodyPartByCell &body_part)
@@ -153,14 +105,14 @@ namespace SPH
 	{
 		setBodyUpdated();
 		setupDynamics(dt);
-		PartIteratorByCell(body_part_cells_, functor_update_, dt);
+		particle_for(body_part_cells_, functor_update_, dt);
 	}
 	//=================================================================================================//
 	void PartDynamicsByCell::parallel_exec(Real dt)
 	{
 		setBodyUpdated();
 		setupDynamics(dt);
-		PartIteratorByCell_parallel(body_part_cells_, functor_update_, dt);
+		particle_parallel_for(body_part_cells_, functor_update_, dt);
 	}
 	//=================================================================================================//
 }

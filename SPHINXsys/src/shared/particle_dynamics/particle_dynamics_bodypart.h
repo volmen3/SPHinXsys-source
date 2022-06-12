@@ -48,7 +48,7 @@ namespace SPH
 	{
 	public:
 		template <typename... Args>
-		explicit PartByParticleInteractionDynamics1Level(BodyPartByParticle &body_part,Args &&...args)
+		explicit PartByParticleInteractionDynamics1Level(BodyPartByParticle &body_part, Args &&...args)
 			: LocalInteractionDynamics(std::forward<Args>(args)...),
 			  BaseInteractionDynamics1Level<IndexVector, ListFunctor>(
 				  body_part.BodyPartRange(),
@@ -64,6 +64,23 @@ namespace SPH
 		};
 	};
 
+	/**
+	 * @class BodypartByParticleReduce
+	 * @brief Base abstract class for reduce
+	 */
+	template <class LocalReduceType>
+	class BodyPartByParticleReduce : public ParticleDynamicsReduce<LocalReduceType, IndexVector, ReduceListFunctor>
+	{
+	public:
+		template <typename... Args>
+		explicit BodyPartByParticleReduce(BodyPartByParticle &body_part, Args &&...args)
+			: ParticleDynamicsReduce<LocalReduceType, IndexVector, ReduceListFunctor>(
+				  body_part.BodyPartRange(), std::forward<Args>(args)...)
+		{
+			this->functor_ = std::bind(&LocalReduceType::reduceList, this, _1, _2, _3);
+		};
+		virtual ~BodyPartByParticleReduce(){};
+	};
 	/**
 	 * @class PartDynamicsByParticle
 	 * @brief Abstract class for imposing body part dynamics by particles.

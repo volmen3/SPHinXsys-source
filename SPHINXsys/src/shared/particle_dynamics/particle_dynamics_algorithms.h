@@ -41,34 +41,53 @@
 namespace SPH
 {
 	/**
+	 * @class DynamicsParameter
+	 * @brief Obtain a parameter without looping particles
+	 */
+	template <class LocalDynamicsType>
+	class DynamicsParameter : public LocalDynamicsType,
+							  public BaseParticleDynamics<
+								  typename LocalDynamicsType::DynamicsParamterType>
+	{
+		using DynamicsParamterType = typename LocalDynamicsType::DynamicsParamterType;
+
+	public:
+		template <typename... Args>
+		explicit DynamicsParameter(Args &&...args)
+			: LocalDynamicsType(std::forward<Args>(args)...),
+			  BaseParticleDynamics<typename LocalDynamicsType::DynamicsParamterType>(){};
+		virtual ~DynamicsParameter(){};
+
+		virtual DynamicsParamterType exec(Real dt = 0.0) override
+		{
+			LocalDynamicsType::setBodyUpdated();
+			return LocalDynamicsType::setupDynamics(dt);
+		};
+
+		virtual DynamicsParamterType parallel_exec(Real dt = 0.0) override { return exec(dt); };
+	};
+
+	/**
 	 * @class SimpleDynamics
 	 * @brief Simple particle dynamics without considering particle interaction
 	 */
 	template <class LocalDynamicsType>
 	class SimpleDynamics : public LocalDynamicsType,
-						   public ParticleDynamics<size_t, RangeFunctor>
+						   public BaseSimpleDynamics<size_t, RangeFunctor>
 	{
 	public:
 		template <typename... Args>
 		explicit SimpleDynamics(Args &&...args)
 			: LocalDynamicsType(std::forward<Args>(args)...),
-			  ParticleDynamics<size_t, RangeFunctor>(
+			  BaseSimpleDynamics<size_t, RangeFunctor>(
 				  LocalDynamicsType::body_->BodyRange(),
 				  std::bind(&LocalDynamicsType::updateRange, this, _1, _2)){};
 		virtual ~SimpleDynamics(){};
 
-		virtual void exec(Real dt = 0.0) override
+		virtual void runSetup(Real dt = 0.0) override
 		{
 			LocalDynamicsType::setBodyUpdated();
 			LocalDynamicsType::setupDynamics(dt);
-			ParticleDynamics<size_t, RangeFunctor>::exec(dt);
-		};
-
-		virtual void parallel_exec(Real dt = 0.0) override
-		{
-			LocalDynamicsType::setBodyUpdated();
-			LocalDynamicsType::setupDynamics(dt);
-			ParticleDynamics<size_t, RangeFunctor>::parallel_exec(dt);
 		};
 	};
 
@@ -148,6 +167,40 @@ namespace SPH
 	};
 
 	/**
+	 * @class MultiStageDynamics
+	 * @brief The algorithm inlcudes a initilization step,
+	 * and serveral successive interaction steps.
+	 */
+	class MultiStageDynamics : public BaseParticleDynamics<void>
+	{
+		UniquePtrKeepers<BaseParticleDynamics<void> *> stages_keeper_;
+		StdVec<BaseParticleDynamics<void> *> multi_stage_steps_;
+
+	public:
+		MultiStageDynamics() : BaseParticleDynamics<void>(){};
+		virtual ~MultiStageDynamics(){};
+
+		template <class ParticleDynamicsType, typename... Args>
+		MultiStageDynamics *addParticleDyanmics(Args &&...args)
+		{
+			multi_stage_steps_.push_back(
+				stages_keeper_.createPtr<ParticleDynamicsType>(std::forward<Args>(args)...));
+			return this;
+		};
+		virtual void exec(Real dt = 0.0) override
+		{
+			for (size_t k = 0; k < multi_stage_steps_.size(); ++k)
+				multi_stage_steps_[k]->exec(dt);
+		};
+
+		virtual void parallel_exec(Real dt = 0.0) override
+		{
+			for (size_t k = 0; k < multi_stage_steps_.size(); ++k)
+				multi_stage_steps_[k]->parallel_exec(dt);
+		};
+	};
+
+	/**
 	 * @class MultipleInteractionDynamics1Level
 	 * @brief Several body dynamic updating together so that they
 	 * are not dependent on their sequence.
@@ -188,48 +241,21 @@ namespace SPH
 	};
 
 	/**
-	 * @class ParticleDynamicsReduce
+	 * @class SimpleDynamicsReduce
 	 * @brief Base abstract class for reduce
 	 */
 	template <class LocalReduceType>
-	class SimpleDynamicsReduce : public LocalReduceType,
-								 public ParticleDynamicsReduce<
-									 size_t,
-									 decltype(LocalReduceType::reference_),
-									 decltype(LocalReduceType::operation_),
-									 ReduceRangeFunctor>
+	class SimpleDynamicsReduce : public ParticleDynamicsReduce<LocalReduceType, size_t, ReduceRangeFunctor>
 	{
-		typedef decltype(LocalReduceType::reference_) ReturnType;
-
 	public:
 		template <typename... Args>
-		explicit SimpleDynamicsReduce(Args &&...args)
-			: LocalReduceType(std::forward<Args>(args)...),
-			  ParticleDynamicsReduce<size_t, decltype(LocalReduceType::reference_),
-									 decltype(LocalReduceType::operation_),
-									 ReduceRangeFunctor>(
-				  LocalReduceType::body_->BodyRange(), LocalReduceType::reference_,
-				  LocalReduceType::operation_, std::bind(&LocalReduceType::reduceRange, this, _1, _2)){};
+		explicit SimpleDynamicsReduce(SPHBody &sph_body, Args &&...args)
+			: ParticleDynamicsReduce<LocalReduceType, size_t, ReduceRangeFunctor>(
+				  sph_body.BodyRange(), std::forward<Args>(args)...)
+		{
+			this->functor_ = std::bind(&LocalReduceType::reduceRange, this, _1, _2);
+		};
 		virtual ~SimpleDynamicsReduce(){};
-
-		virtual ReturnType exec(Real dt = 0.0) override
-		{
-			LocalReduceType::setupDynamics();
-			ReturnType temp = ParticleDynamicsReduce<
-				size_t, decltype(LocalReduceType::reference_),
-				decltype(LocalReduceType::operation_),
-				ReduceRangeFunctor>::exec();
-			return LocalReduceType::outputResult(temp);
-		};
-		virtual ReturnType parallel_exec(Real dt = 0.0) override
-		{
-			LocalReduceType::setupDynamics();
-			ReturnType temp = ParticleDynamicsReduce<
-				size_t, decltype(LocalReduceType::reference_),
-				decltype(LocalReduceType::operation_),
-				ReduceRangeFunctor>::parallel_exec();
-			return LocalReduceType::outputResult(temp);
-		};
 	};
 
 	/**

@@ -65,7 +65,7 @@ namespace SPH
 	 * This class contains the only two interface functions available
 	 * for particle dynamics. An specific implementation should be realized.
 	 */
-	template <class ReturnType = void>
+	template <class ReturnType>
 	class BaseParticleDynamics : public GlobalStaticVariables
 	{
 	public:
@@ -103,27 +103,60 @@ namespace SPH
 	 * @class ParticleDynamicsReduce
 	 * @brief Base abstract class for reduce
 	 */
-	template <typename LoopRange, typename ReturnType, typename ReduceOperation,
-			  template <typename ReduceReturnType> typename ReduceFunctorType>
-	class ParticleDynamicsReduce : public BaseParticleDynamics<ReturnType>
+	template <class LocalReduceType, typename LoopRange,
+			  template <typename ReduceFunctorReturnType> typename ReduceFunctorType>
+	class ParticleDynamicsReduce : public LocalReduceType,
+								   public BaseParticleDynamics<
+									   typename LocalReduceType::ReduceReturnType>
 	{
-		LoopRange &loop_range_;
-		ReturnType &reference_;
-		ReduceOperation &operation_;
-		ReduceFunctorType<ReturnType> functor_;
+		using ReturnType = typename LocalReduceType::ReduceReturnType;
 
 	public:
-		explicit ParticleDynamicsReduce(LoopRange &loop_range, ReturnType &reference,
-										ReduceOperation &reduce_operation,
-										ReduceFunctorType<ReturnType> functor)
-			: BaseParticleDynamics<ReturnType>(), loop_range_(loop_range),
-			  reference_(reference), operation_(reduce_operation),
-			  functor_(functor){};
+		template <typename... Args>
+		ParticleDynamicsReduce(LoopRange &loop_range, Args &&...args)
+			: LocalReduceType(std::forward<Args>(args)...),
+			  BaseParticleDynamics<ReturnType>(), loop_range_(loop_range){};
 		virtual ~ParticleDynamicsReduce(){};
 
-		virtual ReturnType exec(Real dt = 0.0) override;
-		virtual ReturnType parallel_exec(Real dt = 0.0) override;
+		virtual ReturnType exec(Real dt = 0.0) override
+		{
+			LocalReduceType::setupDynamics();
+			ReturnType temp = particle_reduce(
+				loop_range_, LocalReduceType::reference_, functor_, LocalReduceType::operation_, dt);
+			return LocalReduceType::outputResult(temp);
+		};
+		virtual ReturnType parallel_exec(Real dt = 0.0) override
+		{
+			LocalReduceType::setupDynamics();
+			ReturnType temp = particle_parallel_reduce(
+				loop_range_, LocalReduceType::reference_, functor_, LocalReduceType::operation_, dt);
+			return LocalReduceType::outputResult(temp);
+		};
+
+	protected:
+		LoopRange &loop_range_;
+		ReduceFunctorType<ReturnType> functor_;
 	};
+	/**	/**
+	 * @class BaseSimpleDynamics
+	 * @brief Simple particle dynamics without considering particle interaction
+	 */
+	template <typename LoopRange, typename FunctorType>
+	class BaseSimpleDynamics : public BaseParticleDynamics<void>
+	{
+		ParticleDynamics<LoopRange, FunctorType> simple_dynamics_;
+
+	public:
+		explicit BaseSimpleDynamics(LoopRange &loop_range, FunctorType functor)
+			: BaseParticleDynamics<void>(),
+			  simple_dynamics_(loop_range, functor){};
+		virtual ~BaseSimpleDynamics(){};
+
+		virtual void runSetup(Real dt = 0.0) = 0;
+		virtual void exec(Real dt = 0.0) override;
+		virtual void parallel_exec(Real dt = 0.0) override;
+	};
+
 	/**
 	 * @class BaseInteractionDynamics
 	 * @brief  This is the class for particle interaction with other particles
@@ -203,20 +236,38 @@ namespace SPH
 	};
 
 	/**
-	 * @class LocalParticleDynamics
+	 * @class BaseLocalParticleDynamics
 	 * @brief The new version of base class for all local particle dynamics.
 	 */
-	class LocalParticleDynamics
+	template <class ReturnType>
+	class BaseLocalParticleDynamics
 	{
 		SPHBody *sph_body_;
 
 	public:
-		explicit LocalParticleDynamics(SPHBody &sph_body) : sph_body_(&sph_body){};
-		virtual ~LocalParticleDynamics(){};
+		explicit BaseLocalParticleDynamics(SPHBody &sph_body) : sph_body_(&sph_body){};
+		virtual ~BaseLocalParticleDynamics(){};
 
+		typedef ReturnType DynamicsParamterType;
 		void setBodyUpdated() { sph_body_->setNewlyUpdated(); };
 		/** the function for set global parameters for the particle dynamics */
-		virtual void setupDynamics(Real dt = 0.0){};
+		virtual ReturnType setupDynamics(Real dt = 0.0) = 0;
+	};
+
+	/**
+	 * @class LocalParticleDynamics
+	 * @brief The new version of base class for all local particle dynamics,
+	 * which loops along particles.
+	 */
+	class LocalParticleDynamics : public BaseLocalParticleDynamics<void>
+	{
+	public:
+		explicit LocalParticleDynamics(SPHBody &sph_body)
+			: BaseLocalParticleDynamics<void>(sph_body){};
+		virtual ~LocalParticleDynamics(){};
+
+		/** the function for set global parameters for the particle dynamics */
+		virtual void setupDynamics(Real dt = 0.0) override{};
 	};
 
 	/**
@@ -228,12 +279,20 @@ namespace SPH
 	{
 	public:
 		explicit LocalParticleDynamicsReduce(SPHBody &sph_body, ReturnType reference)
-			: LocalParticleDynamics(sph_body), reference_(reference){};
+			: LocalParticleDynamics(sph_body), reference_(reference),
+			  quantity_name_("ReducedQuantity"){};
 		virtual ~LocalParticleDynamicsReduce(){};
 
+		using ReduceReturnType = ReturnType;
+		ReturnType InitialReference() { return reference_; };
+		std::string QuantityName() { return quantity_name_; };
+		ReduceOperation &getReduceOperation() { return operation_; };
+		virtual ReturnType outputResult(ReturnType reduced_value) { return reduced_value; }
+
+	protected:
 		ReturnType reference_;
 		ReduceOperation operation_;
-		virtual ReturnType outputResult(ReturnType reduced_value) { return reduced_value; }
+		std::string quantity_name_;
 	};
 
 	/**

@@ -25,20 +25,18 @@ namespace SPH
 		particle_parallel_for(loop_range_, functor_, dt);
 	}
 	//=================================================================================================//
-	template <typename LoopRange, typename ReturnType, typename ReduceOperation,
-			  template <typename ReduceReturnType> typename ReduceFunctorType>
-	ReturnType ParticleDynamicsReduce<LoopRange, ReturnType, ReduceOperation,
-									  ReduceFunctorType>::exec(Real dt)
+	template <typename LoopRange, typename FunctorType>
+	void BaseSimpleDynamics<LoopRange, FunctorType>::exec(Real dt)
 	{
-		return particle_reduce(loop_range_, reference_, functor_, operation_, dt);
+		runSetup(dt);
+		simple_dynamics_.exec(dt);
 	}
 	//=================================================================================================//
-	template <typename LoopRange, typename ReturnType, typename ReduceOperation,
-			  template <typename ReduceReturnType> typename ReduceFunctorType>
-	ReturnType ParticleDynamicsReduce<LoopRange, ReturnType, ReduceOperation,
-									  ReduceFunctorType>::parallel_exec(Real dt)
+	template <typename LoopRange, typename FunctorType>
+	void BaseSimpleDynamics<LoopRange, FunctorType>::parallel_exec(Real dt)
 	{
-		return particle_parallel_reduce(loop_range_, reference_, functor_, operation_, dt);
+		runSetup(dt);
+		simple_dynamics_.parallel_exec(dt);
 	}
 	//=================================================================================================//
 	template <typename LoopRange>

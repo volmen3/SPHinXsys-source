@@ -212,19 +212,19 @@ namespace SPH
 	};
 
 	/**
-	 * @class BodySummation
+	 * @class VariableSummation
 	 * @brief Compute the summation of  a particle variable in a body
 	 */
 	template <typename VariableType>
-	class BodySummation : public LocalParticleDynamicsReduce<VariableType, ReduceSum<VariableType>>,
-						  public GeneralDataDelegateSimple
+	class VariableSummation : public LocalParticleDynamicsReduce<VariableType, ReduceSum<VariableType>>,
+							  public GeneralDataDelegateSimple
 	{
 	public:
-		explicit BodySummation(SPHBody &sph_body, const std::string &variable_name)
+		explicit VariableSummation(SPHBody &sph_body, const std::string &variable_name)
 			: LocalParticleDynamicsReduce<VariableType, ReduceSum<VariableType>>(sph_body, VariableType(0)),
 			  GeneralDataDelegateSimple(sph_body),
 			  variable_(*particles_->getVariableByName<VariableType>(variable_name)){};
-		virtual ~BodySummation(){};
+		virtual ~VariableSummation(){};
 
 		VariableType reduceRange(const blocked_range<size_t> particle_range, Real dt = 0.0)
 		{
@@ -240,6 +240,47 @@ namespace SPH
 		StdLargeVec<VariableType> &variable_;
 	};
 
+	/**
+	 * @class BodyAverage
+	 * @brief Compute the summation of  a particle variable in a body
+	 */
+	template <typename VariableType>
+	class BodyAverage : public SimpleDynamicsReduce<VariableSummation<VariableType>>
+	{
+	public:
+		explicit BodyAverage(SPHBody &sph_body, const std::string &variable_name)
+			: SimpleDynamicsReduce<VariableSummation<VariableType>>(sph_body, variable_name)
+		{
+			this->quantity_name_ = "BodyAverage" + variable_name;
+		};
+		virtual ~BodyAverage(){};
+
+		virtual VariableType outputResults(VariableType reduced_value) override
+		{
+			return reduced_value / Real(this->loop_range_);
+		};
+	};
+
+	/**
+	 * @class BodyPartByParticleAverage
+	 * @brief Compute the summation of  a particle variable in a body
+	 */
+	template <typename VariableType>
+	class BodyPartByParticleAverage : public BodyPartByParticleReduce<VariableSummation<VariableType>>
+	{
+	public:
+		explicit BodyPartByParticleAverage(BodyPartByParticle &body_part, SPHBody &sph_body, const std::string &variable_name)
+			: BodyPartByParticleReduce<VariableSummation<VariableType>>(body_part, sph_body, variable_name)
+		{
+			this->quantity_name_ = "BodyPartByParticleAverage" + variable_name;
+		};;
+		virtual ~BodyPartByParticleAverage(){};
+
+		virtual VariableType outputResults(VariableType reduced_value) override
+		{
+			return reduced_value / Real(this->loop_range_.size());
+		};
+	};
 	/**
 	 * @class BodyMoment
 	 * @brief Compute the moment of a body

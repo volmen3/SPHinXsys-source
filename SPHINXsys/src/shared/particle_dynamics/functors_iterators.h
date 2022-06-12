@@ -56,6 +56,8 @@ namespace SPH
 	//----------------------------------------------------------------------
 	typedef std::function<void(const IndexRange &, const IndexVector &, Real)> ListFunctor;
 
+	template <class ReturnType>
+	using ReduceListFunctor = std::function<ReturnType(const IndexRange &, const IndexVector &, Real)>;
 	//----------------------------------------------------------------------
 	//	Body-wise iterators (for sequential and parallel computing).
 	//----------------------------------------------------------------------

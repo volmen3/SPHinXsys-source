@@ -133,9 +133,7 @@ namespace SPH
 		DerivedType *createPtr(ConstructorArgs &&...args)
 		{
 			ptr_keepers_.push_back(UniquePtrKeeper<BaseType>());
-			BaseType *observer = ptr_keepers_.back()
-									 .template createPtr<DerivedType>(std::forward<ConstructorArgs>(args)...);
-			return static_cast<DerivedType *>(observer);
+			return ptr_keepers_.back().template createPtr<DerivedType>(std::forward<ConstructorArgs>(args)...);
 		};
 
 		UniquePtrKeeper<BaseType> &operator[](size_t index)

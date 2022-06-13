@@ -95,11 +95,11 @@ namespace SPH
 	};
 
 	/**
-	 * @class RelaxationOfAllDiffussionSpeciesInner
+	 * @class RelaxationOfAllDiffusionSpeciesInner
 	 * @brief Compute the diffusion relaxation process of all species
 	 */
 	template <class BodyType, class BaseParticlesType, class BaseMaterialType>
-	class RelaxationOfAllDiffussionSpeciesInner
+	class RelaxationOfAllDiffusionSpeciesInner
 		: public LocalParticleDynamics,
 		  public DiffusionReactionInnerData<BodyType, BaseParticlesType, BaseMaterialType>
 	{
@@ -113,27 +113,28 @@ namespace SPH
 		void initializeDiffusionChangeRate(size_t particle_i);
 		void getDiffusionChangeRate(size_t particle_i, size_t particle_j, Vecd &e_ij, Real surface_area_ij);
 		virtual void updateSpeciesDiffusion(size_t particle_i, Real dt);
-		void interaction(size_t index_i, Real dt = 0.0);
-		void update(size_t index_i, Real dt = 0.0);
-		void updateRange(const IndexRange &particle_range, Real dt = 0.0);
 
 	public:
 		typedef BodyType InnerBodyType;
 		typedef BaseParticlesType InnerBaseParticlesType;
 		typedef BaseMaterialType InnerBaseMaterialType;
 		typedef BaseBodyRelationInner BodyRelationType;
-		explicit RelaxationOfAllDiffussionSpeciesInner(BaseBodyRelationInner &inner_relation);
-		virtual ~RelaxationOfAllDiffussionSpeciesInner(){};
+		explicit RelaxationOfAllDiffusionSpeciesInner(BaseBodyRelationInner &inner_relation);
+		virtual ~RelaxationOfAllDiffusionSpeciesInner(){};
+
+		void interaction(size_t index_i, Real dt = 0.0);
+		void update(size_t index_i, Real dt = 0.0);
+		void updateRange(const IndexRange &particle_range, Real dt = 0.0);
 	};
 
 	/**
-	 * @class RelaxationOfAllDiffussionSpeciesComplex
+	 * @class RelaxationOfAllDiffusionSpeciesComplex
 	 * Complex diffusion relaxation between two different bodies
 	 */
 	template <class BodyType, class BaseParticlesType, class BaseMaterialType,
 			  class ContactBodyType, class ContactBaseParticlesType, class ContactBaseMaterialType>
-	class RelaxationOfAllDiffussionSpeciesComplex
-		: public RelaxationOfAllDiffussionSpeciesInner<BodyType, BaseParticlesType, BaseMaterialType>,
+	class RelaxationOfAllDiffusionSpeciesComplex
+		: public RelaxationOfAllDiffusionSpeciesInner<BodyType, BaseParticlesType, BaseMaterialType>,
 		  public DiffusionReactionContactData<BodyType, BaseParticlesType, BaseMaterialType,
 											  ContactBodyType, ContactBaseParticlesType, ContactBaseMaterialType>
 	{
@@ -146,12 +147,13 @@ namespace SPH
 	protected:
 		void getDiffusionChangeRateContact(size_t particle_i, size_t particle_j, Vecd &e_ij,
 										   Real surface_area_ij, const StdVec<StdLargeVec<Real>> &species_n_k);
-		void interaction(size_t index_i, Real dt = 0.0);
-
 	public:
 		typedef ComplexBodyRelation BodyRelationType;
-		explicit RelaxationOfAllDiffussionSpeciesComplex(ComplexBodyRelation &complex_relation);
-		virtual ~RelaxationOfAllDiffussionSpeciesComplex(){};
+		explicit RelaxationOfAllDiffusionSpeciesComplex(ComplexBodyRelation &complex_relation);
+		virtual ~RelaxationOfAllDiffusionSpeciesComplex(){};
+
+		void interaction(size_t index_i, Real dt = 0.0);
+
 	};
 
 	/**
@@ -167,11 +169,13 @@ namespace SPH
 		StdVec<StdLargeVec<Real>> &species_n_, &species_s_;
 
 		void initializeIntermediateValue(size_t particle_i);
-		virtual void Update(size_t index_i, Real dt = 0.0) override;
 
 	public:
 		InitializationRK(SPHBody &sph_body, StdVec<StdLargeVec<Real>> &species_s);
 		virtual ~InitializationRK(){};
+
+		void update(size_t index_i, Real dt = 0.0);
+		void updateRange(const IndexRange &particle_range, Real dt = 0.0);
 	};
 
 	/**
@@ -236,7 +240,8 @@ namespace SPH
 		UpdateAReactionSpecies updateAReactionSpecies;
 
 	protected:
-		virtual void Update(size_t index_i, Real dt = 0.0) override;
+		void update(size_t index_i, Real dt = 0.0);
+		void updateRange(const IndexRange &particle_range, Real dt = 0.0);
 
 	public:
 		explicit RelaxationOfAllReactionsForward(BodyType &body);
@@ -257,7 +262,8 @@ namespace SPH
 		UpdateAReactionSpecies updateAReactionSpecies;
 
 	protected:
-		virtual void Update(size_t index_i, Real dt = 0.0) override;
+		void update(size_t index_i, Real dt = 0.0);
+		void updateRange(const IndexRange &particle_range, Real dt = 0.0);
 
 	public:
 		explicit RelaxationOfAllReactionsBackward(BodyType &body);

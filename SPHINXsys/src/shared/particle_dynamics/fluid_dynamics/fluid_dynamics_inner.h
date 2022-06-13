@@ -143,7 +143,7 @@ namespace SPH
 		class AcousticTimeStepSize : public LocalParticleDynamicsReduce<Real, ReduceMax>, public FluidDataSimple
 		{
 		public:
-			explicit AcousticTimeStepSize(FluidBody &fluid_body);
+			explicit AcousticTimeStepSize(SPHBody &sph_body);
 			virtual ~AcousticTimeStepSize(){};
 			Real outputResult(Real reduced_value) override;
 			Real reduceRange(const IndexRange &particle_range, Real dt = 0.0);
@@ -161,7 +161,7 @@ namespace SPH
 		class AdvectionTimeStepSize : public LocalParticleDynamicsReduce<Real, ReduceMax>, public FluidDataSimple
 		{
 		public:
-			explicit AdvectionTimeStepSize(FluidBody &fluid_body, Real U_max);
+			explicit AdvectionTimeStepSize(SPHBody &sph_body, Real U_max);
 			virtual ~AdvectionTimeStepSize(){};
 			Real reduceRange(const IndexRange &particle_range, Real dt = 0.0);
 			Real outputResult(Real reduced_value) override;

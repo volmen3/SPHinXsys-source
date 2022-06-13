@@ -146,7 +146,7 @@ namespace SPH
 		{
 			for (int i = 0; i != Dimensions; ++i)
 				correction_matrix_[i][i] = constrain_direction[i];
-			SimpleDynamicsReduce<BodySummation<Real>> compute_total_mass_(sph_body, "Mass");
+			SimpleDynamicsReduce<VariableSummation<Real>> compute_total_mass_(sph_body, "Mass");
 			total_mass_ = compute_total_mass_.parallel_exec();
 		}
 		//=================================================================================================//

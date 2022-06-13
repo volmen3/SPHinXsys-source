@@ -55,26 +55,27 @@ class DiffusionInitialCondition
 	: public DiffusionReactionInitialCondition<SolidBody, SolidParticles, Solid>
 {
 protected:
-	size_t phi_;
-
-	void Update(size_t index_i, Real dt) override
-	{
-
-		if (pos_n_[index_i][0] >= 0.45 && pos_n_[index_i][0] <= 0.55)
-		{
-			species_n_[phi_][index_i] = 1.0;
-		}
-		if (pos_n_[index_i][0] >= 1.0)
-		{
-			species_n_[phi_][index_i] = exp(-2500.0 * ((pos_n_[index_i][0] - 1.5) * (pos_n_[index_i][0] - 1.5)));
-		}
-	};
+	StdLargeVec<Real> &species_;
 
 public:
 	explicit DiffusionInitialCondition(SolidBody &diffusion_body)
-		: DiffusionReactionInitialCondition<SolidBody, SolidParticles, Solid>(diffusion_body)
+		: DiffusionReactionInitialCondition<SolidBody, SolidParticles, Solid>(diffusion_body),
+		species_(particles_->species_n_[material_->SpeciesIndexMap()["Phi"]]) {};
+
+	void updateRange(const IndexRange &particle_range, Real dt)
 	{
-		phi_ = material_->SpeciesIndexMap()["Phi"];
+
+		for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+		{
+			if (pos_n_[index_i][0] >= 0.45 && pos_n_[index_i][0] <= 0.55)
+			{
+				species_[index_i] = 1.0;
+			}
+			if (pos_n_[index_i][0] >= 1.0)
+			{
+				species_[index_i] = exp(-2500.0 * ((pos_n_[index_i][0] - 1.5) * (pos_n_[index_i][0] - 1.5)));
+			}
+		}
 	};
 };
 //----------------------------------------------------------------------
@@ -82,7 +83,7 @@ public:
 //----------------------------------------------------------------------
 class DiffusionBodyRelaxation
 	: public RelaxationOfAllDiffusionSpeciesRK2<
-		  RelaxationOfAllDiffussionSpeciesInner<SolidBody, SolidParticles, Solid>>
+		  RelaxationOfAllDiffusionSpeciesInner<SolidBody, SolidParticles, Solid>>
 {
 public:
 	explicit DiffusionBodyRelaxation(BodyRelationInner &body_inner_relation)
@@ -141,11 +142,11 @@ int main()
 	//	Define the main numerical methods used in the simulation.
 	//	Note that there may be data dependence on the constructors of these methods.
 	//----------------------------------------------------------------------
-	DiffusionInitialCondition setup_diffusion_initial_condition(diffusion_body);
+	SimpleDynamics<DiffusionInitialCondition> setup_diffusion_initial_condition(diffusion_body);
 	/** Corrected configuration for diffusion body. */
-	solid_dynamics::CorrectConfiguration correct_configuration(diffusion_body_inner_relation);
+	InteractionDynamics<solid_dynamics::CorrectConfiguration> correct_configuration(diffusion_body_inner_relation);
 	/** Time step size calculation. */
-	GetDiffusionTimeStepSize<SolidBody, SolidParticles, Solid> get_time_step_size(diffusion_body);
+	DynamicsParameter<GetDiffusionTimeStepSize<SolidBody, SolidParticles, Solid>> get_time_step_size(diffusion_body);
 	/** Diffusion process for diffusion body. */
 	DiffusionBodyRelaxation diffusion_relaxation(diffusion_body_inner_relation);
 	/** Periodic BCs. */

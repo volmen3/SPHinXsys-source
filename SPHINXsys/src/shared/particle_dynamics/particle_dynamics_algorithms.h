@@ -47,24 +47,24 @@ namespace SPH
 	template <class LocalDynamicsType>
 	class DynamicsParameter : public LocalDynamicsType,
 							  public BaseParticleDynamics<
-								  typename LocalDynamicsType::DynamicsParamterType>
+								  typename LocalDynamicsType::DynamicsParameterType>
 	{
-		using DynamicsParamterType = typename LocalDynamicsType::DynamicsParamterType;
+		using DynamicsParameterType = typename LocalDynamicsType::DynamicsParameterType;
 
 	public:
 		template <typename... Args>
 		explicit DynamicsParameter(Args &&...args)
 			: LocalDynamicsType(std::forward<Args>(args)...),
-			  BaseParticleDynamics<typename LocalDynamicsType::DynamicsParamterType>(){};
+			  BaseParticleDynamics<typename LocalDynamicsType::DynamicsParameterType>(){};
 		virtual ~DynamicsParameter(){};
 
-		virtual DynamicsParamterType exec(Real dt = 0.0) override
+		virtual DynamicsParameterType exec(Real dt = 0.0) override
 		{
 			LocalDynamicsType::setBodyUpdated();
 			return LocalDynamicsType::setupDynamics(dt);
 		};
 
-		virtual DynamicsParamterType parallel_exec(Real dt = 0.0) override { return exec(dt); };
+		virtual DynamicsParameterType parallel_exec(Real dt = 0.0) override { return exec(dt); };
 	};
 
 	/**
@@ -168,25 +168,21 @@ namespace SPH
 
 	/**
 	 * @class MultiStageDynamics
-	 * @brief The algorithm inlcudes a initilization step,
-	 * and serveral successive interaction steps.
+	 * @brief The algorithm includes a initialization step,
+	 * and several successive interaction steps.
 	 */
 	class MultiStageDynamics : public BaseParticleDynamics<void>
 	{
-		UniquePtrKeepers<BaseParticleDynamics<void> *> stages_keeper_;
-		StdVec<BaseParticleDynamics<void> *> multi_stage_steps_;
-
 	public:
 		MultiStageDynamics() : BaseParticleDynamics<void>(){};
 		virtual ~MultiStageDynamics(){};
 
 		template <class ParticleDynamicsType, typename... Args>
-		MultiStageDynamics *addParticleDyanmics(Args &&...args)
+		ParticleDynamicsType *createParticleDynamics(Args &&...args)
 		{
-			multi_stage_steps_.push_back(
-				stages_keeper_.createPtr<ParticleDynamicsType>(std::forward<Args>(args)...));
-			return this;
+			return stages_keeper_.createPtr<ParticleDynamicsType>(std::forward<Args>(args)...);
 		};
+
 		virtual void exec(Real dt = 0.0) override
 		{
 			for (size_t k = 0; k < multi_stage_steps_.size(); ++k)
@@ -198,6 +194,10 @@ namespace SPH
 			for (size_t k = 0; k < multi_stage_steps_.size(); ++k)
 				multi_stage_steps_[k]->parallel_exec(dt);
 		};
+
+	protected:
+		UniquePtrKeepers<BaseParticleDynamics<void>> stages_keeper_;
+		StdVec<BaseParticleDynamics<void> *> multi_stage_steps_;
 	};
 
 	/**
@@ -251,7 +251,7 @@ namespace SPH
 		template <typename... Args>
 		explicit SimpleDynamicsReduce(SPHBody &sph_body, Args &&...args)
 			: ParticleDynamicsReduce<LocalReduceType, size_t, ReduceRangeFunctor>(
-				  sph_body.BodyRange(), std::forward<Args>(args)...)
+				  sph_body.BodyRange(), sph_body, std::forward<Args>(args)...)
 		{
 			this->functor_ = std::bind(&LocalReduceType::reduceRange, this, _1, _2);
 		};

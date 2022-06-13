@@ -134,11 +134,11 @@ namespace SPH
 				pos_n_[index_i] += acceleration_trans * dt * dt * 0.5;
 		}
 		//=================================================================================================//
-		AcousticTimeStepSize::AcousticTimeStepSize(FluidBody &fluid_body)
-			: LocalParticleDynamicsReduce<Real, ReduceMax>(fluid_body, 0.0),
-			  FluidDataSimple(fluid_body), rho_n_(particles_->rho_n_),
+		AcousticTimeStepSize::AcousticTimeStepSize(SPHBody &sph_body)
+			: LocalParticleDynamicsReduce<Real, ReduceMax>(sph_body, 0.0),
+			  FluidDataSimple(sph_body), rho_n_(particles_->rho_n_),
 			  p_(particles_->p_), vel_n_(particles_->vel_n_),
-			  smoothing_length_(fluid_body.sph_adaptation_->ReferenceSmoothingLength()) {}
+			  smoothing_length_(sph_body.sph_adaptation_->ReferenceSmoothingLength()) {}
 		//=================================================================================================//
 		Real AcousticTimeStepSize::reduceRange(const IndexRange &particle_range, Real dt)
 		{
@@ -158,10 +158,10 @@ namespace SPH
 			return 0.6 * smoothing_length_ / (reduced_value + TinyReal);
 		}
 		//=================================================================================================//
-		AdvectionTimeStepSize::AdvectionTimeStepSize(FluidBody &fluid_body, Real U_max)
-			: LocalParticleDynamicsReduce<Real, ReduceMax>(fluid_body, U_max * U_max),
-			  FluidDataSimple(fluid_body), vel_n_(particles_->vel_n_),
-			  smoothing_length_(fluid_body.sph_adaptation_->ReferenceSmoothingLength()),
+		AdvectionTimeStepSize::AdvectionTimeStepSize(SPHBody &sph_body, Real U_max)
+			: LocalParticleDynamicsReduce<Real, ReduceMax>(sph_body, U_max * U_max),
+			  FluidDataSimple(sph_body), vel_n_(particles_->vel_n_),
+			  smoothing_length_(sph_body.sph_adaptation_->ReferenceSmoothingLength()),
 			  viscous_speed_(material_->ReferenceViscosity() / material_->ReferenceDensity() / smoothing_length_) {}
 		//=================================================================================================//
 		Real AdvectionTimeStepSize::reduceRange(const IndexRange &particle_range, Real dt)

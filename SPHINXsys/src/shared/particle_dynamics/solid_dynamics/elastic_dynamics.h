@@ -95,7 +95,7 @@ namespace SPH
 									 public ElasticSolidDataSimple
 		{
 		public:
-			explicit AcousticTimeStepSize(SolidBody &solid_body, Real CFL = 0.6);
+			explicit AcousticTimeStepSize(SPHBody &sph_body, Real CFL = 0.6);
 			virtual ~AcousticTimeStepSize(){};
 			Real reduceRange(const IndexRange &particle_range, Real dt = 0.0);
 			Real outputResult(Real reduced_value) override;

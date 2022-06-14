@@ -54,7 +54,7 @@ namespace SPH
         //=================================================================================================//
         void DensitySummationFreeStreamInner::updateRange(const blocked_range<size_t> particle_range, Real dt)
         {
-            for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+            for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
             {
                 if (rho_sum_[index_i] < rho0_ && isNearSurface(index_i))
                 {
@@ -66,7 +66,7 @@ namespace SPH
                 }
             }
 
-            for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+            for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
             {
                 Vol_[index_i] = mass_[index_i] / rho_n_[index_i];
             }

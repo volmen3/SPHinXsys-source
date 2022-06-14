@@ -38,12 +38,12 @@ namespace SPH
 		//=================================================================================================//
 		void DensitySummationInner::updateRange(const IndexRange &particle_range, Real dt)
 		{
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				rho_n_[index_i] = ReinitializedDensity(rho_sum_[index_i], rho0_, rho_n_[index_i]);
 			}
 
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i !=  particle_range.end(); ++index_i)
 			{
 				Vol_[index_i] = mass_[index_i] / rho_n_[index_i];
 			}
@@ -143,7 +143,7 @@ namespace SPH
 		Real AcousticTimeStepSize::reduceRange(const IndexRange &particle_range, Real dt)
 		{
 			Real temp = reference_;
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				temp = operation_(temp, material_->getSoundSpeed(p_[index_i], rho_n_[index_i]) + vel_n_[index_i].norm());
 			}
@@ -167,7 +167,7 @@ namespace SPH
 		Real AdvectionTimeStepSize::reduceRange(const IndexRange &particle_range, Real dt)
 		{
 			Real temp = reference_;
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				temp = operation_(temp, vel_n_[index_i].normSqr());
 			}
@@ -234,22 +234,22 @@ namespace SPH
 		//=================================================================================================//
 		void BasePressureRelaxation::initializeRange(const IndexRange &particle_range, Real dt)
 		{
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				rho_n_[index_i] += drho_dt_[index_i] * dt * 0.5;
 			}
 
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				Vol_[index_i] = mass_[index_i] / rho_n_[index_i];
 			}
 
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				p_[index_i] = material_->getPressure(rho_n_[index_i]);
 			}
 
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				pos_n_[index_i] += vel_n_[index_i] * dt * 0.5;
 			}
@@ -257,7 +257,7 @@ namespace SPH
 		//=================================================================================================//
 		void BasePressureRelaxation::updateRange(const IndexRange &particle_range, Real dt)
 		{
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				vel_n_[index_i] += dvel_dt_[index_i] * dt;
 			}
@@ -289,7 +289,7 @@ namespace SPH
 		//=================================================================================================//
 		void BaseDensityRelaxation::initializeRange(const IndexRange &particle_range, Real dt)
 		{
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				pos_n_[index_i] += vel_n_[index_i] * dt * 0.5;
 			}
@@ -297,7 +297,7 @@ namespace SPH
 		//=================================================================================================//
 		void BaseDensityRelaxation::updateRange(const IndexRange &particle_range, Real dt)
 		{
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				rho_n_[index_i] += drho_dt_[index_i] * dt * 0.5;
 			}
@@ -314,7 +314,7 @@ namespace SPH
 		{
 			PressureRelaxationDissipativeRiemannInner::initializeRange(particle_range, dt);
 
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				tau_[index_i] += dtau_dt_[index_i] * dt * 0.5;
 			}
@@ -328,7 +328,7 @@ namespace SPH
 			Matd tau_i = tau_[index_i];
 
 			Vecd acceleration(0);
-			Neighborhood &inner_neighborhood = inner_configuration_[index_i];
+			const Neighborhood &inner_neighborhood = inner_configuration_[index_i];
 			for (size_t n = 0; n != inner_neighborhood.current_size_; ++n)
 			{
 				size_t index_j = inner_neighborhood.j_[n];
@@ -360,7 +360,7 @@ namespace SPH
 			Matd tau_i = tau_[index_i];
 
 			Matd stress_rate(0);
-			Neighborhood &inner_neighborhood = inner_configuration_[index_i];
+			const Neighborhood &inner_neighborhood = inner_configuration_[index_i];
 			for (size_t n = 0; n != inner_neighborhood.current_size_; ++n)
 			{
 				size_t index_j = inner_neighborhood.j_[n];
@@ -378,7 +378,7 @@ namespace SPH
 		{
 			DensityRelaxationDissipativeRiemannInner::updateRange(particle_range, dt);
 
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				tau_[index_i] += dtau_dt_[index_i] * dt * 0.5;
 			}

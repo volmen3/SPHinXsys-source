@@ -244,18 +244,19 @@ namespace SPH
 	 * @class BodyAverage
 	 * @brief Compute the summation of  a particle variable in a body
 	 */
-	template <typename VariableType>
-	class BodyAverage : public SimpleDynamicsReduce<VariableSummation<VariableType>>
+	template <class LocalSummationType>
+	class BodyAverage : public SimpleDynamicsReduce<LocalSummationType>
 	{
+		using VariableType = typename LocalSummationType::ReduceReturnType;
 	public:
 		explicit BodyAverage(SPHBody &sph_body, const std::string &variable_name)
-			: SimpleDynamicsReduce<VariableSummation<VariableType>>(sph_body, variable_name)
+			: SimpleDynamicsReduce<LocalSummationType>(sph_body, variable_name)
 		{
 			this->quantity_name_ = "BodyAverage" + variable_name;
 		};
 		virtual ~BodyAverage(){};
 
-		virtual VariableType outputResults(VariableType reduced_value) override
+		virtual VariableType outputResult(VariableType reduced_value) override
 		{
 			return reduced_value / Real(this->loop_range_);
 		};
@@ -265,18 +266,19 @@ namespace SPH
 	 * @class BodyPartByParticleAverage
 	 * @brief Compute the summation of  a particle variable in a body
 	 */
-	template <typename VariableType>
-	class BodyPartByParticleAverage : public BodyPartByParticleReduce<VariableSummation<VariableType>>
+	template <class LocalSummationType>
+	class BodyPartByParticleAverage : public BodyPartByParticleReduce<LocalSummationType>
 	{
+		using VariableType = typename LocalSummationType::ReduceReturnType;
 	public:
 		explicit BodyPartByParticleAverage(BodyPartByParticle &body_part, SPHBody &sph_body, const std::string &variable_name)
-			: BodyPartByParticleReduce<VariableSummation<VariableType>>(body_part, sph_body, variable_name)
+			: BodyPartByParticleReduce<LocalSummationType>(body_part, sph_body, variable_name)
 		{
 			this->quantity_name_ = "BodyPartByParticleAverage" + variable_name;
 		};;
 		virtual ~BodyPartByParticleAverage(){};
 
-		virtual VariableType outputResults(VariableType reduced_value) override
+		virtual VariableType outputResult(VariableType reduced_value) override
 		{
 			return reduced_value / Real(this->loop_range_.size());
 		};

@@ -147,13 +147,13 @@ namespace SPH
 	protected:
 		void getDiffusionChangeRateContact(size_t particle_i, size_t particle_j, Vecd &e_ij,
 										   Real surface_area_ij, const StdVec<StdLargeVec<Real>> &species_n_k);
+
 	public:
 		typedef ComplexBodyRelation BodyRelationType;
 		explicit RelaxationOfAllDiffusionSpeciesComplex(ComplexBodyRelation &complex_relation);
 		virtual ~RelaxationOfAllDiffusionSpeciesComplex(){};
 
 		void interaction(size_t index_i, Real dt = 0.0);
-
 	};
 
 	/**
@@ -274,21 +274,16 @@ namespace SPH
 	 * @class ConstrainDiffusionBodyRegion
 	 * @brief set boundary condition for diffusion problem
 	 */
-	template <class BodyType, class BaseParticlesType, class BodyPartByParticleType, class BaseMaterialType>
-	class ConstrainDiffusionBodyRegion
+	template <class BodyType, class BaseParticlesType, class BaseMaterialType>
+	class ConstraintSpecies
 		: public LocalParticleDynamics,
 		  public DiffusionReactionSimpleData<BodyType, BaseParticlesType, BaseMaterialType>
 	{
 	public:
-		ConstrainDiffusionBodyRegion(BodyType &body, BodyPartByParticleType &body_part)
-			: LocalParticleDynamics(body, body_part),
-			  DiffusionReactionSimpleData<BodyType, BaseParticlesType, BaseMaterialType>(body),
-			  pos_n_(this->particles_->pos_n_), species_n_(this->particles_->species_n_){};
-		virtual ~ConstrainDiffusionBodyRegion(){};
-
-	protected:
-		StdLargeVec<Vecd> &pos_n_;
-		StdVec<StdLargeVec<Real>> &species_n_;
+		explicit ConstraintSpecies(BodyType &body)
+			: LocalParticleDynamics(body),
+			  DiffusionReactionSimpleData<BodyType, BaseParticlesType, BaseMaterialType>(body){};
+		virtual ~ConstraintSpecies(){};
 	};
 
 	/**
@@ -314,7 +309,7 @@ namespace SPH
 	};
 
 	/**
-	 * @class TotalAveragedParameterOnDiffusionBody
+	 * @class SpeciesSum
 	 * @brief Computing the total averaged parameter on the whole diffusion body.
 	 */
 	template <class BodyType, class BaseParticlesType, class BaseMaterialType>
@@ -323,18 +318,14 @@ namespace SPH
 		  public DiffusionReactionSimpleData<BodyType, BaseParticlesType, BaseMaterialType>
 	{
 	public:
-		explicit SpeciesSum(BodyType &body, const std::string &species_name)
-			: LocalParticleDynamicsReduce<Real, ReduceSum<Real>>(body, 0.0),
-			  DiffusionReactionSimpleData<BodyType, BaseParticlesType, BaseMaterialType>(body),
-			 phi_(this->material_->SpeciesIndexMap()[species_name_]),
+		explicit SpeciesSum(SPHBody &sph_body, const std::string &species_name)
+			: LocalParticleDynamicsReduce<Real, ReduceSum<Real>>(sph_body, 0.0),
+			  DiffusionReactionSimpleData<BodyType, BaseParticlesType, BaseMaterialType>(sph_body),
+			  phi_(this->material_->SpeciesIndexMap()[species_name_]),
 			  species_(this->particles_->species_n_[phi_]), species_name_(species_name) {}
 		virtual ~SpeciesSum(){};
 
-	protected:
-		size_t phi_;
-		StdLargeVec<Real> &species_;
-		std::string species_name_;
-		Real reduceRange(const IndexRange &particle_range, Real dt = 0.0) override
+		Real reduceRange(const IndexRange &particle_range, Real dt = 0.0)
 		{
 			Real temp = this->reference_;
 			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
@@ -344,7 +335,7 @@ namespace SPH
 			return temp;
 		}
 
-		Real reduceList(const IndexRange &entry_range, const IndexVector &particle_list, Real dt = 0.0) override
+		Real reduceList(const IndexRange &entry_range, const IndexVector &particle_list, Real dt = 0.0)
 		{
 			Real temp = this->reference_;
 			for (size_t i = entry_range.begin(); i < entry_range.end(); ++i)
@@ -354,6 +345,11 @@ namespace SPH
 			}
 			return temp;
 		}
+
+	protected:
+		size_t phi_;
+		StdLargeVec<Real> &species_;
+		std::string species_name_;
 	};
 }
 #endif // PARTICLE_DYNAMICS_DIFFUSION_REACTION_H

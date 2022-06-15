@@ -38,21 +38,21 @@ namespace SPH
 {
 
 	//----------------------------------------------------------------------
-	//	Particle-wise operation and reduce functors 
+	//	Particle-wise operation and reduce functors
 	//----------------------------------------------------------------------
 	typedef std::function<void(size_t, Real)> ParticleFunctor;
 
 	template <class ReturnType>
 	using ReduceFunctor = std::function<ReturnType(size_t, Real)>;
 	//----------------------------------------------------------------------
-	//	Particle-range-wise operation and reduce functors 
+	//	Particle-range-wise operation and reduce functors
 	//----------------------------------------------------------------------
 	typedef std::function<void(const IndexRange &, Real)> RangeFunctor;
 
 	template <class ReturnType>
 	using ReduceRangeFunctor = std::function<ReturnType(const IndexRange &, Real)>;
 	//----------------------------------------------------------------------
-	//	Particle-list-wise operation and reduce functors 
+	//	Particle-list-wise operation and reduce functors
 	//----------------------------------------------------------------------
 	typedef std::function<void(const IndexRange &, const IndexVector &, Real)> ListFunctor;
 
@@ -69,19 +69,19 @@ namespace SPH
 
 	template <class ReturnType, typename ReduceOperation>
 	ReturnType particle_reduce(size_t all_real_particles, ReturnType temp,
-							  ReduceFunctor<ReturnType> &functor, ReduceOperation &operation, Real dt = 0.0);
+							   ReduceFunctor<ReturnType> &functor, ReduceOperation &operation, Real dt = 0.0);
 
 	template <class ReturnType, typename ReduceOperation>
 	ReturnType particle_parallel_reduce(size_t all_real_particles, ReturnType temp,
-									   ReduceFunctor<ReturnType> &functor, ReduceOperation &operation, Real dt = 0.0);
+										ReduceFunctor<ReturnType> &functor, ReduceOperation &operation, Real dt = 0.0);
 
 	template <class ReturnType, typename ReduceOperation>
 	ReturnType particle_reduce(size_t all_real_particles, ReturnType temp,
-							  ReduceRangeFunctor<ReturnType> &functor, ReduceOperation &operation, Real dt = 0.0);
+							   ReduceRangeFunctor<ReturnType> &functor, ReduceOperation &operation, Real dt = 0.0);
 
 	template <class ReturnType, typename ReduceOperation>
 	ReturnType particle_parallel_reduce(size_t all_real_particles, ReturnType temp,
-									   ReduceRangeFunctor<ReturnType> &functor, ReduceOperation &operation, Real dt = 0.0);
+										ReduceRangeFunctor<ReturnType> &functor, ReduceOperation &operation, Real dt = 0.0);
 
 	void particle_for(SplitCellLists &split_cell_lists, const ParticleFunctor &functor, Real dt = 0.0);
 	void particle_parallel_for(SplitCellLists &split_cell_lists, const ParticleFunctor &functor, Real dt = 0.0);
@@ -95,8 +95,16 @@ namespace SPH
 	void particle_for(const IndexVector &body_part_particles, const ListFunctor &functor, Real dt = 0.0);
 	void particle_parallel_for(const IndexVector &body_part_particles, const ListFunctor &functor, Real dt = 0.0);
 
+	template <class ReturnType, typename ReduceOperation>
+	ReturnType particle_reduce(const IndexVector &body_part_particles, ReturnType temp,
+							   ReduceListFunctor<ReturnType> &functor, ReduceOperation &operation, Real dt = 0.0);
+
+	template <class ReturnType, typename ReduceOperation>
+	ReturnType particle_parallel_reduce(const IndexVector &body_part_particles, ReturnType temp,
+										ReduceListFunctor<ReturnType> &functor, ReduceOperation &operation, Real dt = 0.0);
+
 	//----------------------------------------------------------------------
-	//	BodyPartByParticle-wise iterators (for sequential and parallel computing).
+	//	BodyPartByCell-wise iterators (for sequential and parallel computing).
 	//  //TODO: I need to clarify to use cell_list_data_ or real_particle_indexes.
 	//----------------------------------------------------------------------
 	void particle_for(const CellLists &body_part_cells, const ParticleFunctor &functor, Real dt = 0.0);

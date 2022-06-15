@@ -24,7 +24,7 @@ namespace SPH
 		Real AcousticTimeStepSize::reduceRange(const IndexRange &particle_range, Real dt)
 		{
 			Real temp = reference_;
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				Real sound_speed = material_->ReferenceSoundSpeed();
 				temp = operation_(temp, SMIN(sqrt(smoothing_length_ / (dvel_dt_[index_i].norm() + TinyReal)),
@@ -75,8 +75,8 @@ namespace SPH
 			{
 				size_t index_j = inner_neighborhood.j_[n];
 
-				Vecd gradw_ij = inner_neighborhood.dW_ij_[n] * inner_neighborhood.e_ij_[n];
-				deformation -= Vol_[index_j] * SimTK::outer((pos_n_i - pos_n_[index_j]), gradw_ij);
+				Vecd gradW_ij = inner_neighborhood.dW_ij_[n] * inner_neighborhood.e_ij_[n];
+				deformation -= Vol_[index_j] * SimTK::outer((pos_n_i - pos_n_[index_j]), gradW_ij);
 			}
 
 			F_[index_i] = B_[index_i] * deformation;
@@ -100,22 +100,22 @@ namespace SPH
 		//=================================================================================================//
 		void StressRelaxationFirstHalf::initializeRange(const IndexRange &particle_range, Real dt)
 		{
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				pos_n_[index_i] += vel_n_[index_i] * dt * 0.5;
 			}
 
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				F_[index_i] += dF_dt_[index_i] * dt * 0.5;
 			}
 
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				rho_n_[index_i] = rho0_ / det(F_[index_i]);
 			}
 
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				// obtain the first Piola-Kirchhoff stress from the second Piola-Kirchhoff stress
 				// it seems using reproducing correction here increases convergence rate near the free surface
@@ -150,7 +150,7 @@ namespace SPH
 		//=================================================================================================//
 		void StressRelaxationFirstHalf::updateRange(const IndexRange &particle_range, Real dt)
 		{
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				vel_n_[index_i] += dvel_dt_[index_i] * dt;
 			}
@@ -163,17 +163,17 @@ namespace SPH
 		void KirchhoffParticleStressRelaxationFirstHalf::
 			initializeRange(const IndexRange &particle_range, Real dt)
 		{
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				pos_n_[index_i] += vel_n_[index_i] * dt * 0.5;
 			}
 
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				F_[index_i] += dF_dt_[index_i] * dt * 0.5;
 			}
 
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				Real J = det(F_[index_i]);
 				Real one_over_J = 1.0 / J;
@@ -201,17 +201,17 @@ namespace SPH
 		//=================================================================================================//
 		void KirchhoffStressRelaxationFirstHalf::initializeRange(const IndexRange &particle_range, Real dt)
 		{
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				pos_n_[index_i] += vel_n_[index_i] * dt * 0.5;
 			}
 
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				F_[index_i] += dF_dt_[index_i] * dt * 0.5;
 			}
 
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				Real J = det(F_[index_i]);
 				Real one_over_J = 1.0 / J;
@@ -225,7 +225,7 @@ namespace SPH
 					material_->NumericalDampingLeftCauchy(F_[index_i], dF_dt_[index_i], smoothing_length_, index_i) * inverse_F_T;
 			}
 
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				stress_PK1_[index_i] = F_[index_i] * material_->ConstitutiveRelation(F_[index_i], index_i);
 			}
@@ -250,7 +250,7 @@ namespace SPH
 		//=================================================================================================//
 		void StressRelaxationSecondHalf::initializeRange(const IndexRange &particle_range, Real dt)
 		{
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				pos_n_[index_i] += vel_n_[index_i] * dt * 0.5;
 			}
@@ -260,23 +260,25 @@ namespace SPH
 		{
 			const Vecd &vel_n_i = vel_n_[index_i];
 
-			Matd deformation_gradient_change_rate(0);
+			dF_dt_[index_i] = Matd(0);
 			const Neighborhood &inner_neighborhood = inner_configuration_[index_i];
 			for (size_t n = 0; n != inner_neighborhood.current_size_; ++n)
 			{
 				size_t index_j = inner_neighborhood.j_[n];
 
-				Vecd gradw_ij = inner_neighborhood.dW_ij_[n] * inner_neighborhood.e_ij_[n];
-				deformation_gradient_change_rate -=
-					Vol_[index_j] * SimTK::outer((vel_n_i - vel_n_[index_j]), gradw_ij);
+				Vecd gradW_ij = inner_neighborhood.dW_ij_[n] * inner_neighborhood.e_ij_[n];
+				dF_dt_[index_i] -= Vol_[index_j] * SimTK::outer((vel_n_i - vel_n_[index_j]), gradW_ij);
 			}
-
-			dF_dt_[index_i] = deformation_gradient_change_rate * B_[index_i];
 		}
 		//=================================================================================================//
 		void StressRelaxationSecondHalf::updateRange(const IndexRange &particle_range, Real dt)
 		{
-			for (size_t index_i = particle_range.begin(); index_i < particle_range.end(); ++index_i)
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
+			{
+				dF_dt_[index_i] *= B_[index_i];
+			}
+
+			for (size_t index_i = particle_range.begin(); index_i != particle_range.end(); ++index_i)
 			{
 				F_[index_i] += dF_dt_[index_i] * dt * 0.5;
 			}

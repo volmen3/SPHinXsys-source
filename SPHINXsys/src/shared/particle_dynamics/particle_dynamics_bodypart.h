@@ -39,6 +39,30 @@
 namespace SPH
 {
 	/**
+	 * @class PartByParticleSimpleDynamics
+	 * @brief This class includes a update steps
+	 */
+	template <class LocalDynamicsType>
+	class PartByParticleSimpleDynamics : public LocalDynamicsType,
+										 public BaseSimpleDynamics<IndexVector, ListFunctor>
+	{
+	public:
+		template <typename... Args>
+		explicit PartByParticleSimpleDynamics(BodyPartByParticle &body_part, Args &&...args)
+			: LocalDynamicsType(std::forward<Args>(args)...),
+			  BaseSimpleDynamics<IndexVector, ListFunctor>(
+				  body_part.BodyPartRange(),
+				  std::bind(&LocalDynamicsType::updateList, this, _1, _2, _3)){};
+		virtual ~PartByParticleSimpleDynamics(){};
+
+		virtual void runSetup(Real dt = 0.0) override
+		{
+			LocalDynamicsType::setBodyUpdated();
+			LocalDynamicsType::setupDynamics(dt);
+		};
+	};
+
+	/**
 	 * @class PartByParticleInteractionDynamics1Level
 	 * @brief This class includes an initialization, an interaction and a update steps
 	 */
@@ -65,7 +89,7 @@ namespace SPH
 	};
 
 	/**
-	 * @class BodypartByParticleReduce
+	 * @class BodyPartByParticleReduce
 	 * @brief Base abstract class for reduce
 	 */
 	template <class LocalReduceType>

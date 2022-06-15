@@ -373,7 +373,7 @@ namespace SPH
 		template <typename... ConstructorArgs>
 		BodyReducedQuantityRecording(InOutput &in_output, ConstructorArgs &&...args)
 			: in_output_(in_output), plt_engine_(), reduce_method_(std::forward<ConstructorArgs>(args)...),
-			  body_name_(reduce_method_.getSPHBody()->getBodyName()),
+			  body_name_(reduce_method_.getBody()->getBodyName()),
 			  quantity_name_(reduce_method_.QuantityName())
 		{
 			/** output for .dat file. */

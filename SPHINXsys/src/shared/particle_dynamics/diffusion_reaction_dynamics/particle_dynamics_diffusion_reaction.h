@@ -309,21 +309,21 @@ namespace SPH
 	};
 
 	/**
-	 * @class SpeciesSum
-	 * @brief Computing the total averaged parameter on the whole diffusion body.
+	 * @class SpeciesSummation
+	 * @brief Computing the sum of a species.
 	 */
 	template <class BodyType, class BaseParticlesType, class BaseMaterialType>
-	class SpeciesSum
+	class SpeciesSummation
 		: public LocalParticleDynamicsReduce<Real, ReduceSum<Real>>,
 		  public DiffusionReactionSimpleData<BodyType, BaseParticlesType, BaseMaterialType>
 	{
 	public:
-		explicit SpeciesSum(SPHBody &sph_body, const std::string &species_name)
+		explicit SpeciesSummation(SPHBody &sph_body, const std::string &species_name)
 			: LocalParticleDynamicsReduce<Real, ReduceSum<Real>>(sph_body, 0.0),
 			  DiffusionReactionSimpleData<BodyType, BaseParticlesType, BaseMaterialType>(sph_body),
 			  phi_(this->material_->SpeciesIndexMap()[species_name_]),
 			  species_(this->particles_->species_n_[phi_]), species_name_(species_name) {}
-		virtual ~SpeciesSum(){};
+		virtual ~SpeciesSummation(){};
 
 		Real reduceRange(const IndexRange &particle_range, Real dt = 0.0)
 		{

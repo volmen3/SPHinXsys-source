@@ -242,7 +242,8 @@ namespace SPH
 
 	/**
 	 * @class BodyAverage
-	 * @brief Compute the summation of  a particle variable in a body
+	 * @brief Compute the summation of a particle variable in a body
+	 * //TODO: better to define volume or mass averages by summation of a pair<VariableType, Real>
 	 */
 	template <class LocalSummationType>
 	class BodyAverage : public SimpleDynamicsReduce<LocalSummationType>

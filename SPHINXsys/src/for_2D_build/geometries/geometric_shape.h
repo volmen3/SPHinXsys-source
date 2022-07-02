@@ -31,6 +31,7 @@
 #define GEOMETRIC_SHAPE_H
 
 #include "base_geometry.h"
+#include "multi_polygon_shape.h"
 
 namespace SPH
 {
@@ -46,6 +47,8 @@ namespace SPH
 
     protected:
         Vec2d halfsize_;
+   		MultiPolygon multi_polygon_;
+
 
         virtual BoundingBox findBounds() override;
     };
@@ -62,8 +65,7 @@ namespace SPH
 
         virtual bool checkContain(const Vec2d &pnt, bool BOUNDARY_INCLUDED = true) override;
         virtual Vec2d findClosestPoint(const Vec2d &pnt) override;
-        virtual Real findSignedDistance(const Vecd &input_pnt) override;
-
+ 
     protected:
         virtual BoundingBox findBounds() override;
     };

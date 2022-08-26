@@ -73,6 +73,7 @@ if(NOT SPH_ONLY_STATIC_BUILD)
 	endif()
 
 	target_include_directories(sphinxsys_2d PUBLIC ${SPHINXSYS_PROJECT_DIR}/3rd_party/eigen)
+	target_include_directories(sphinxsys_2d PUBLIC "C:/Libs/xsimd/include")
 	### SPHinXsys dynamic lib ###
 else()
 	### SPHinXsys static lib ###
@@ -98,6 +99,7 @@ else()
 	endif()
 
 	target_include_directories(sphinxsys_static_2d PUBLIC ${SPHINXSYS_PROJECT_DIR}/3rd_party/eigen)
+	target_include_directories(sphinxsys_static_2d PUBLIC "C:/Libs/xsimd/include")
 	### SPHinXsys static lib ###
 endif()
 
@@ -111,6 +113,10 @@ else()
 	RUNTIME DESTINATION 2d_code/bin
 	LIBRARY DESTINATION 2d_code/lib
 	ARCHIVE DESTINATION 2d_code/lib)
+endif()
+
+if (MSVC)
+	add_definitions(/arch:AVX2)
 endif()
 
 FILE(GLOB_RECURSE hpp_headers  ${PROJECT_SOURCE_DIR}/src/shared/*.hpp ${PROJECT_SOURCE_DIR}/src/for_2D_build/*.hpp)

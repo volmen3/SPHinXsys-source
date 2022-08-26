@@ -5,6 +5,7 @@
 
 #include "fluid_dynamics_inner.h"
 #include "fluid_dynamics_inner.hpp"
+#include "vectorization_helper.h"
 
 namespace SPH
 {
@@ -34,6 +35,12 @@ namespace SPH
 				sigma += inner_neighborhood.W_ij_[n];
 
 			rho_sum_[index_i] = sigma * rho0_ * inv_sigma0_;
+
+			//rho_sum_[index_i] = VectorizedSum<Real>(
+			//	inner_configuration_[index_i].current_size_, 
+			//	W0_, 
+			//	&inner_configuration_[index_i].W_ij_[0]
+			//	) * rho0_ * inv_sigma0_;
 		}
 		//=================================================================================================//
 		void DensitySummationInner::Update(size_t index_i, Real dt)

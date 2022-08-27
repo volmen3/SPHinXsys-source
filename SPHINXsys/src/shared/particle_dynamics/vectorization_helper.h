@@ -53,5 +53,7 @@ namespace SPH
 		std::cout << " error = " << res_scalar - res_vector << std::endl;
 	}
 
+	void WriteTwoValuesToFile(const std::string& file_name, long long value1, long long value2, char delimiter);
+
 }
 #endif // VECTORIZATION_HELPER_H

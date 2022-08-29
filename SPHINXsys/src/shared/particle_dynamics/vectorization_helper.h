@@ -12,27 +12,32 @@
 
 namespace SPH
 {
-	static const auto SIMD_REGISTER_SIZE_REAL = xsimd::simd_type<Real>::size;;
+	// Size of a SIMD register of SPH::Real values for default ISA (in bytes)
+	static const auto SIMD_REGISTER_SIZE_REAL_BYTES = sizeof(xsimd::types::simd_register<Real, xsimd::default_arch>);
+
+	// Size of a SIMD register of SPH::Real values for default ISA (in elements)
+	static const auto SIMD_REGISTER_SIZE_REAL_ELEMENTS = xsimd::simd_type<Real>::size;
 
 
 	template <class T>
 	void EstimateInitialValue(const T init_value, xsimd::batch<T>& reg_0)
 	{
-		T vec_0[SIMD_REGISTER_SIZE_REAL] = {init_value};
+		alignas(SIMD_REGISTER_SIZE_REAL_BYTES) T vec_0[SIMD_REGISTER_SIZE_REAL_ELEMENTS] = {init_value};
 		reg_0 = xsimd::load_aligned(&vec_0[0]);
 	}
 
 	template <class T>
 	T VectorizedSum(const std::size_t num_iter_total, const T init_value, const T* values)
 	{
-		const std::size_t num_iter_simd = num_iter_total - num_iter_total % SIMD_REGISTER_SIZE_REAL;
+		const std::size_t num_iter_simd = num_iter_total - num_iter_total % SIMD_REGISTER_SIZE_REAL_ELEMENTS;
 		xsimd::batch<T> vec_sum;
 
 		EstimateInitialValue<T>(init_value, vec_sum);
 
 		// Vectorized loop
-		for (auto i = 0; i < num_iter_simd; i += SIMD_REGISTER_SIZE_REAL)
+		for (auto i = 0; i < num_iter_simd; i += SIMD_REGISTER_SIZE_REAL_ELEMENTS)
 		{
+			// TODO: alignment ? 
 			auto value_batch = xsimd::load_aligned(&values[i]);
 			vec_sum = vec_sum + value_batch;
 		}

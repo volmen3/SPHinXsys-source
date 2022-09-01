@@ -38,7 +38,7 @@ namespace SPH
 		for (auto i = 0; i < num_iter_simd; i += SIMD_REGISTER_SIZE_REAL_ELEMENTS)
 		{
 			// TODO: alignment ? 
-			auto value_batch = xsimd::load_aligned(&values[i]);
+			auto value_batch = xsimd::load_unaligned(&values[i]);
 			vec_sum = vec_sum + value_batch;
 		}
 

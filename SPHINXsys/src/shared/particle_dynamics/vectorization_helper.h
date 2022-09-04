@@ -62,21 +62,6 @@ namespace SPH
 	{
 		const std::size_t num_iter_simd = n_size - n_size % SIMD_REGISTER_SIZE_REAL_ELEMENTS;
 
-		const auto vel_ix = vel_i[0];
-		const auto vel_iy = vel_i[1];
-
-		// Gather scalar
-		auto* vel_nx = new Real[n_size]();
-		auto* vel_ny = new Real[n_size]();
-		auto* Vol_n = new Real[n_size]();
-
-		for (size_t n = 0; n < n_size; ++n)
-		{
-			vel_nx[n] = vel_[j_[n]][0];
-			vel_ny[n] = vel_[j_[n]][1];
-			Vol_n[n] = Vol_[j_[n]];
-		}
-
 		// Initialization
 		xsimd::batch<Real> acceleration_vx, acceleration_vy;
 		InitWithDefaultValue<Real>(0.0, acceleration_vx);
@@ -85,23 +70,27 @@ namespace SPH
 		// Vectorized loop
 		for (size_t n = 0; n < num_iter_simd; n += SIMD_REGISTER_SIZE_REAL_ELEMENTS)
 		{
+			auto index = xsimd::load_unaligned(&j_[n]);
+			auto index_x = index * 2;
+			auto index_y = (index * 2) + 1;
+
+			auto Vol_v = xsimd::batch<Real, xsimd::default_arch>::gather(&Vol_[0], index);
+			auto vel_xv = xsimd::batch<Real, xsimd::default_arch>::gather(&vel_[0][0], index_x);
+			auto vel_yv = xsimd::batch<Real, xsimd::default_arch>::gather(&vel_[0][0], index_y);
+
 			auto dW_ij_v = xsimd::load_unaligned(&dW_ij_[n]);
-			auto Vol_nv = xsimd::load_unaligned(&Vol_n[n]);
 
-			auto vel_ixv = xsimd::batch<Real>(vel_ix);
-			auto vel_iyv = xsimd::batch<Real>(vel_iy);
-
-			auto vel_nxv = xsimd::load_unaligned(&vel_nx[n]);
-			auto vel_nyv = xsimd::load_unaligned(&vel_ny[n]);
+			auto vel_ixv = xsimd::batch<Real>(vel_i[0]);
+			auto vel_iyv = xsimd::batch<Real>(vel_i[1]);
 
 			auto r_ij_v = xsimd::load_unaligned(&r_ij_[n]);
 			r_ij_v = r_ij_v + c_smoothing_length_;
 
-			auto vel_derivative_vx = (vel_ixv - vel_nxv) / r_ij_v;
-			auto vel_derivative_vy = (vel_iyv - vel_nyv) / r_ij_v;
+			auto vel_derivative_vx = (vel_ixv - vel_xv) / r_ij_v;
+			auto vel_derivative_vy = (vel_iyv - vel_yv) / r_ij_v;
 
-			acceleration_vx = acceleration_vx + c_mu_rho_i * vel_derivative_vx * Vol_nv * dW_ij_v;
-			acceleration_vy = acceleration_vy + c_mu_rho_i * vel_derivative_vy * Vol_nv * dW_ij_v;
+			acceleration_vx = acceleration_vx + c_mu_rho_i * vel_derivative_vx * Vol_v * dW_ij_v;
+			acceleration_vy = acceleration_vy + c_mu_rho_i * vel_derivative_vy * Vol_v * dW_ij_v;
 		}
 
 		// Scalar loop

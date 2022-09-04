@@ -36,7 +36,7 @@ namespace SPH
 
 			rho_sum_[index_i] = sigma * rho0_ * inv_sigma0_;
 
-			//rho_sum_[index_i] = VectorizedSum<Real>(
+			//rho_sum_[index_i] = DensitySummationInnerInteraction<Real>(
 			//	inner_configuration_[index_i].current_size_, 
 			//	W0_, 
 			//	&inner_configuration_[index_i].W_ij_[0]
@@ -75,6 +75,11 @@ namespace SPH
 			}
 
 			acc_prior_[index_i] += acceleration;
+
+			//auto acceleration_v = ViscousAccelerationInnerInteraction(
+			//	vel_, vel_i, inner_neighborhood.r_ij_, inner_neighborhood.dW_ij_, Vol_, 
+			//	0.01*smoothing_length_, 2*mu_/rho_i, 
+			//	inner_neighborhood.current_size_, inner_neighborhood.j_);
 		}
 		//=================================================================================================//
 		void AngularConservativeViscousAccelerationInner::Interaction(size_t index_i, Real dt)

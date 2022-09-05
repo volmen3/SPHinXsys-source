@@ -21,20 +21,18 @@ namespace SPH
 	static const auto SIMD_REGISTER_SIZE_REAL_ELEMENTS = xsimd::simd_type<Real>::size;
 
 
-	template <class T>
-	void InitWithDefaultValue(const T default_value, xsimd::batch<T>& reg_0)
+	inline void InitWithDefaultValue(const Real default_value, xsimd::batch<Real>& reg_0)
 	{
-		alignas(SIMD_REGISTER_SIZE_REAL_BYTES) T vec_0[SIMD_REGISTER_SIZE_REAL_ELEMENTS] = { default_value };
+		alignas(SIMD_REGISTER_SIZE_REAL_BYTES) Real vec_0[SIMD_REGISTER_SIZE_REAL_ELEMENTS] = { default_value };
 		reg_0 = xsimd::load_aligned(&vec_0[0]);
 	}
 
-	template <class T>
-	T DensitySummationInnerInteraction(const std::size_t current_size, const T W0, const T* W_ij)
+	inline Real DensitySummationInnerInteraction(const std::size_t current_size, const Real W0, const Real* W_ij)
 	{
 		const std::size_t num_iter_simd = current_size - current_size % SIMD_REGISTER_SIZE_REAL_ELEMENTS;
-		xsimd::batch<T> sigma_v;
+		xsimd::batch<Real> sigma_v;
 
-		InitWithDefaultValue<T>(W0, sigma_v);
+		InitWithDefaultValue(W0, sigma_v);
 
 		// Vectorized loop
 		for (size_t i = 0; i < num_iter_simd; i += SIMD_REGISTER_SIZE_REAL_ELEMENTS)
@@ -45,7 +43,7 @@ namespace SPH
 		}
 
 		// Scalar loop
-		T sigma_s = 0.0;
+		Real sigma_s = 0.0;
 		for (size_t i = num_iter_simd; i < current_size; ++i)
 		{
 			sigma_s += W_ij[i];
@@ -64,8 +62,8 @@ namespace SPH
 
 		// Initialization
 		xsimd::batch<Real> acceleration_vx, acceleration_vy;
-		InitWithDefaultValue<Real>(0.0, acceleration_vx);
-		InitWithDefaultValue<Real>(0.0, acceleration_vy);
+		InitWithDefaultValue(0.0, acceleration_vx);
+		InitWithDefaultValue(0.0, acceleration_vy);
 
 		// Vectorized loop
 		for (size_t n = 0; n < num_iter_simd; n += SIMD_REGISTER_SIZE_REAL_ELEMENTS)

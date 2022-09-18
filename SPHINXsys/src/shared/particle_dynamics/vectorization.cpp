@@ -2,7 +2,7 @@
  * ...
  */
 
-#include "vectorization_helper.h"
+#include "vectorization.h"
 
 #include <fstream>
 

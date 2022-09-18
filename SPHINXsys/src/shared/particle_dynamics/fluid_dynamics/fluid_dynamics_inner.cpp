@@ -5,7 +5,7 @@
 
 #include "fluid_dynamics_inner.h"
 #include "fluid_dynamics_inner.hpp"
-#include "vectorization_helper.h"
+#include "vectorization.h"
 
 namespace SPH
 {

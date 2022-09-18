@@ -35,12 +35,32 @@ namespace SPH
 				sigma += inner_neighborhood.W_ij_[n];
 
 			rho_sum_[index_i] = sigma * rho0_ * inv_sigma0_;
+		}
+		//=================================================================================================//
+		void DensitySummationInner::InteractionBatch(size_t index_i, Real dt)
+		{
+			const Neighborhood& inner_neighborhood = inner_configuration_[index_i];
+			const std::size_t num_iter_simd = inner_neighborhood.current_size_ - 
+				inner_neighborhood.current_size_ % SIMD_REGISTER_SIZE_REAL_ELEMENTS;
 
-			//rho_sum_[index_i] = DensitySummationInnerInteraction<Real>(
-			//	inner_configuration_[index_i].current_size_, 
-			//	W0_, 
-			//	&inner_configuration_[index_i].W_ij_[0]
-			//	) * rho0_ * inv_sigma0_;
+			xsimd::batch<Real> sigma_v;
+			InitWithDefaultValue(W0_, sigma_v);
+
+			// Vectorized loop
+			for (size_t i = 0; i < num_iter_simd; i += SIMD_REGISTER_SIZE_REAL_ELEMENTS)
+			{
+				auto value_batch = xsimd::load_unaligned(&inner_configuration_[index_i].W_ij_[i]);
+				sigma_v = sigma_v + value_batch;
+			}
+
+			// Scalar loop
+			Real sigma_s = 0.0;
+			for (size_t i = num_iter_simd; i < inner_configuration_[index_i].current_size_; ++i)
+			{
+				sigma_s += inner_configuration_[index_i].W_ij_[i];
+			}
+
+			rho_sum_[index_i] = (xsimd::reduce_add(sigma_v) + sigma_s) * rho0_ * inv_sigma0_;
 		}
 		//=================================================================================================//
 		void DensitySummationInner::Update(size_t index_i, Real dt)

@@ -76,6 +76,7 @@ namespace SPH
 			StdLargeVec<Real> &Vol_, &rho_, &mass_, &rho_sum_;
 
 			virtual void Interaction(size_t index_i, Real dt = 0.0) override;
+			virtual void InteractionBatch(size_t index_i, Real dt = 0.0);
 			virtual void Update(size_t index_i, Real dt = 0.0) override;
 			virtual Real ReinitializedDensity(Real rho_sum, Real rho_0, Real rho_n) { return rho_sum; };
 		};

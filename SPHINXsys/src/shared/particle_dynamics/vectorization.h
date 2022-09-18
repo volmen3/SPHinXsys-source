@@ -27,31 +27,6 @@ namespace SPH
 		reg_0 = xsimd::load_aligned(&vec_0[0]);
 	}
 
-	inline Real DensitySummationInnerInteraction(const std::size_t current_size, const Real W0, const Real* W_ij)
-	{
-		const std::size_t num_iter_simd = current_size - current_size % SIMD_REGISTER_SIZE_REAL_ELEMENTS;
-		xsimd::batch<Real> sigma_v;
-
-		InitWithDefaultValue(W0, sigma_v);
-
-		// Vectorized loop
-		for (size_t i = 0; i < num_iter_simd; i += SIMD_REGISTER_SIZE_REAL_ELEMENTS)
-		{
-			// TODO: alignment ? 
-			auto value_batch = xsimd::load_unaligned(&W_ij[i]);
-			sigma_v = sigma_v + value_batch;
-		}
-
-		// Scalar loop
-		Real sigma_s = 0.0;
-		for (size_t i = num_iter_simd; i < current_size; ++i)
-		{
-			sigma_s += W_ij[i];
-		}
-
-		return xsimd::reduce_add(sigma_v) + sigma_s;
-	}
-
 	inline Vecd ViscousAccelerationInnerInteraction(
 		const StdLargeVec<Vecd>& vel_, const Vecd& vel_i,
 		const StdLargeVec<Real>& r_ij_, const StdLargeVec<Real>& dW_ij_, const StdLargeVec<Real>& Vol_,

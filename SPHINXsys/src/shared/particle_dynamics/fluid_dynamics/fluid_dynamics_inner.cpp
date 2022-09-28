@@ -95,11 +95,51 @@ namespace SPH
 			}
 
 			acc_prior_[index_i] += acceleration;
+		}
+		//=================================================================================================//
+		void ViscousAccelerationInner::InteractionBatch(size_t index_i, Real dt)
+		{
+			const Real rho_i = rho_[index_i];
+			const Vecd& vel_i = vel_[index_i];
+			const Neighborhood& inner_neighborhood = inner_configuration_[index_i];
 
-			//auto acceleration_v = ViscousAccelerationInnerInteraction(
-			//	vel_, vel_i, inner_neighborhood.r_ij_, inner_neighborhood.dW_ij_, Vol_, 
-			//	0.01*smoothing_length_, 2*mu_/rho_i, 
-			//	inner_neighborhood.current_size_, inner_neighborhood.j_);
+			const std::size_t num_iter_simd = inner_neighborhood.current_size_ - 
+				inner_neighborhood.current_size_ % SIMD_REGISTER_SIZE_REAL_ELEMENTS;
+
+			VecdBatchSph acceleration_v;
+			InitWithDefaultValueVecdBatch(0.0, acceleration_v);
+
+			// Vectorized loop
+			for (size_t n = 0; n < num_iter_simd; n += SIMD_REGISTER_SIZE_REAL_ELEMENTS)
+			{
+				auto vel_iv = VecdBatchSph({ vel_i[0] }, { vel_i[1] });
+				auto vel_v = LoadVecd(&inner_neighborhood.j_[n], vel_);
+				auto Vol_v = LoadReal(&inner_neighborhood.j_[n], Vol_);
+				auto r_ij_v = xsimd::load_unaligned(&inner_neighborhood.r_ij_[n]);
+				auto dW_ij_v = xsimd::load_unaligned(&inner_neighborhood.dW_ij_[n]);
+
+				auto vel_derivative_v = (vel_iv - vel_v);
+				vel_derivative_v[0] = vel_derivative_v[0] / (r_ij_v + 0.01 * smoothing_length_);
+				vel_derivative_v[1] = vel_derivative_v[1] / (r_ij_v + 0.01 * smoothing_length_);
+
+				acceleration_v[0] = acceleration_v[0] + 2 * mu_ / rho_i * vel_derivative_v[0] * Vol_v * dW_ij_v;
+				acceleration_v[1] = acceleration_v[1] + 2 * mu_ / rho_i * vel_derivative_v[1] * Vol_v * dW_ij_v;
+			}
+
+			// Scalar loop
+			Vecd acceleration_s(0);
+			for (size_t n = num_iter_simd; n < inner_neighborhood.current_size_; ++n)
+			{
+				auto index_j = inner_neighborhood.j_[n];
+
+				auto vel_derivative_s = (vel_i - vel_[index_j]) / (inner_neighborhood.r_ij_[n] + 0.01 * smoothing_length_);
+				acceleration_s = acceleration_s + 2 * mu_ / rho_i * vel_derivative_s * Vol_[index_j] * inner_neighborhood.dW_ij_[n];
+			}
+
+			acceleration_s[0] = acceleration_s[0] + xsimd::reduce_add(acceleration_v[0]);
+			acceleration_s[1] = acceleration_s[1] + xsimd::reduce_add(acceleration_v[1]);
+
+			acc_prior_[index_i] += acceleration_s;
 		}
 		//=================================================================================================//
 		void AngularConservativeViscousAccelerationInner::Interaction(size_t index_i, Real dt)

@@ -154,50 +154,6 @@ namespace SPH
 		};
 	}
 
-	inline Vecd ViscousAccelerationInnerInteraction_Old(
-		const StdLargeVec<Vecd>& vel_, const Vecd& vel_i,
-		const StdLargeVec<Real>& r_ij_, const StdLargeVec<Real>& dW_ij_, const StdLargeVec<Real>& Vol_,
-		Real c_smoothing_length_, Real c_mu_rho_i,
-		size_t n_size, const StdLargeVec<size_t>& j_)
-	{
-		const std::size_t num_iter_simd = n_size - n_size % SIMD_REGISTER_SIZE_REAL_ELEMENTS;
-
-		VecdBatchSph acceleration_v;
-		InitWithDefaultValueVecdBatch(0.0, acceleration_v);
-
-		// Vectorized loop
-		for (size_t n = 0; n < num_iter_simd; n += SIMD_REGISTER_SIZE_REAL_ELEMENTS)
-		{
-			auto Vol_v = LoadReal(&j_[n], Vol_);
-			auto vel_v = LoadVecd(&j_[n], vel_);
-			auto r_ij_v = xsimd::load_unaligned(&r_ij_[n]);
-			auto dW_ij_v = xsimd::load_unaligned(&dW_ij_[n]);
-			auto vel_iv = VecdBatchSph({ vel_i[0] }, { vel_i[1] });
-
-			auto vel_derivative_v = (vel_iv - vel_v);
-			vel_derivative_v[0] = vel_derivative_v[0] / (r_ij_v + c_smoothing_length_);
-			vel_derivative_v[1] = vel_derivative_v[1] / (r_ij_v + c_smoothing_length_);
-
-			acceleration_v[0] = acceleration_v[0] + c_mu_rho_i * vel_derivative_v[0] * Vol_v * dW_ij_v;
-			acceleration_v[1] = acceleration_v[1] + c_mu_rho_i * vel_derivative_v[1] * Vol_v * dW_ij_v;
-		}
-
-		// Scalar loop
-		Vecd acceleration_s(0);
-		for (size_t n = num_iter_simd; n < n_size; ++n)
-		{
-			auto index_j = j_[n];
-
-			auto vel_derivative_s = (vel_i - vel_[index_j]) / (r_ij_[n] + c_smoothing_length_);
-			acceleration_s = acceleration_s + c_mu_rho_i * vel_derivative_s * Vol_[index_j] * dW_ij_[n];
-		}
-
-		acceleration_s[0] = acceleration_s[0] + xsimd::reduce_add(acceleration_v[0]);
-		acceleration_s[1] = acceleration_s[1] + xsimd::reduce_add(acceleration_v[1]);
-
-		return acceleration_s;
-	}
-
 	template <class T>
 	void EstimateError(T& res_scalar, T& res_vector)
 	{

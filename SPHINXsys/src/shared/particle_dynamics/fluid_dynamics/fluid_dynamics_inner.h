@@ -98,6 +98,7 @@ namespace SPH
 			StdLargeVec<Vecd> &vel_, &acc_prior_;
 
 			virtual void Interaction(size_t index_i, Real dt = 0.0) override;
+			virtual void InteractionBatch(size_t index_i, Real dt = 0.0);
 		};
 
 		/**

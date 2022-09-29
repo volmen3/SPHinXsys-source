@@ -113,8 +113,8 @@ namespace SPH
 			for (size_t n = 0; n < num_iter_simd; n += SIMD_REGISTER_SIZE_REAL_ELEMENTS)
 			{
 				auto vel_iv = VecdBatchSph({ vel_i[0] }, { vel_i[1] });
-				auto vel_v = LoadVecd(&inner_neighborhood.j_[n], vel_);
-				auto Vol_v = LoadReal(&inner_neighborhood.j_[n], Vol_);
+				auto vel_v = LoadVecdBatchSph<SIMD_REGISTER_SIZE_REAL_ELEMENTS>(&inner_neighborhood.j_[n], vel_);
+				auto Vol_v = LoadSingleBatchSph<SIMD_REGISTER_SIZE_REAL_ELEMENTS>(&inner_neighborhood.j_[n], Vol_);
 				auto r_ij_v = xsimd::load_unaligned(&inner_neighborhood.r_ij_[n]);
 				auto dW_ij_v = xsimd::load_unaligned(&inner_neighborhood.dW_ij_[n]);
 

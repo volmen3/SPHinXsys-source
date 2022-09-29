@@ -8,26 +8,24 @@
 
 #include "base_data_type.h"
 #include "data_type.h"
-#include <large_data_containers.h>
+#include "large_data_containers.h"
+#include "SimTKcommon/internal/NTraits.h"
 #include "xsimd/xsimd.hpp"
 
 
-// TODO: put NTraits specialization in some other file, e.g. batch_sph.h
-#include "SimTKcommon/internal/NTraits.h"
 namespace SPH
 {
-	using RealBatchSph = xsimd::batch<Real>;
+	using SingleBatchSph = xsimd::batch<Real>;
 
-	// Two dimensional SimTK::Vec where each element is of
-	// type xsimd::batch<Real>
-	using VecdBatchSph = SimTK::Vec<2, RealBatchSph>;
+	// Two dimensional SimTK::Vec where each element is of type xsimd::batch<Real>
+	using VecdBatchSph = SimTK::Vec<2, SingleBatchSph>;
 }
 
 template <>
-class SimTK::NTraits<SPH::RealBatchSph>
+class SimTK::NTraits<SPH::SingleBatchSph>
 {
 public:                                         
-    typedef SPH::RealBatchSph    T;
+    typedef SPH::SingleBatchSph T;
     typedef negator<T>       TNeg;              
     typedef T                TWithoutNegator;   
     typedef T                TReal;             
@@ -83,23 +81,23 @@ public:
 };
 
 template <>
-struct SimTK::Widest<SPH::RealBatchSph, SPH::RealBatchSph>
+struct SimTK::Widest<SPH::SingleBatchSph, SPH::SingleBatchSph>
 {
-	typedef SPH::RealBatchSph Type;
-	typedef SPH::RealBatchSph Precision;
+	typedef SPH::SingleBatchSph Type;
+	typedef SPH::SingleBatchSph Precision;
 };
 
 template<>
-struct SimTK::NTraits<SPH::RealBatchSph>::Result<SPH::RealBatchSph>
+struct SimTK::NTraits<SPH::SingleBatchSph>::Result<SPH::SingleBatchSph>
 {
-	typedef Widest<SPH::RealBatchSph, SPH::RealBatchSph>::Type Mul;
+	typedef Widest<SPH::SingleBatchSph, SPH::SingleBatchSph>::Type Mul;
 	typedef Mul Dvd;
 	typedef Mul Add;
 	typedef Mul Sub;
 };
 
 template <>
-class SimTK::CNT<SPH::RealBatchSph> : public SimTK::NTraits<SPH::RealBatchSph> {};
+class SimTK::CNT<SPH::SingleBatchSph> : public SimTK::NTraits<SPH::SingleBatchSph> {};
 
 namespace SPH
 {
@@ -122,8 +120,18 @@ namespace SPH
 		vec = VecdBatchSph(xsimd::load_aligned(&vec_0[0]), xsimd::load_aligned(&vec_0[0]));
 	}
 
-	// Alternative to xsimd::batch<T,A>::gather() for gathering a RealBatchSph
-	inline RealBatchSph LoadReal(const size_t* idx, const StdLargeVec<Real>& indirect_indexed_data)
+
+	// Generalized template function for loading indirect indexed data into a single batch
+	// (alternative to xsimd::batch<T,A>::gather() functions)
+	template< int /*number of elements in a batch*/, class ContainerType>
+	SingleBatchSph LoadSingleBatchSph(const size_t* /*idx*/, const StdLargeVec<ContainerType>& /*indirect_indexed_data*/)
+	{
+		return{};
+	}
+
+	// Specialization for a batch packed with 4 values
+	template<>
+	inline SingleBatchSph LoadSingleBatchSph<4>(const size_t* idx, const StdLargeVec<Real>& indirect_indexed_data)
 	{
 		return
 		{
@@ -134,8 +142,17 @@ namespace SPH
 		};
 	}
 
-	// Alternative to xsimd::batch<T,A>::gather() for gathering a VecdBatchSph 
-	inline VecdBatchSph LoadVecd(const size_t* idx, const StdLargeVec<Vecd>& indirect_indexed_data)
+	// Generalized template function for loading indirect indexed data into a vector of batches
+	// (alternative to xsimd::batch<T,A>::gather() functions)
+	template< int /*number of elements in a batch*/, class ContainerType>
+	VecdBatchSph LoadVecdBatchSph(const size_t* /*idx*/, const StdLargeVec<ContainerType>& /*indirect_indexed_data*/)
+	{
+		return{};
+	}
+
+	// Specialization for a two dimensional vector of batches, each packed with 4 values
+	template<>
+	inline VecdBatchSph LoadVecdBatchSph<4>(const size_t* idx, const StdLargeVec<Vecd>& indirect_indexed_data)
 	{
 		return
 		{

@@ -15,7 +15,34 @@
 
 namespace SPH
 {
-	using SingleBatchSph = xsimd::batch<Real>;
+	class SingleBatchSph : public xsimd::batch<Real>
+	{
+	public:
+		SingleBatchSph()
+			: batch()
+		{}
+
+		SingleBatchSph(Real val) noexcept
+			: batch(val)
+		{}
+
+		template <class... Ts>
+		SingleBatchSph(Real val0, Real val1, Ts... vals) noexcept
+			: batch(val0, val1, static_cast<Real>(vals)...)
+		{}
+
+		SingleBatchSph(batch o)
+			: batch(o)
+		{}
+
+		SingleBatchSph& operator=(const xsimd::batch<Real>& o)
+		{
+			batch::operator=(o);
+			return *this;
+		}
+	};
+	// Alternatively xsimd::batch can be directly used as an element of SimTK::Vec
+	// using SingleBatchSph = xsimd::batch<Real>;
 
 	// Two dimensional SimTK::Vec where each element is of type xsimd::batch<Real>
 	using VecdBatchSph = SimTK::Vec<2, SingleBatchSph>;

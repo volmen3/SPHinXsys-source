@@ -165,6 +165,58 @@ namespace SPH
 			acc_prior_[index_i] += acceleration;
 		}
 		//=================================================================================================//
+		void AngularConservativeViscousAccelerationInner::InteractionBatch(size_t index_i, Real dt)
+		{
+			const Real rho_i = rho_[index_i];
+			const Vecd& vel_i = vel_[index_i];
+			const Neighborhood& inner_neighborhood = inner_configuration_[index_i];
+			const auto vel_iv = VecdBatchSph({ vel_i[0] }, { vel_i[1] });
+
+			const std::size_t num_iter_simd = inner_neighborhood.current_size_ -
+				inner_neighborhood.current_size_ % SIMD_REGISTER_SIZE_REAL_ELEMENTS;
+
+			VecdBatchSph acceleration_v;
+			InitWithDefaultValueVecdBatch(0.0, acceleration_v);
+
+			// Vectorized loop
+			for (size_t n = 0; n < num_iter_simd; n += SIMD_REGISTER_SIZE_REAL_ELEMENTS)
+			{
+				auto vel_v = LoadVecdBatchSph<SIMD_REGISTER_SIZE_REAL_ELEMENTS>(&inner_neighborhood.j_[n], vel_);
+				auto Vol_v = LoadSingleBatchSph<SIMD_REGISTER_SIZE_REAL_ELEMENTS>(&inner_neighborhood.j_[n], Vol_);
+				auto e_ij_v = LoadDirectVecdBatchSph<SIMD_REGISTER_SIZE_REAL_ELEMENTS>(n, inner_neighborhood.e_ij_);
+				auto r_ij_v = xsimd::load_unaligned(&inner_neighborhood.r_ij_[n]);
+				auto dW_ij_v = xsimd::load_unaligned(&inner_neighborhood.dW_ij_[n]);
+
+				auto vel_i_sub_vel_v = (vel_iv - vel_v);
+				auto r_ij_mul_e_ij_vx = r_ij_v * e_ij_v[0];
+				auto r_ij_mul_e_ij_vy = r_ij_v * e_ij_v[1];
+
+				// Dot product: (vel_iv - vel_v) & r_ij_v * e_ij_v
+				auto v_r_ij_v = vel_i_sub_vel_v[0] * r_ij_mul_e_ij_vx + vel_i_sub_vel_v[1] * r_ij_mul_e_ij_vy;
+
+				auto eta_ij_v = 8.0 * mu_ * v_r_ij_v / (r_ij_v * r_ij_v + 0.01 * smoothing_length_);
+
+				acceleration_v[0] = acceleration_v[0] + eta_ij_v * Vol_v / rho_i * dW_ij_v * e_ij_v[0];
+				acceleration_v[1] = acceleration_v[1] + eta_ij_v * Vol_v / rho_i * dW_ij_v * e_ij_v[1];
+			}
+
+			// Scalar loop
+			Vecd acceleration_s(0);
+			for (size_t n = num_iter_simd; n < inner_neighborhood.current_size_; ++n)
+			{
+				size_t index_j = inner_neighborhood.j_[n];
+
+				auto v_r_ij = dot(vel_i - vel_[index_j], inner_neighborhood.r_ij_[n] * inner_neighborhood.e_ij_[n]);
+				auto eta_ij = 8.0 * mu_ * v_r_ij / (inner_neighborhood.r_ij_[n] * inner_neighborhood.r_ij_[n] + 0.01 * smoothing_length_);
+				acceleration_s = acceleration_s + eta_ij * Vol_[index_j] / rho_i * inner_neighborhood.dW_ij_[n] * inner_neighborhood.e_ij_[n];
+			}
+
+			acceleration_s[0] = acceleration_s[0] + xsimd::reduce_add(acceleration_v[0]);
+			acceleration_s[1] = acceleration_s[1] + xsimd::reduce_add(acceleration_v[1]);
+
+			acc_prior_[index_i] += acceleration_s;
+		}
+		//=================================================================================================//
 		TransportVelocityCorrectionInner::
 			TransportVelocityCorrectionInner(BaseBodyRelationInner &inner_relation)
 			: InteractionDynamics(*inner_relation.sph_body_),

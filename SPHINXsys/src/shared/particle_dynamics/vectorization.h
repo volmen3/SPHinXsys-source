@@ -198,6 +198,54 @@ namespace SPH
 		};
 	}
 
+	// Generalized template function for loading direct indexed data into a single batch
+	template< int /*number of elements in a batch*/, class ContainerType>
+	SingleBatchSph LoadDirectSingleBatchSph(size_t idx, const StdLargeVec<ContainerType>& /*direct_indexed_data*/)
+	{
+		return{};
+	}
+
+	// Specialization for a batch packed with 4 values
+	template<>
+	inline SingleBatchSph LoadDirectSingleBatchSph<4>(size_t idx, const StdLargeVec<Real>& direct_indexed_data)
+	{
+		return
+		{
+			direct_indexed_data[idx],
+			direct_indexed_data[idx+1],
+			direct_indexed_data[idx+2],
+			direct_indexed_data[idx+3]
+		};
+	}
+
+	// Generalized template function for loading direct indexed data into a vector of batches
+	template< int /*number of elements in a batch*/, class ContainerType>
+	VecdBatchSph LoadDirectVecdBatchSph(size_t /*idx*/, const StdLargeVec<ContainerType>& /*direct_indexed_data*/)
+	{
+		return{};
+	}
+
+	// Specialization for a two dimensional vector of batches, each packed with 4 values
+	template<>
+	inline VecdBatchSph LoadDirectVecdBatchSph<4>(size_t idx, const StdLargeVec<Vecd>& direct_indexed_data)
+	{
+		return
+		{
+			{	// Batch X
+				direct_indexed_data[idx][0],
+				direct_indexed_data[idx+1][0],
+				direct_indexed_data[idx+2][0],
+				direct_indexed_data[idx+3][0]
+			},
+			{	// Batch Y
+				direct_indexed_data[idx][1],
+				direct_indexed_data[idx+1][1],
+				direct_indexed_data[idx+2][1],
+				direct_indexed_data[idx+3][1]
+			}
+		};
+	}
+
 	template <class T>
 	void EstimateError(T& res_scalar, T& res_vector)
 	{

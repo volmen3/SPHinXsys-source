@@ -184,16 +184,16 @@ namespace SPH
 		return
 		{
 			{	// Batch X
-				indirect_indexed_data[*idx].get(0),
-				indirect_indexed_data[*(idx + 1)].get(0),
-				indirect_indexed_data[*(idx + 2)].get(0),
-				indirect_indexed_data[*(idx + 3)].get(0)
+				indirect_indexed_data[*idx][0],
+				indirect_indexed_data[*(idx+1)][0],
+				indirect_indexed_data[*(idx+2)][0],
+				indirect_indexed_data[*(idx+3)][0]
 			},
 			{	// Batch Y
-				indirect_indexed_data[*idx].get(1),
-				indirect_indexed_data[*(idx + 1)].get(1),
-				indirect_indexed_data[*(idx + 2)].get(1),
-				indirect_indexed_data[*(idx + 3)].get(1)
+				indirect_indexed_data[*idx][1],
+				indirect_indexed_data[*(idx+1)][1],
+				indirect_indexed_data[*(idx+2)][1],
+				indirect_indexed_data[*(idx+3)][1]
 			}
 		};
 	}

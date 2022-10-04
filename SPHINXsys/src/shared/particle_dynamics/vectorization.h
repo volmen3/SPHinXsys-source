@@ -151,14 +151,14 @@ namespace SPH
 	// Generalized template function for loading indirect indexed data into a single batch
 	// (alternative to xsimd::batch<T,A>::gather() functions)
 	template< int /*number of elements in a batch*/, class ContainerType>
-	SingleBatchSph LoadSingleBatchSph(const size_t* /*idx*/, const StdLargeVec<ContainerType>& /*indirect_indexed_data*/)
+	SingleBatchSph LoadIndirectSingleBatchSph(const size_t* /*idx*/, const StdLargeVec<ContainerType>& /*indirect_indexed_data*/)
 	{
 		return{};
 	}
 
 	// Specialization for a batch packed with 4 values
 	template<>
-	inline SingleBatchSph LoadSingleBatchSph<4>(const size_t* idx, const StdLargeVec<Real>& indirect_indexed_data)
+	inline SingleBatchSph LoadIndirectSingleBatchSph<4>(const size_t* idx, const StdLargeVec<Real>& indirect_indexed_data)
 	{
 		return
 		{
@@ -172,14 +172,14 @@ namespace SPH
 	// Generalized template function for loading indirect indexed data into a vector of batches
 	// (alternative to xsimd::batch<T,A>::gather() functions)
 	template< int /*number of elements in a batch*/, class ContainerType>
-	VecdBatchSph LoadVecdBatchSph(const size_t* /*idx*/, const StdLargeVec<ContainerType>& /*indirect_indexed_data*/)
+	VecdBatchSph LoadIndirectVecdBatchSph(const size_t* /*idx*/, const StdLargeVec<ContainerType>& /*indirect_indexed_data*/)
 	{
 		return{};
 	}
 
 	// Specialization for a two dimensional vector of batches, each packed with 4 values
 	template<>
-	inline VecdBatchSph LoadVecdBatchSph<4>(const size_t* idx, const StdLargeVec<Vecd>& indirect_indexed_data)
+	inline VecdBatchSph LoadIndirectVecdBatchSph<4>(const size_t* idx, const StdLargeVec<Vecd>& indirect_indexed_data)
 	{
 		return
 		{

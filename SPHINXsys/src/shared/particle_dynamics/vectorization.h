@@ -43,9 +43,6 @@ namespace SPH
 	};
 	// Alternatively xsimd::batch can be directly used as an element of SimTK::Vec
 	// using SingleBatchSph = xsimd::batch<Real>;
-
-	// Two dimensional SimTK::Vec where each element is of type xsimd::batch<Real>
-	using VecdBatchSph = SimTK::Vec<2, SingleBatchSph>;
 }
 
 template <>
@@ -126,6 +123,32 @@ struct SimTK::NTraits<SPH::SingleBatchSph>::Result<SPH::SingleBatchSph>
 template <>
 class SimTK::CNT<SPH::SingleBatchSph> : public SimTK::NTraits<SPH::SingleBatchSph> {};
 
+template <int M>
+class VecBatchSph : public SimTK::Vec<M, SPH::SingleBatchSph>
+{
+	static_assert(M == 2 || M == 3, "Only 2- or 3-dimensional vectors of batches are allowed");
+public:
+	VecBatchSph()
+		: SimTK::Vec<M, SPH::SingleBatchSph>()
+	{}
+
+	explicit VecBatchSph(const E& e)
+		: SimTK::Vec<M, SPH::SingleBatchSph>(e)
+	{}
+
+	VecBatchSph(const E& e0, const E& e1)
+		: SimTK::Vec<M, SPH::SingleBatchSph> (e0, e1)
+	{}
+
+	VecBatchSph(const E& e0, const E& e1, const E& e2)
+		: SimTK::Vec<M, SPH::SingleBatchSph>(e0, e1, e2)
+	{}
+
+	VecBatchSph(const Vec& src)
+		: SimTK::Vec<M, SPH::SingleBatchSph>(src)
+	{}
+};
+
 namespace SPH
 {
 	// Size of a SIMD register of SPH::Real values for default ISA (in bytes)
@@ -141,10 +164,11 @@ namespace SPH
 		reg_0 = xsimd::load_aligned(&vec_0[0]);
 	}
 
-	inline void InitWithDefaultValueVecdBatch(const Real default_value, VecdBatchSph& vec)
+	template <int M>
+	void InitWithDefaultValueVecBatch(const Real default_value, VecBatchSph<M>& vec)
 	{
 		alignas(SIMD_REGISTER_SIZE_REAL_BYTES) Real vec_0[SIMD_REGISTER_SIZE_REAL_ELEMENTS] = { default_value };
-		vec = VecdBatchSph(xsimd::load_aligned(&vec_0[0]), xsimd::load_aligned(&vec_0[0]));
+		vec = VecBatchSph<M>(xsimd::load_aligned(&vec_0[0]), xsimd::load_aligned(&vec_0[0]));
 	}
 
 
@@ -172,14 +196,14 @@ namespace SPH
 	// Generalized template function for loading indirect indexed data into a vector of batches
 	// (alternative to xsimd::batch<T,A>::gather() functions)
 	template< int /*number of elements in a batch*/, class ContainerType>
-	VecdBatchSph LoadIndirectVecdBatchSph(const size_t* /*idx*/, const StdLargeVec<ContainerType>& /*indirect_indexed_data*/)
+	VecBatchSph<2> LoadIndirectVecBatchSph(const size_t* /*idx*/, const StdLargeVec<ContainerType>& /*indirect_indexed_data*/)
 	{
 		return{};
 	}
 
 	// Specialization for a two dimensional vector of batches, each packed with 4 values
 	template<>
-	inline VecdBatchSph LoadIndirectVecdBatchSph<4>(const size_t* idx, const StdLargeVec<Vecd>& indirect_indexed_data)
+	inline VecBatchSph<2> LoadIndirectVecBatchSph<4>(const size_t* idx, const StdLargeVec<Vecd>& indirect_indexed_data)
 	{
 		return
 		{
@@ -220,14 +244,14 @@ namespace SPH
 
 	// Generalized template function for loading direct indexed data into a vector of batches
 	template< int /*number of elements in a batch*/, class ContainerType>
-	VecdBatchSph LoadDirectVecdBatchSph(size_t /*idx*/, const StdLargeVec<ContainerType>& /*direct_indexed_data*/)
+	VecBatchSph<2> LoadDirectVecBatchSph(size_t /*idx*/, const StdLargeVec<ContainerType>& /*direct_indexed_data*/)
 	{
 		return{};
 	}
 
 	// Specialization for a two dimensional vector of batches, each packed with 4 values
 	template<>
-	inline VecdBatchSph LoadDirectVecdBatchSph<4>(size_t idx, const StdLargeVec<Vecd>& direct_indexed_data)
+	inline VecBatchSph<2> LoadDirectVecBatchSph<4>(size_t idx, const StdLargeVec<Vecd>& direct_indexed_data)
 	{
 		return
 		{

@@ -106,14 +106,14 @@ namespace SPH
 			const std::size_t num_iter_simd = inner_neighborhood.current_size_ - 
 				inner_neighborhood.current_size_ % SIMD_REGISTER_SIZE_REAL_ELEMENTS;
 
-			VecdBatchSph acceleration_v;
-			InitWithDefaultValueVecdBatch(0.0, acceleration_v);
+			VecBatchSph<2> acceleration_v;
+			InitWithDefaultValueVecBatch(0.0, acceleration_v);
 
 			// Vectorized loop
 			for (size_t n = 0; n < num_iter_simd; n += SIMD_REGISTER_SIZE_REAL_ELEMENTS)
 			{
-				auto vel_iv = VecdBatchSph({ vel_i[0] }, { vel_i[1] });
-				auto vel_v = LoadIndirectVecdBatchSph<SIMD_REGISTER_SIZE_REAL_ELEMENTS>(&inner_neighborhood.j_[n], vel_);
+				auto vel_iv = VecBatchSph<2>({ vel_i[0] }, { vel_i[1] });
+				auto vel_v = LoadIndirectVecBatchSph<SIMD_REGISTER_SIZE_REAL_ELEMENTS>(&inner_neighborhood.j_[n], vel_);
 				auto Vol_v = LoadIndirectSingleBatchSph<SIMD_REGISTER_SIZE_REAL_ELEMENTS>(&inner_neighborhood.j_[n], Vol_);
 				auto r_ij_v = xsimd::load_unaligned(&inner_neighborhood.r_ij_[n]);
 				auto dW_ij_v = xsimd::load_unaligned(&inner_neighborhood.dW_ij_[n]);
@@ -170,20 +170,20 @@ namespace SPH
 			const Real rho_i = rho_[index_i];
 			const Vecd& vel_i = vel_[index_i];
 			const Neighborhood& inner_neighborhood = inner_configuration_[index_i];
-			const auto vel_iv = VecdBatchSph({ vel_i[0] }, { vel_i[1] });
+			const auto vel_iv = VecBatchSph<2>({ vel_i[0] }, { vel_i[1] });
 
 			const std::size_t num_iter_simd = inner_neighborhood.current_size_ -
 				inner_neighborhood.current_size_ % SIMD_REGISTER_SIZE_REAL_ELEMENTS;
 
-			VecdBatchSph acceleration_v;
-			InitWithDefaultValueVecdBatch(0.0, acceleration_v);
+			VecBatchSph<2> acceleration_v;
+			InitWithDefaultValueVecBatch(0.0, acceleration_v);
 
 			// Vectorized loop
 			for (size_t n = 0; n < num_iter_simd; n += SIMD_REGISTER_SIZE_REAL_ELEMENTS)
 			{
-				auto vel_v = LoadIndirectVecdBatchSph<SIMD_REGISTER_SIZE_REAL_ELEMENTS>(&inner_neighborhood.j_[n], vel_);
+				auto vel_v = LoadIndirectVecBatchSph<SIMD_REGISTER_SIZE_REAL_ELEMENTS>(&inner_neighborhood.j_[n], vel_);
 				auto Vol_v = LoadIndirectSingleBatchSph<SIMD_REGISTER_SIZE_REAL_ELEMENTS>(&inner_neighborhood.j_[n], Vol_);
-				auto e_ij_v = LoadDirectVecdBatchSph<SIMD_REGISTER_SIZE_REAL_ELEMENTS>(n, inner_neighborhood.e_ij_);
+				auto e_ij_v = LoadDirectVecBatchSph<SIMD_REGISTER_SIZE_REAL_ELEMENTS>(n, inner_neighborhood.e_ij_);
 				auto r_ij_v = xsimd::load_unaligned(&inner_neighborhood.r_ij_[n]);
 				auto dW_ij_v = xsimd::load_unaligned(&inner_neighborhood.dW_ij_[n]);
 

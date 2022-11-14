@@ -124,6 +124,9 @@ namespace SPH
 
 				acceleration_v[0] = acceleration_v[0] + 2 * mu_ / rho_i * vel_derivative_v[0] * Vol_v * dW_ij_v;
 				acceleration_v[1] = acceleration_v[1] + 2 * mu_ / rho_i * vel_derivative_v[1] * Vol_v * dW_ij_v;
+
+				// TODO:
+				//acceleration_v = acceleration_v + vel_derivative_v * Vol_v * dW_ij_v * (2 * mu_ / rho_i);
 			}
 
 			// Scalar loop
@@ -188,16 +191,13 @@ namespace SPH
 				auto dW_ij_v = xsimd::load_unaligned(&inner_neighborhood.dW_ij_[n]);
 
 				auto vel_i_sub_vel_v = (vel_iv - vel_v);
-				auto r_ij_mul_e_ij_vx = r_ij_v * e_ij_v[0];
-				auto r_ij_mul_e_ij_vy = r_ij_v * e_ij_v[1];
+				auto r_ij_mul_e_ij_v = r_ij_v * e_ij_v;
 
 				// Dot product: (vel_iv - vel_v) & r_ij_v * e_ij_v
-				auto v_r_ij_v = vel_i_sub_vel_v[0] * r_ij_mul_e_ij_vx + vel_i_sub_vel_v[1] * r_ij_mul_e_ij_vy;
+				auto v_r_ij_v = vel_i_sub_vel_v[0] * r_ij_mul_e_ij_v[0] + vel_i_sub_vel_v[1] * r_ij_mul_e_ij_v[1];
 
 				auto eta_ij_v = 8.0 * mu_ * v_r_ij_v / (r_ij_v * r_ij_v + 0.01 * smoothing_length_);
-
-				acceleration_v[0] = acceleration_v[0] + eta_ij_v * Vol_v / rho_i * dW_ij_v * e_ij_v[0];
-				acceleration_v[1] = acceleration_v[1] + eta_ij_v * Vol_v / rho_i * dW_ij_v * e_ij_v[1];
+				acceleration_v = acceleration_v + eta_ij_v * Vol_v / rho_i * dW_ij_v * e_ij_v;
 			}
 
 			// Scalar loop

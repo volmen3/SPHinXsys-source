@@ -31,7 +31,7 @@ namespace SPH
 			: batch(val0, val1, static_cast<Real>(vals)...)
 		{}
 
-		SingleBatchSph(batch o)
+		SingleBatchSph(batch& o)
 			: batch(o)
 		{}
 
@@ -43,7 +43,35 @@ namespace SPH
 	};
 	// Alternatively xsimd::batch can be directly used as an element of SimTK::Vec
 	// using SingleBatchSph = xsimd::batch<Real>;
+
+
+	template <int M>
+	class VecBatchSph : public SimTK::Vec<M, SPH::SingleBatchSph>
+	{
+		static_assert(M == 2 || M == 3, "Only 2- or 3-dimensional vectors of batches are allowed");
+	public:
+		VecBatchSph()
+			: SimTK::Vec<M, SPH::SingleBatchSph>()
+		{}
+
+		explicit VecBatchSph(const E& e)
+			: SimTK::Vec<M, SPH::SingleBatchSph>(e)
+		{}
+
+		VecBatchSph(const E& e0, const E& e1)
+			: SimTK::Vec<M, SPH::SingleBatchSph>(e0, e1)
+		{}
+
+		VecBatchSph(const E& e0, const E& e1, const E& e2)
+			: SimTK::Vec<M, SPH::SingleBatchSph>(e0, e1, e2)
+		{}
+
+		VecBatchSph(const Vec& src)
+			: SimTK::Vec<M, SPH::SingleBatchSph>(src)
+		{}
+	};
 }
+
 
 template <>
 class SimTK::NTraits<SPH::SingleBatchSph>
@@ -104,6 +132,18 @@ public:
     };
 };
 
+template<>
+struct SimTK::NTraits<SPH::SingleBatchSph>::Result<float>
+{
+	typedef Widest<float, float>::Type Mul; typedef Mul Dvd; typedef Mul Add; typedef Mul Sub;
+};
+
+template<>
+struct SimTK::NTraits<SPH::SingleBatchSph>::Result<double>
+{
+	typedef Widest<double, double>::Type Mul; typedef Mul Dvd; typedef Mul Add; typedef Mul Sub;
+};
+
 template <>
 struct SimTK::Widest<SPH::SingleBatchSph, SPH::SingleBatchSph>
 {
@@ -123,31 +163,41 @@ struct SimTK::NTraits<SPH::SingleBatchSph>::Result<SPH::SingleBatchSph>
 template <>
 class SimTK::CNT<SPH::SingleBatchSph> : public SimTK::NTraits<SPH::SingleBatchSph> {};
 
-template <int M>
-class VecBatchSph : public SimTK::Vec<M, SPH::SingleBatchSph>
-{
-	static_assert(M == 2 || M == 3, "Only 2- or 3-dimensional vectors of batches are allowed");
-public:
-	VecBatchSph()
-		: SimTK::Vec<M, SPH::SingleBatchSph>()
-	{}
 
-	explicit VecBatchSph(const E& e)
-		: SimTK::Vec<M, SPH::SingleBatchSph>(e)
-	{}
+// Multiplication for SPH::VecBatchSph
+inline SPH::VecBatchSph<2> operator*(const SPH::VecBatchSph<2>& l, const SPH::SingleBatchSph& r)
+{ return SPH::VecBatchSph<2>(l[0] * r, l[1] * r); }
+inline SPH::VecBatchSph<2> operator*(const SPH::SingleBatchSph& l, const SPH::VecBatchSph<2>& r)
+{ return r * l; }
 
-	VecBatchSph(const E& e0, const E& e1)
-		: SimTK::Vec<M, SPH::SingleBatchSph> (e0, e1)
-	{}
+inline SPH::VecBatchSph<3> operator*(const SPH::VecBatchSph<3>& l, const SPH::SingleBatchSph& r)
+{ return SPH::VecBatchSph<3>(l[0] * r, l[1] * r, l[2] * r); }
+inline SPH::VecBatchSph<3> operator*(const SPH::SingleBatchSph& l, const SPH::VecBatchSph<3>& r)
+{ return r * l;}
 
-	VecBatchSph(const E& e0, const E& e1, const E& e2)
-		: SimTK::Vec<M, SPH::SingleBatchSph>(e0, e1, e2)
-	{}
+inline SPH::VecBatchSph<2> operator*(const SPH::VecBatchSph<2>& l, const double& r)
+{ return SPH::VecBatchSph<2>(l[0] * r, l[1] * r); }
+inline SPH::VecBatchSph<2> operator*(const double& l, const SPH::VecBatchSph<2>& r)
+{ return r * l; }
 
-	VecBatchSph(const Vec& src)
-		: SimTK::Vec<M, SPH::SingleBatchSph>(src)
-	{}
-};
+inline SPH::VecBatchSph<3> operator*(const SPH::VecBatchSph<3>& l, const double& r)
+{ return SPH::VecBatchSph<3>(l[0] * r, l[1] * r, l[2] * r); }
+inline SPH::VecBatchSph<3> operator*(const double& l, const SPH::VecBatchSph<3>& r)
+{ return r * l; }
+
+// Division for SPH::VecBatchSph
+inline SPH::VecBatchSph<2> operator/(const SPH::VecBatchSph<2>& l, const SPH::SingleBatchSph& r)
+{ return SPH::VecBatchSph<2>(l[0] / r, l[1] / r); }
+
+inline SPH::VecBatchSph<3> operator/(const SPH::VecBatchSph<3>& l, const SPH::SingleBatchSph& r)
+{ return SPH::VecBatchSph<3>(l[0] / r, l[1] / r, l[2] / r); }
+
+inline SPH::VecBatchSph<2> operator/(const SPH::VecBatchSph<2>& l, const double& r)
+{ return SPH::VecBatchSph<2>(l[0] / r, l[1] / r); }
+
+inline SPH::VecBatchSph<3> operator/(const SPH::VecBatchSph<3>& l, const double& r)
+{ return SPH::VecBatchSph<3>(l[0] / r, l[1] / r, l[2] / r); }
+
 
 namespace SPH
 {
